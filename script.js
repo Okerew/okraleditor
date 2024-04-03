@@ -125,6 +125,7 @@ function searchCode(event) {
 }
 
 function addTab() {
+  const currentTheme = editor.getTheme();
   const newTab = document.createElement("button");
   newTab.className = "tab";
   newTab.textContent = `Tab ${
@@ -151,6 +152,7 @@ function addTab() {
   newEditor.container.style.fontFamily = "monospace";
 
   newEditor.container.id = editorId;
+  
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
   newTab.setAttribute("data-language", language);
@@ -160,6 +162,16 @@ function addTab() {
   document.body.appendChild(newEditor.container);
 
   switchToTab({ target: newTab });
+  const isDarkTheme = currentTheme === "ace/theme/monokai";
+  const newTheme = isDarkTheme ? "ace/theme/monokai" : "ace/theme/chrome";
+  newEditor.setTheme(newTheme);
+  const backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+  const textColor = isDarkTheme ? "#dddddd" : "#000000";
+
+  document.querySelectorAll(".tab").forEach(function(tab) {
+    tab.style.backgroundColor = backgroundColor;
+    tab.style.color = textColor;
+  });
 }
 
 function switchToTab(event) {
@@ -211,7 +223,7 @@ setTimeout(function () {
   document.getElementById("hideDiv").style.display = "none";
 }, 5000);
 
-function toggleTheme() {
+function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =
     currentTheme === "ace/theme/chrome"
@@ -282,3 +294,18 @@ function toggleTheme() {
     editorElement.classList.toggle("light-text", !isDarkTheme);
   }
 }
+
+function setLanguageForActiveTab() {
+  const languageSelect = document.getElementById("language-select");
+  const selectedLanguage = languageSelect.value;
+  
+  const activeTab = document.querySelector(".tab.active");
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  activeEditor.session.setMode("ace/mode/" + selectedLanguage);
+}
+
+const languageDropdown = document.getElementById("language-select");
+languageSelect.addEventListener("change", setLanguageForActiveTab);
+
+setLanguageForActiveTab();
