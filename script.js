@@ -1,4 +1,3 @@
-const editors = {};
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
 editor.session.setMode("ace/mode/javascript");
@@ -283,3 +282,12 @@ function toggleTheme() {
     editorElement.classList.toggle("light-text", !isDarkTheme);
   }
 }
+
+function okbot() {
+        var x = document.getElementById("okbot");
+        if (x.style.display === "block") {
+          x.style.display = "none";
+        } else {
+          x.style.display = "block";
+        }
+      }
