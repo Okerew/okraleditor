@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-app.name = 'Okral Editor';
+app.name = 'Okral Code Editor';
 
 function loadExtensions() {
     const extensionsDir = path.join(__dirname, 'extensions');
