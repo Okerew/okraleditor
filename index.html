@@ -3,30 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Okral Editor</title>
+    <title>Okral Code Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ext-language_tools.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-javascript.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-python.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-rust.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-html.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-css.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-java.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-php.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-c_cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-markdown.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-sql.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-csharp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/mode-ruby.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/worker-javascript.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+    />
   </head>
   <body>
     <div class="navbar">
       <select id="language-select">
-        <option value="">Select a language</option>
+        <option value="text">Select a language</option>
         <option value="python">Python</option>
         <option value="rust">Rust</option>
         <option value="javascript">JavaScript</option>
@@ -39,27 +30,49 @@
         <option value="csharp">C#</option>
         <option value="ruby">Ruby</option>
         <option value="markdown">Markdown</option>
+        <option value="dockerfile">Docker File</option>
       </select>
-
-      <input type="file" id="fileInput" accept="" onchange="openFile(event)" />
-      <button onclick="saveFile()">Save File</button>
+      <button onclick="fileOps()">File</button>
       <a href="https://okral.glitch.me">Go back</a>
-      <input
-        class="sc"
-        type="text"
-        id="searchInput"
-        placeholder="Search code..."
-      />
-      <button onclick="toggleTheme()">Darmode/Lightmode</button>
+      <button onclick="openSettings()">Settings</button>
     </div>
     <h1>Okral Code Editor</h1>
     <div id="hideDiv">
-      <p>Click add tab to start coding</p>
+      <p>
+        Click add tab to start coding. You can add cursors with holding down,
+        {ctrl} and clicking where you want to place a cursor,
+        To acces the the command panel click {F1} 
+      </p>
+      <a href="https://github.com/Okerew/okraleditor"
+        >Download Desktop Version</a
+      >
     </div>
     <div class="tabBar" id="tabBar">
       <button id="closeActiveTab">Close Active Tab</button>
       <button onclick="addTab()">Add Tab</button>
     </div>
     <div id="editor"></div>
+    <div id="settingsModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeSettings()">&times;</span>
+        <h2>Settings</h2>
+        <label>Darkmode/Lightmode</label>
+        <button onclick="toggleTheme()">Toggle</button>
+        <br /><br />
+        <a href="https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts">Keybinds</a>
+      </div>
+    </div>
+    <div id="fileModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closefileOps()">&times;</span>
+        <input
+          type="file"
+          id="fileInput"
+          accept=""
+          onchange="openFile(event)"
+        />
+        <button onclick="saveFile()">Save File</button>
+      </div>
+    </div>
   </body>
 </html>
