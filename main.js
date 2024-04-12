@@ -55,6 +55,15 @@ app.whenReady().then(() => {
                     click: selectExtensionsDirectory
                 },
                 {
+                    label: 'Developer Tools',
+                    click: () => {
+                        const focusedWindow = BrowserWindow.getFocusedWindow();
+                        if (focusedWindow) {
+                            focusedWindow.webContents.openDevTools();
+                        }
+                    }
+                },
+                {
                     label: 'Quit',
                     click: () => app.quit()
                 }
