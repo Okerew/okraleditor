@@ -61,7 +61,7 @@ function openFile(event) {
 
     document.body.appendChild(newEditor.container);
 
-    switchToTab({ target: newTab });
+    switchToTab({target: newTab});
   };
 
   reader.readAsText(file);
@@ -74,7 +74,7 @@ function saveFile() {
 
   const code = editor.env.editor.getValue();
 
-  const blob = new Blob([code], { type: "text/plain" });
+  const blob = new Blob([code], {type: "text/plain"});
 
   const fileName = activeTab.textContent.trim();
   if (!fileName) {
@@ -99,37 +99,12 @@ function saveFile() {
   reader.readAsDataURL(blob);
 }
 
-const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("input", searchCode);
-
-function searchCode(event) {
-  const searchText = searchInput.value;
-
-  if (searchText.length === 0) {
-    document.querySelectorAll(".ace_editor").forEach(function (editorInstance) {
-      ace.edit(editorInstance).find.clearHighlights();
-    });
-    return;
-  }
-
-  const activeTab = document.querySelector(".tab.active");
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  activeEditor.find(searchText, {
-    wrap: true,
-    backwards: false,
-    regExp: false,
-    caseSensitive: false,
-    wholeWord: false,
-  });
-}
-
 function addTab() {
   const currentTheme = editor.getTheme();
   const newTab = document.createElement("button");
   newTab.className = "tab";
   newTab.textContent = `Tab ${
-    document.getElementsByClassName("tab").length + 1
+      document.getElementsByClassName("tab").length + 1
   }`;
   const editorId = `editor${Date.now()}`;
   newTab.setAttribute("data-editor-id", editorId);
@@ -152,7 +127,7 @@ function addTab() {
   newEditor.container.style.fontFamily = "monospace";
 
   newEditor.container.id = editorId;
-  
+
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
   newTab.setAttribute("data-language", language);
@@ -161,14 +136,14 @@ function addTab() {
   });
   document.body.appendChild(newEditor.container);
 
-  switchToTab({ target: newTab });
+  switchToTab({target: newTab});
   const isDarkTheme = currentTheme === "ace/theme/monokai";
   const newTheme = isDarkTheme ? "ace/theme/monokai" : "ace/theme/chrome";
   newEditor.setTheme(newTheme);
   const backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
   const textColor = isDarkTheme ? "#dddddd" : "#000000";
 
-  document.querySelectorAll(".tab").forEach(function(tab) {
+  document.querySelectorAll(".tab").forEach(function (tab) {
     tab.style.backgroundColor = backgroundColor;
     tab.style.color = textColor;
   });
@@ -178,14 +153,14 @@ function switchToTab(event) {
   const tab = event.target;
 
   document
-    .querySelectorAll(".tab.active")
-    .forEach((tab) => tab.classList.remove("active"));
+      .querySelectorAll(".tab.active")
+      .forEach((tab) => tab.classList.remove("active"));
 
   tab.classList.add("active");
 
   document
-    .querySelectorAll(".ace_editor")
-    .forEach((editor) => (editor.style.display = "none"));
+      .querySelectorAll(".ace_editor")
+      .forEach((editor) => (editor.style.display = "none"));
 
   const activeEditor = ace.edit(tab.getAttribute("data-editor-id"));
   activeEditor.container.style.display = "block";
@@ -205,30 +180,26 @@ function closeTab(event) {
   if (tab.classList.contains("active")) {
     const nextTab = tab.nextElementSibling || tabBar.firstChild;
     if (nextTab) {
-      switchToTab({ target: nextTab });
+      switchToTab({target: nextTab});
     }
   }
 }
 
 document
-  .getElementById("closeActiveTab")
-  .addEventListener("click", function () {
-    const activeTab = document.querySelector(".tab.active");
-    if (activeTab) {
-      closeTab({ target: activeTab });
-    }
-  });
-
-setTimeout(function () {
-  document.getElementById("hideDiv").style.display = "none";
-}, 5000);
+    .getElementById("closeActiveTab")
+    .addEventListener("click", function () {
+      const activeTab = document.querySelector(".tab.active");
+      if (activeTab) {
+        closeTab({target: activeTab});
+      }
+    });
 
 function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =
-    currentTheme === "ace/theme/chrome"
-      ? "ace/theme/monokai"
-      : "ace/theme/chrome";
+      currentTheme === "ace/theme/chrome"
+          ? "ace/theme/monokai"
+          : "ace/theme/chrome";
 
   const editorInstances = document.querySelectorAll(".ace_editor");
   for (const editorInstance of editorInstances) {
@@ -282,7 +253,7 @@ function toggleTheme(theme) {
   for (const h1Element of h1Elements) {
     h1Element.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
-  
+
   const aElements = document.querySelectorAll("a");
   for (const aElement of aElements) {
     aElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
@@ -293,12 +264,17 @@ function toggleTheme(theme) {
     editorElement.classList.toggle("dark-text", isDarkTheme);
     editorElement.classList.toggle("light-text", !isDarkTheme);
   }
+  const modalElements = document.querySelectorAll(".modal-content");
+  for (const modalElement of modalElements) {
+    modalElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+
+  }
 }
 
 function setLanguageForActiveTab() {
   const languageSelect = document.getElementById("language-select");
   const selectedLanguage = languageSelect.value;
-  
+
   const activeTab = document.querySelector(".tab.active");
   const editorId = activeTab.getAttribute("data-editor-id");
   const activeEditor = ace.edit(editorId);
@@ -308,5 +284,58 @@ function setLanguageForActiveTab() {
 const languageDropdown = document.getElementById("language-select");
 languageSelect.addEventListener("change", setLanguageForActiveTab);
 
-
 setLanguageForActiveTab();
+
+function openSettings() {
+  document.getElementById("settingsModal").style.display = "block";
+}
+
+function closeSettings() {
+  document.getElementById("settingsModal").style.display = "none";
+}
+
+function fileOps() {
+  document.getElementById("fileModal").style.display = "block";
+}
+
+function closefileOps() {
+  document.getElementById("fileModal").style.display = "none";
+}
+
+function executeHtmlCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const htmlCode = activeEditor.getValue();
+
+  const resultDiv = document.createElement("div");
+
+  resultDiv.innerHTML = htmlCode;
+
+  const outputContainer = document.getElementById("output-container");
+  outputContainer.innerHTML = "";
+
+  outputContainer.appendChild(resultDiv);
+}
+
+function runCode() {
+  document.getElementById("runModal").style.display = "block";
+}
+
+function closeRunCode() {
+  document.getElementById("runModal").style.display = "none";
+}
+
+function htmlOutput() {
+  var x = document.getElementById("output-container");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
