@@ -339,3 +339,21 @@ function htmlOutput() {
     x.style.display = "none";
   }
 }
+
+function executeJavaScriptCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const jsCode = activeEditor.getValue();
+
+  try {
+    eval(jsCode);
+  } catch (error) {
+    console.error('Error executing JavaScript code:', error);
+  }
+}
