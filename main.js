@@ -1,16 +1,16 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-app.name = 'Okral Code Editor';
+app.name = 'Okral Editor';
 
-function loadExtensions() {
-    const extensionsDir = path.join(__dirname, 'extensions');
+let extensionsDir = path.join(__dirname, 'extensions');
 
+function loadExtensions(extensionsPath) {
     try {
-        fs.readdirSync(extensionsDir).forEach(file => {
+        fs.readdirSync(extensionsPath).forEach(file => {
             if (file.endsWith('.js')) {
-                const filePath = path.join(extensionsDir, file);
+                const filePath = path.join(extensionsPath, file);
                 require(filePath);
                 console.log(`Loaded extension script: ${file}`);
             }
@@ -41,6 +41,42 @@ app.on('window-all-closed', () => {
 });
 
 app.whenReady().then(() => {
-    loadExtensions();
+    loadExtensions(extensionsDir);
+
     createWindow();
+
+    // Create menu
+    const menu = Menu.buildFromTemplate([
+        {
+            label: 'Extensions',
+            submenu: [
+                {
+                    label: 'Select Extensions Directory',
+                    click: selectExtensionsDirectory
+                },
+                {
+                    label: 'Quit',
+                    click: () => app.quit()
+                }
+            ]
+        }
+    ]);
+
+    Menu.setApplicationMenu(menu);
 });
+
+function selectExtensionsDirectory() {
+    // Ask the user to select the extensions directory
+    dialog.showOpenDialog({
+        properties: ['openDirectory']
+    }).then(result => {
+        if (!result.canceled && result.filePaths.length > 0) {
+            extensionsDir = result.filePaths[0];
+            loadExtensions(extensionsDir);
+        } else {
+            console.log('Extension directory selection canceled.');
+        }
+    }).catch(error => {
+        console.error('Error selecting extension directory:', error);
+    });
+}
