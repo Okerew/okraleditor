@@ -66,7 +66,6 @@ app.whenReady().then(() => {
 });
 
 function selectExtensionsDirectory() {
-    // Ask the user to select the extensions directory
     dialog.showOpenDialog({
         properties: ['openDirectory']
     }).then(result => {
