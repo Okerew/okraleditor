@@ -48,7 +48,7 @@ app.whenReady().then(() => {
     // Create menu
     const menu = Menu.buildFromTemplate([
         {
-            label: 'Extensions',
+            label: 'Okral Code Editor',
             submenu: [
                 {
                     label: 'Select Extensions Directory',
