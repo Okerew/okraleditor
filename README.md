@@ -12,3 +12,5 @@ How to add extensions to the electron app
             └── exmplibrary.js
 -------------------------------------------------------------
 Or you can just select a folder for extensions in the tooltip of the app
+------------------
+Advantages of dekstop version - works offline, has extension support and running support
