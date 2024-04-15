@@ -121,6 +121,7 @@ button {
   border: 1px solid #cccccc;
   width:98%;
   margin: auto;
+  border-radius: 5px; 
 }
 
 
@@ -147,6 +148,7 @@ button {
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
+  border-radius: 8px; 
 }
 
 .close {
