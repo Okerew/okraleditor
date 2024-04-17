@@ -357,3 +357,31 @@ function executeJavaScriptCode() {
     console.error('Error executing JavaScript code:', error);
   }
 }
+
+
+function runMarkdown() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  const editorValue = activeEditor.getValue();
+
+  const convertedHtml = convertToHtml(editorValue);
+
+  const resultDiv = document.createElement("div");
+  resultDiv.innerHTML = convertedHtml;
+
+  const outputContainer = document.getElementById("output-container");
+  outputContainer.innerHTML = "";
+  outputContainer.appendChild(resultDiv);
+}
+
+function convertToHtml(markdown) {
+  return markdown
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
+      .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
