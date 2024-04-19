@@ -1,4 +1,4 @@
-{% youtube lzEDh7Y17rY %}
+<iframe width="560" height="315" src="https://www.youtube.com/embed/lzEDh7Y17rY?si=MjNW20GAEFmVC5Uo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
