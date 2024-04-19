@@ -1,4 +1,4 @@
-[![Watch the video](https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543)](https://youtu.be/lzEDh7Y17rY)
+{% youtube lzEDh7Y17rY %}
 
 Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
