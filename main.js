@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, Menu } = require('electron');
+const { app, BrowserWindow, dialog, Menu, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -27,7 +27,7 @@ function createWindow() {
         webPreferences: {
             contextIsolation: true,
             sandbox: true,
-            preload: 'preload.js',
+            preload: path.join(__dirname, 'preload.js'),
         }
     });
 
@@ -45,7 +45,6 @@ app.whenReady().then(() => {
 
     createWindow();
 
-    // Create menu
     const menu = Menu.buildFromTemplate([
         {
             label: 'Okral Code Editor',
@@ -55,19 +54,70 @@ app.whenReady().then(() => {
                     click: selectExtensionsDirectory
                 },
                 {
-                    label: 'Developer Tools',
-                    click: () => {
-                        const focusedWindow = BrowserWindow.getFocusedWindow();
-                        if (focusedWindow) {
-                            focusedWindow.webContents.openDevTools();
-                        }
-                    }
-                },
-                {
                     label: 'Quit',
                     click: () => app.quit()
                 }
             ]
+        },
+        {
+            label: 'Edit',
+            submenu: [
+                {
+                    label : 'Copy',
+                    accelerator: 'CmdOrCtrl+C',
+                    role:"copy"
+                },
+                {
+                    label: 'Paste',
+                    accelerator: 'CmdOrCtrl+V',
+                    role:"paste"
+                },
+                {
+                    label: 'Undo',
+                    accelerator: 'CmdOrCtrl+Z',
+                    role:"undo"
+                },
+                {
+                    label: 'Redo',
+                    accelerator: 'Shift+CmdOrCtrl+Z',
+                    role:"redo"
+                },
+                {
+                    label: 'Cut',
+                    accelerator: 'CmdOrCtrl+X',
+                    role: "cut"
+                }
+            ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            {
+                label: 'ZoomIn',
+                accelerator: 'CmdOrCtrl+=',
+                role:"zoomIn"
+            },
+            {
+              label: 'ZoomOut',
+              accelerator: 'CmdOrCtrl+-',
+              role:"zoomOut"
+            },
+              {
+                  label: 'ZoomReset',
+                  accelerator: 'CmdOrCtrl+0',
+                  role:"resetZoom"
+              },
+              {
+                  label: 'FullScreen',
+                  accelerator: 'F11',
+                  role:"togglefullscreen"
+              },
+              {
+                  label: 'Toggle Developer Tools',
+                  accelerator: 'F12',
+                  role:"toggleDevTools"
+              }
+          ]
         }
     ]);
 
