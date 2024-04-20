@@ -304,3 +304,123 @@ function fileOps() {
 function closefileOps() {
   document.getElementById("fileModal").style.display = "none";
 }
+
+function runCode() {
+  document.getElementById("runModal").style.display = "block";
+}
+
+function closeRunCode() {
+  document.getElementById("runModal").style.display = "none";
+}
+
+function executeJavaScriptCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  const jsCode = activeEditor.getValue();
+
+  try {
+    const executableFunction = new Function(jsCode);
+    executableFunction();
+  } catch (error) {
+    console.error('Error executing JavaScript code:', error);
+  }
+}
+
+function htmlOutput() {
+  var x = document.getElementById("output-container");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+function executeHtmlCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const htmlCode = activeEditor.getValue();
+
+  // Sanitize HTML content
+  const sanitizedHtml = DOMPurify.sanitize(htmlCode);
+
+  const resultDiv = document.createElement("div");
+
+  // Set sanitized HTML content
+  resultDiv.innerHTML = sanitizedHtml;
+
+  const outputContainer = document.getElementById("output-container");
+  outputContainer.innerHTML = "";
+
+  outputContainer.appendChild(resultDiv);
+}
+
+
+function runMarkdown() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  const editorValue = activeEditor.getValue();
+
+  // Sanitize Markdown content before conversion
+  const sanitizedMarkdown = DOMPurify.sanitize(editorValue);
+
+  const convertedHtml = convertToHtml(sanitizedMarkdown);
+
+  const resultDiv = document.createElement("div");
+  resultDiv.innerHTML = convertedHtml;
+
+  const outputContainer = document.getElementById("output-container");
+  outputContainer.innerHTML = "";
+  outputContainer.appendChild(resultDiv);
+}
+
+function convertToHtml(markdown) {
+  const sanitizedMarkdown = markdown
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+  return sanitizedMarkdown
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
+    .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function loadExtensions() {
+    var username = "Okerew"
+    var repoName = "okraleditorlibs"
+    var fileName = prompt("Enter extension name:");
+
+    // Sanitize inputs to prevent injection attacks
+    if (!isValidInput(username) || !isValidInput(repoName) || !isValidFileName(fileName)) {
+        console.error('Invalid input. Please enter valid GitHub username, repository name, and file name.');
+        return;
+    }
+  
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/gh/' + username + '/' + repoName + '/' + fileName + ".js";
+    script.onload = function() {
+        console.log('Extension ' + fileName + ' loaded successfully!');
+    };
+    document.head.appendChild(script);
+}
+
+function isValidInput(input) {
+    var regex = /^[a-zA-Z0-9\-]+$/;
+    return regex.test(input);
+}
+
+function isValidFileName(fileName) {
+    var regex = /^[a-zA-Z0-9\-_\.]+$/; 
+    return regex.test(fileName);
+}
