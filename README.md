@@ -18,7 +18,7 @@ b) whole code is about 700 - 900 lines of code depending on the version that you
 5. You can run it in a browser
 6. The dekstop version is very customizable
 7. It has syntax highlighinh and code complietions built in
-____________________________________________________________
+
 Cons
 1. It doesn't have git support
 2. It doesn't have a built in debugger and terminal
