@@ -47,12 +47,6 @@ h1 {
 h3 {
   color: red;
 }
-
-#errorOutput {
-  color: red;
-  margin-bottom: 10px;
-}
-
 select,
 input[type="file"],
 button {
@@ -80,7 +74,6 @@ input[type="file"] {
 
 button:hover,
 
-
 button:focus,
 a:focus {
   outline: none;
@@ -105,7 +98,7 @@ button {
 }
 
 .navbar a:hover {
-  background-color: #ddd;
+  background-color: #dddddd;
   color: red;
 }
 .sc {
@@ -121,6 +114,7 @@ button {
   border: 1px solid #cccccc; 
   width:98%;
   margin: auto;
+  border-radius: 5px;
 }
 
 
@@ -145,8 +139,9 @@ button {
   background-color: #fefefe;
   margin: 10% auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: 1px solid #888888;
   width: 80%;
+  border-radius: 8px;
 }
 
 .close {
