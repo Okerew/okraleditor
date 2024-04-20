@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, Menu, clipboard } = require('electron');
+const { app, BrowserWindow, dialog, Menu} = require('electron');
 const path = require('path');
 const fs = require('fs');
 
