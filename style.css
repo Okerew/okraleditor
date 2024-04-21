@@ -7,30 +7,9 @@ body {
 }
 
 #editor {
-  font-family: 'Courier New', Courier, monospace; 
-  height: 600px;
-  width: 100%;
-  border: 2px solid #cccccc; 
-  border-radius: 5px; 
-  padding: 10px; 
-  box-sizing: border-box; 
-  line-height: 1.5; 
-  overflow: auto; 
-  resize: vertical;
-  transition: background-color 0.3s, color 0.3s;
-  font-size: 15px;
   display:none;
 }
 
-#editor:hover {
-  background-color: #e0e0e0; 
-  border-color: #999999; 
-}
-
-#editor:focus {
-  outline: none; 
-  border-color: #000000; 
-}
 h1,
 h3,
 p {
