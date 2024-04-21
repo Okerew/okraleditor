@@ -311,22 +311,6 @@ function closeRunCode() {
   document.getElementById("runModal").style.display = "none";
 }
 
-function executeJavaScriptCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  const jsCode = activeEditor.getValue();
-
-  try {
-    const executableFunction = new Function(jsCode);
-    executableFunction();
-  } catch (error) {
-    console.error('Error executing JavaScript code:', error);
-  }
-}
-
 function htmlOutput() {
   var x = document.getElementById("output-container");
   if (x.style.display === "none") {
@@ -399,7 +383,7 @@ function loadExtensions() {
     var fileName = prompt("Enter extension name:");
 
     // Sanitize inputs to prevent injection attacks
-    if (!isValidInput(username) || !isValidInput(repoName) || !isValidFileName(fileName)) {
+    if (!isValidFileName(fileName)) {
         console.error('Invalid input. Please enter valid GitHub username, repository name, and file name.');
         return;
     }
