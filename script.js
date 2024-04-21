@@ -1,11 +1,5 @@
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
-editor.session.setMode("ace/mode/javascript");
-editor.setOptions({
-  enableBasicAutocompletion: true,
-  enableSnippets: true,
-  enableLiveAutocompletion: true,
-});
 
 const languageSelect = document.getElementById("language-select");
 
@@ -54,6 +48,8 @@ function openFile(event) {
     newTab.setAttribute("data-language", extension);
     newEditor.setOptions({
       enableLiveAutocompletion: true,
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
     });
 
     const closeButton = document.createElement("button");
@@ -133,6 +129,8 @@ function addTab() {
   newTab.setAttribute("data-language", language);
   newEditor.setOptions({
     enableLiveAutocompletion: true,
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
   });
   document.body.appendChild(newEditor.container);
 
@@ -361,7 +359,6 @@ function executeHtmlCode() {
 
   outputContainer.appendChild(resultDiv);
 }
-
 
 function runMarkdown() {
   const activeTab = document.querySelector(".tab.active");
