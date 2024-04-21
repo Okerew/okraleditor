@@ -8,7 +8,7 @@ Pros and cons of Okral Code editor
 -----------------------------------
 
 Pros
-1. Light weight - the dekstop version occupies about 100 - 120 mb of ram and the browser version only 20 mb, whole code is about 600 - 850 lines of code depending on the version.
+1. Light weight - the dekstop version occupies about 100 - 120 mb of ram and the browser version only 10 mb, whole code is about 600 - 850 lines of code depending on the version.
 2. Fast and responsive - it has quick respone time
 3. It allows to run js files as extensions
 4. It is opensource
