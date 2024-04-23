@@ -15,6 +15,7 @@ Pros
 5. You can run it in a browser
 6. The dekstop version is very customizable
 7. It has syntax highlighting, code complietions and error handling built in
+8. It has git support
 ______________________________________________________________
 Cons
 1. It doesn't have a built in debugger and terminal
