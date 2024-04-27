@@ -58,6 +58,8 @@ function openFile(event) {
     document.body.appendChild(newEditor.container);
 
     switchToTab({ target: newTab });
+    toggleTheme()
+    toggleTheme()
   };
 
   reader.readAsText(file);
