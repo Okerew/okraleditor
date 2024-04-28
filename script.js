@@ -58,8 +58,8 @@ function openFile(event) {
     document.body.appendChild(newEditor.container);
 
     switchToTab({ target: newTab });
-    toggleTheme()
-    toggleTheme()
+    toggleTheme();
+    toggleTheme();
   };
 
   reader.readAsText(file);
@@ -427,73 +427,6 @@ function isValidFileName(fileName) {
   return regex.test(fileName);
 }
 
-function pushToGithub() {
-  const username = prompt("Enter your GitHub username:");
-  if (!username || !isValidFileName(username)) {
-    console.error("GitHub username not provided.");
-    return;
-  }
-
-  const repo = prompt("Enter the name of your repository:");
-  if (!repo || !isValidFileName(repo)) {
-    console.error("Invalid repository name provided.");
-    return;
-  }
-
-  const token = prompt("Enter your GitHub token:");
-  if (!token || !isValidFileName(token)) {
-    console.error("GitHub token not provided.");
-    return;
-  }
-
-  const filename = prompt("Enter the filename to save as:");
-  if (!filename || !isValidFileName(filename)) {
-    console.error("Filename not provided.");
-    return;
-  }
-
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) {
-    console.error("No active tab found.");
-    return;
-  }
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  const code = activeEditor.getValue();
-
-  const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${encodeURIComponent(
-    filename
-  )}`;
-
-  const data = {
-    message: "Update from Okral Code Editor",
-    content: btoa(unescape(encodeURIComponent(code))),
-    branch: "main",
-  };
-
-  fetch(apiUrl, {
-    method: "PUT",
-    headers: {
-      Authorization: `token ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to push changes to the branch");
-      }
-      console.log("Changes pushed to main branch successfully");
-      alert("Changes pushed to main branch successfully!");
-    })
-    .catch((error) => {
-      console.error("Error pushing changes to main branch:", error);
-      alert(
-        "Error pushing changes to main branch. Please check the console for details."
-      );
-    });
-}
-
 async function loadRepoFiles() {
   const username = prompt("Enter the GitHub username:");
   if (!username || !isValidFileName(username)) {
@@ -551,7 +484,6 @@ async function loadRepoFiles() {
 
         document.getElementById("tabBar").appendChild(newTab);
         document.body.appendChild(newEditor.container);
-
         toggleTheme();
         toggleTheme();
       }
@@ -564,7 +496,7 @@ async function loadRepoFiles() {
   }
 }
 
-function commitToGithub() {
+function pushToGithub() {
   const username = prompt("Enter your GitHub username:");
   if (!username || !isValidFileName(username)) {
     console.error("GitHub username not provided.");
