@@ -551,8 +551,9 @@ async function loadRepoFiles() {
 
         document.getElementById("tabBar").appendChild(newTab);
         document.body.appendChild(newEditor.container);
-        toggleTheme()
-        toggleTheme()
+
+        toggleTheme();
+        toggleTheme();
       }
     }
   } catch (error) {
