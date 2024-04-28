@@ -58,6 +58,8 @@ function openFile(event) {
     document.body.appendChild(newEditor.container);
 
     switchToTab({ target: newTab });
+    toggleTheme()
+    toggleTheme()
   };
 
   reader.readAsText(file);
@@ -549,6 +551,8 @@ async function loadRepoFiles() {
 
         document.getElementById("tabBar").appendChild(newTab);
         document.body.appendChild(newEditor.container);
+        toggleTheme()
+        toggleTheme()
       }
     }
   } catch (error) {
@@ -557,4 +561,143 @@ async function loadRepoFiles() {
       "Error loading repository files. Please check the console for details."
     );
   }
+}
+
+function commitToGithub() {
+  const username = prompt("Enter your GitHub username:");
+  if (!username || !isValidFileName(username)) {
+    console.error("GitHub username not provided.");
+    return;
+  }
+
+  const repo = prompt("Enter the name of your repository:");
+  if (!repo || !isValidFileName(repo)) {
+    console.error("Invalid repository name provided.");
+    return;
+  }
+
+  const token = prompt("Enter your GitHub token:");
+  if (!token || !isValidFileName(token)) {
+    console.error("GitHub token not provided.");
+    return;
+  }
+
+  const filename = prompt("Enter the filename to save as:");
+  if (!filename || !isValidFileName(filename)) {
+    console.error("Filename not provided.");
+    return;
+  }
+
+  const commitMessage = prompt("Enter your commit message:");
+  if (!commitMessage || !isValidFileName(commitMessage)) {
+    console.error("Commit message not provided.");
+    return;
+  }
+
+  const branchName = prompt("Enter the name of the branch to commit to:");
+  if (!branchName || !isValidFileName(branchName)) {
+    console.error("Branch name not provided.");
+    return;
+  }
+
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) {
+    console.error("No active tab found.");
+    return;
+  }
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  const code = activeEditor.getValue();
+
+  const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${encodeURIComponent(
+    filename
+  )}`;
+
+  const data = {
+    message: commitMessage,
+    content: btoa(unescape(encodeURIComponent(code))),
+    branch: branchName,
+  };
+
+  fetch(apiUrl, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to push changes to the branch");
+      }
+      console.log("Changes pushed to branch successfully");
+      alert("Changes pushed to branch successfully!");
+    })
+    .catch((error) => {
+      console.error("Error pushing changes to branch:", error);
+      alert(
+        "Error pushing changes to branch. Please check the console for details."
+      );
+    });
+}
+
+function mergeBranches() {
+  const username = prompt("Enter your GitHub username:");
+  if (!username || !isValidFileName(username)) {
+    console.error("GitHub username not provided.");
+    return;
+  }
+
+  const repo = prompt("Enter the name of your repository:");
+  if (!repo || !isValidFileName(repo)) {
+    console.error("Repository name not provided.");
+    return;
+  }
+
+  const baseBranch = prompt("Enter the name of the base branch:");
+  if (!baseBranch || !isValidFileName(baseBranch)) {
+    console.error("Base branch name not provided.");
+    return;
+  }
+
+  const headBranch = prompt("Enter the name of the branch to merge:");
+  if (!headBranch || !isValidFileName(headBranch)) {
+    console.error("Head branch name not provided.");
+    return;
+  }
+
+  const token = prompt("Enter your GitHub token:");
+  if (!token || !isValidFileName(token)) {
+    console.error("GitHub token not provided.");
+    return;
+  }
+
+  const apiUrl = `https://api.github.com/repos/${username}/${repo}/merges`;
+
+  const data = {
+    base: baseBranch,
+    head: headBranch,
+    commit_message: "Merge branch",
+  };
+
+  fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `token ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to merge branches");
+      }
+      console.log("Branches merged successfully");
+      alert("Branches merged successfully!");
+    })
+    .catch((error) => {
+      console.error("Error merging branches:", error);
+      alert("Error merging branches. Please check the console for details.");
+    });
 }

@@ -32,6 +32,7 @@
         <option value="ruby">Ruby</option>
         <option value="markdown">Markdown</option>
         <option value="dockerfile">Docker File</option>
+        <option value="json">JSON</option>
       </select>
       <button onclick="fileOps()">File</button>
       <a href="https://okral.glitch.me">Go back</a>
@@ -100,9 +101,19 @@
         <span class="close" onclick="closeGitOps()">&times;</span>
         <label>Git</label>
         <button onclick="pushToGithub()">Push</button>
-        <br /><br />
+        <br><br>
         <label>Git</label>
         <button onclick="loadRepoFiles()">Clone</button>
+        <br><br>
+        <label>Git</label>
+        <button onclick="commitToGithub()">
+          Commit
+        </button>
+        <br><br>
+        <label>Git</label>
+        <button onclick="mergeBranches()">
+          Merge
+        </button>
       </div>
     </div>
     <div id="output-container"></div>
