@@ -634,3 +634,19 @@ function mergeBranches() {
       alert("Error merging branches. Please check the console for details.");
     });
 }
+
+function executeCodeInWorker() {
+  
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  const jsCode = activeEditor.getValue();
+
+  const worker = new Worker('worker.js');
+
+  worker.postMessage({ jsCode, editorId });
+}
