@@ -1,2 +1,3 @@
 //this is an example config file
-toggleTheme()
+//toggleTheme()
+console.log("Config loaded");
