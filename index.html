@@ -1,113 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Okral Code Editor</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ext-language_tools.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.js"></script>
-    <script src="/script.js" defer></script>
-    <link rel="stylesheet" href="style.css" />
-    <link
-      rel="icon"
-      href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Okral Code Editor</title>
+  <script src="libs/ace-builds-1.5.0/src/ace.js"></script>
+  <script src="libs/ace-builds-1.5.0/src/ext-language_tools.js"></script>
+  <script src="libs/FileSaver.min.js"></script>
+  <script src="web_sources/script.js" defer></script>
+  <link rel="stylesheet" href="web_sources/style.css" />
+  <link
+          rel="icon"
+          href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+  />
+</head>
+<body>
+<div class="navbar">
+  <select id="language-select">
+    <option value="text">Select a language</option>
+    <option value="javascript">JavaScript</option>
+    <option value="html">HTML</option>
+    <option value="css">CSS</option>
+    <option value="php">PHP</option>
+    <option value="sql">SQL</option>
+    <option value="markdown">Markdown</option>
+    <option value="dockerfile">Docker File</option>
+    <option value="json">JSON</option>
+  </select>
+  <button onclick="runCode()">Run</button>
+  <button onclick="fileOps()">File</button>
+  <button onclick="openSettings()">Settings</button>
+  <button onclick="gitOps()">Git</button>
+</div>
+<br>
+<div class="tabBar" id="tabBar">
+  <button id="closeActiveTab">Close Active Tab</button>
+  <button onclick="addTab()">Add Tab</button>
+</div>
+<div id="editor"></div>
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeSettings()">&times;</span>
+    <h2>Settings</h2>
+    <label>Darkmode/Lightmode</label>
+    <button onclick="toggleTheme()">Toggle</button>
+  </div>
+</div>
+<div id="fileModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closefileOps()">&times;</span>
+    <input
+            type="file"
+            id="fileInput"
+            accept=""
+            onchange="openFile(event)"
     />
-  </head>
-  <body>
-    <div class="navbar">
-      <select id="language-select">
-        <option value="text">Select a language</option>
-        <option value="javascript">JavaScript</option>
-        <option value="html">HTML</option>
-        <option value="css">CSS</option>
-        <option value="php">PHP</option>
-        <option value="sql">SQL</option>
-        <option value="markdown">Markdown</option>
-        <option value="dockerfile">Docker File</option>
-        <option value="json">JSON</option>
-      </select>
-      <button onclick="fileOps()">File</button>
-      <a href="https://okral.glitch.me">Go back</a>
-      <button onclick="openSettings()">Settings</button>
-      <button onclick="runCode()">Run</button>
-      <button onclick="gitOps()">Git</button>
-      <button onclick="loadExtensions()">Load extension</button>
-    </div>
-    <h1>Okral Code Editor</h1>
-    <div id="hideDiv">
-      <p>
-        You can add cursors with holding down, {ctrl} and clicking where you
-        want to place a cursor,
-        <br />
-        To acces the the command panel click {F1}, To see js script executed
-        open console
-      </p>
-      <a href="https://github.com/Okerew/okraleditor"
-        >Download Desktop Version</a
-      >
-    </div>
-    <div class="tabBar" id="tabBar">
-      <button id="closeActiveTab">Close Active Tab</button>
-      <button onclick="addTab()">Add Tab</button>
-    </div>
-    <div id="editor"></div>
-    <div id="settingsModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeSettings()">&times;</span>
-        <h2>Settings</h2>
-        <label>Darkmode/Lightmode</label>
-        <button onclick="toggleTheme()">Toggle</button>
-        <br /><br />
-        <a href="https://github.com/Okerew/okraleditor/wiki/Keybinds"
-          >Keybinds</a
-        >
-      </div>
-    </div>
-    <div id="fileModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closefileOps()">&times;</span>
-        <input
-          type="file"
-          id="fileInput"
-          accept=""
-          onchange="openFile(event)"
-        />
-        <button onclick="saveFile()">Save</button>
-      </div>
-    </div>
-    <div id="runModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeRunCode()">&times;</span>
-        <label>HTML</label>
-        <button onclick="executeHtmlCode()">Run</button>
-        <br /><br />
-        <label>Show/Hide</label>
-        <button onclick="htmlOutput()">Output</button>
-        <br /><br />
-        <label>Markdown</label>
-        <button onclick="runMarkdown()">Run</button>
-        <br><br>
-        <label>JavaScript</label>
-        <button onclick="executeCodeInWorker()">
-          Run
-        </button>
-      </div>
-    </div>
-    <div id="gitModal" class="modal">
+    <button onclick="saveFile()">Save File</button>
+  </div>
+</div>
+<div id="runModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeRunCode()">&times;</span>
+    <label>HTML</label>
+    <button onclick="executeHtmlCode()">Run</button>
+    <br><br>
+    <label>Show/Hide</label>
+    <button onclick="htmlOutput()">Output</button>
+    <br><br>
+    <label>Javascript</label>
+    <button onclick="executeJavaScriptCode()">Run</button>
+    <br><br>
+    <label>Markdown</label>
+    <button onclick="runMarkdown()">Run</button>
+  </div>
+</div>
+  <div id="gitModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeGitOps()">&times;</span>
         <label>Git</label>
         <button onclick="pushToGithub()">Push</button>
-        <br /><br />
+        <br><br>
         <label>Git</label>
         <button onclick="loadRepoFiles()">Clone</button>
-        <br /><br />
+        <br><br>
         <label>Git</label>
-        <button onclick="mergeBranches()">Merge</button>
+        <button onclick="mergeBranches()">
+          Merge
+        </button>
       </div>
     </div>
-    <div id="output-container"></div>
-  </body>
+<div id="output-container"></div>
+</body>
 </html>

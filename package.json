@@ -1,0 +1,40 @@
+{
+  "name": "okraleditor",
+  "version": "1.0.0",
+  "description": "Code editor created by okerew",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "build": "electron-builder"
+  },
+  "private": true,
+  "author": "Okerew <okerewgroup@proton.me>",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  },
+  "bin": {
+    "okraleditor": "./main.js"
+  },
+  "devDependencies": {
+    "electron": "^29.2.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "me.glitch.okral.okraleditor",
+    "productName": "Okral Code Editor",
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icons/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icons/icon.png"
+    }
+  }
+}
