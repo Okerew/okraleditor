@@ -2,7 +2,7 @@
 
 Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
-To build desktop version yourself download the electron_app branch then  install yarn npm install --global yarn then electron builder yarn add electron-builder --dev then run yarn build
+To build desktop version yourself download the electron_app branch then run setup.py, when prompted for a password on linux/macos enter it.
 ------------------------------------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------
