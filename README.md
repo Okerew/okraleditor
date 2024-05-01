@@ -6,7 +6,7 @@ To build desktop version yourself download the electron_app branch then run setu
 ------------------------------------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------
-#Note it is a web ide although it can serve also as an overall editor wouldn't recommend that though
+#Note it is a designed for web development
 ----------------------------------
 Pros
 1. Light weight - the dekstop version occupies about 100 - 120 mb of ram and the browser version only 20 mb.
