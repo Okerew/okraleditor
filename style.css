@@ -54,7 +54,7 @@ button:hover,
 button:focus,
 a:focus {
   outline: none;
-  box-shadow: 0 0 5px darkgray;
+  box-shadow: 1px 1px 5px darkgray;
 }
 button {
   background-color: #e0e0e0
@@ -94,12 +94,6 @@ button {
   border-radius: 5px;
 }
 
-
-#hideDiv {
-  text-align:center;
-  white-space: nowrap;
-}
-
 /* Styles for the modal */
 .modal {
   display: none;
@@ -137,4 +131,8 @@ select {
 select:hover{
   outline: none;
   box-shadow: 0 0 5px darkgray;
+}
+input{
+  border-radius: 8px;
+  padding: 8px 8px;
 }
