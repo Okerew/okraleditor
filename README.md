@@ -2,7 +2,7 @@
 
 Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
-To build desktop version yourself download the electron_app branch then run setup.py, when prompted for a password on linux/macos enter it.
+To build desktop version yourself download the electron_app or tauri branch then run setup.py.
 ------------------------------------------------------------
 #Note it is a designed for web development
 ----------------------------------
