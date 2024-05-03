@@ -9,27 +9,32 @@
   <script src="libs/FileSaver.min.js"></script>
   <script src="web_sources/script.js" defer></script>
   <link rel="stylesheet" href="web_sources/style.css" />
+  <link
+          rel="icon"
+          href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+  />
 </head>
 <body>
 <div class="navbar">
   <select id="language-select">
-        <option value="text">Select a language</option>
-        <option value="javascript">JavaScript</option>
-        <option value="html">HTML</option>
-        <option value="css">CSS</option>
-        <option value="php">PHP</option>
-        <option value="sql">SQL</option>
-        <option value="markdown">Markdown</option>
-        <option value="dockerfile">Docker File</option>
-        <option value="json">JSON</option>
-        <option value="jsx">JSX</option>
-        <option value="mysql">MySql</option>
-        <option value="graphqlschema">GraphQL</option>
-      </select>
+    <option value="text">Select a language</option>
+    <option value="javascript">JavaScript</option>
+    <option value="html">HTML</option>
+    <option value="css">CSS</option>
+    <option value="php">PHP</option>
+    <option value="sql">SQL</option>
+    <option value="markdown">Markdown</option>
+    <option value="dockerfile">Docker File</option>
+    <option value="json">JSON</option>
+    <option value="jsx">JSX</option>
+    <option value="mysql">MySql</option>
+    <option value="graphqlschema">GraphQL</option>
+  </select>
   <button onclick="runCode()">Run</button>
   <button onclick="fileOps()">File</button>
   <button onclick="openSettings()">Settings</button>
   <button onclick="gitOps()">Git</button>
+  <button onclick="termOps()">Terminal</button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -54,7 +59,10 @@
             accept=""
             onchange="openFile(event)"
     />
+    <br>
     <button onclick="saveFile()">Save File</button>
+    <br>
+    <button id="open-folder">Open Folder</button>
   </div>
 </div>
 <div id="runModal" class="modal">
@@ -88,6 +96,16 @@
         </button>
       </div>
     </div>
+
+<div id="termModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeTermOps()">&times;</span>
+    <div id="terminal"></div>
+  </div>
+</div>
 <div id="output-container"></div>
+<div id="file-explorer"></div>
+<script src="web_sources/folder_renderer.js"></script>
+<script src="terminal/terminal_renderer.js"></script>
 </body>
 </html>
