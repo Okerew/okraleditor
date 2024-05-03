@@ -1,4 +1,3 @@
-//this is a copy of script.js with vim motions
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
 
@@ -270,6 +269,11 @@ function toggleTheme(theme) {
   const modalElements = document.querySelectorAll(".modal-content");
   for (const modalElement of modalElements) {
     modalElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+  }
+  const ulElements = document.querySelectorAll("ul");
+  for (const ulElement of ulElements) {
+     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
 }
 
@@ -627,9 +631,11 @@ function mergeBranches() {
   container.style.display = "block";
 }
 
-function termOps() {
-  document.getElementById("termModal").style.display = "block";
-}
-function closeTermOps() {
-  document.getElementById("termModal").style.display = "none";
+function fileTreeShow() {
+  var x = document.getElementById("file-explorer");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
 }
