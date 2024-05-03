@@ -51,6 +51,7 @@
 </div>
 <div id="fileModal" class="modal">
   <div class="modal-content">
+    <label>Open</label>
     <span class="close" onclick="closefileOps()">&times;</span>
     <input
             type="file"
@@ -59,9 +60,14 @@
             onchange="openFile(event)"
     />
     <br>
-    <button onclick="saveFile()">Save File</button>
+    <label>Save</label>
+    <button onclick="saveFile()">File</button>
     <br>
-    <button id="open-folder">Open Folder</button>
+    <label>Folder</label>
+    <button id="open-folder">Folder</button>
+    <br>
+    <label>File Tree</label>
+    <button onclick="fileTreeShow()">Show/Hide</button>
   </div>
 </div>
 <div id="runModal" class="modal">
@@ -95,6 +101,7 @@
         </button>
       </div>
     </div>
+
 <div id="output-container"></div>
 <div id="file-explorer"></div>
 <script src="web_sources/folder_renderer.js"></script>
