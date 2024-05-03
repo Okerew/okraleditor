@@ -12,7 +12,7 @@ Dependencies:
 Nodejs
 _________________________________
 Pros
-1. Light weight - the dekstop version occupies about 100 - 120 mb of ram and the browser version only 20 mb.
+1. Light weight - the dekstop version occupies about 100 - 120 mb of ram.
 2. Fast and responsive - it has quick respone time
 3. It allows to run js files as extensions
 4. It is opensource
