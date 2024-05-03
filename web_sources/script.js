@@ -622,3 +622,10 @@ function mergeBranches() {
 
   container.style.display = "block";
 }
+
+function termOps() {
+  document.getElementById("termModal").style.display = "block";
+}
+function closeTermOps() {
+  document.getElementById("termModal").style.display = "none";
+}
