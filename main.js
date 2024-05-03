@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, Menu} = require('electron');
+const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -20,32 +20,35 @@ function loadExtensions(extensionsPath) {
     }
 }
 
+// Function to create the main window
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1400,
         height: 950,
         webPreferences: {
-            contextIsolation: true,
-            sandbox: true,
+            contextIsolation: false,
+            sandbox: false,
             preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: true,
         }
     });
 
     mainWindow.loadFile('index.html');
 }
 
+// Quit the app when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
+// When the app is ready
 app.whenReady().then(() => {
     loadExtensions(extensionsDir);
-
     createWindow();
 
-    const menu = Menu.buildFromTemplate([
+    const menuTemplate = [
         {
             label: 'Okral Code Editor',
             submenu: [
@@ -62,65 +65,26 @@ app.whenReady().then(() => {
         {
             label: 'Edit',
             submenu: [
-                {
-                    label : 'Copy',
-                    accelerator: 'CmdOrCtrl+C',
-                    role:"copy"
-                },
-                {
-                    label: 'Paste',
-                    accelerator: 'CmdOrCtrl+V',
-                    role:"paste"
-                },
-                {
-                    label: 'Undo',
-                    accelerator: 'CmdOrCtrl+Z',
-                    role:"undo"
-                },
-                {
-                    label: 'Redo',
-                    accelerator: 'Shift+CmdOrCtrl+Z',
-                    role:"redo"
-                },
-                {
-                    label: 'Cut',
-                    accelerator: 'CmdOrCtrl+X',
-                    role: "cut"
-                }
+                { role: 'copy' },
+                { role: 'paste' },
+                { role: 'undo' },
+                { role: 'redo' },
+                { role: 'cut' }
             ]
         },
         {
-          label: 'View',
-          submenu: [
-            {
-                label: 'ZoomIn',
-                accelerator: 'CmdOrCtrl+=',
-                role:"zoomIn"
-            },
-            {
-              label: 'ZoomOut',
-              accelerator: 'CmdOrCtrl+-',
-              role:"zoomOut"
-            },
-              {
-                  label: 'ZoomReset',
-                  accelerator: 'CmdOrCtrl+0',
-                  role:"resetZoom"
-              },
-              {
-                  label: 'FullScreen',
-                  accelerator: 'F11',
-                  role:"togglefullscreen"
-              },
-              {
-                  label: 'Toggle Developer Tools',
-                  accelerator: 'F12',
-                  role:"toggleDevTools"
-              }
-          ]
+            label: 'View',
+            submenu: [
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { role: 'resetZoom' },
+                { role: 'togglefullscreen' },
+                { role: 'toggleDevTools' }
+            ]
         }
-    ]);
+    ];
 
+    const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 });
 
@@ -138,3 +102,16 @@ function selectExtensionsDirectory() {
         console.error('Error selecting extension directory:', error);
     });
 }
+
+// IPC function to open folder selection dialog
+ipcMain.on('open-folder-dialog', (event) => {
+    dialog.showOpenDialog({
+        properties: ['openDirectory']
+    }).then(result => {
+        if (!result.canceled && result.filePaths.length > 0) {
+            event.reply('selected-folder', result.filePaths[0]);
+        }
+    }).catch(err => {
+        console.error(err);
+    });
+});
