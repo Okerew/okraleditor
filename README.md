@@ -8,7 +8,9 @@ If you want to use vim motions change the import in index.html from script.js to
 ------------------------------------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------
-
+Dependencies:
+Nodejs
+_________________________________
 Pros
 1. Light weight - the dekstop version occupies about 100 - 120 mb of ram and the browser version only 20 mb.
 2. Fast and responsive - it has quick respone time
