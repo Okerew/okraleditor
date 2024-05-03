@@ -19,7 +19,7 @@ Pros
 8. It has git support
 ______________________________________________________________
 Cons
-1. It doesn't have a built in debugger and terminal
+1. It doesn't have a built in terminal
 2. It doesn't have the range of extensions that vscode for example has
 3. It is not that easy to understaund
 4. It is not that easly configurable as something as vscode or intellij
