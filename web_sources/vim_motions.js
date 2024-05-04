@@ -639,3 +639,27 @@ function fileTreeShow() {
     x.style.display = "none";
   }
 }
+
+function loadExtensions() {
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".js";
+
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(event) {
+      var scriptContent = event.target.result;
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.text = scriptContent;
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+    };
+
+    reader.readAsText(file);
+  };
+
+  input.click();
+}
