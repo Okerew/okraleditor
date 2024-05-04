@@ -32,6 +32,7 @@ function openFile(event) {
 
     const extension = file.name.split(".").pop();
     newEditor.session.setMode(`ace/mode/${extension}`);
+    newEditor.setKeyboardHandler("ace/keyboard/vim");
 
     newTab.setAttribute("data-editor-id", editorId);
     newEditor.container.style.width = "99%";
@@ -129,6 +130,7 @@ function addTab() {
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
   newTab.setAttribute("data-language", language);
+  newEditor.setKeyboardHandler("ace/keyboard/vim");
   newEditor.setOptions({
     enableLiveAutocompletion: true,
     enableBasicAutocompletion: true,
@@ -268,6 +270,11 @@ function toggleTheme(theme) {
   for (const modalElement of modalElements) {
     modalElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
   }
+  const ulElements = document.querySelectorAll("ul");
+  for (const ulElement of ulElements) {
+     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+  }
 }
 
 function setLanguageForActiveTab() {
@@ -282,8 +289,6 @@ function setLanguageForActiveTab() {
 
 const languageDropdown = document.getElementById("language-select");
 languageSelect.addEventListener("change", setLanguageForActiveTab);
-
-setLanguageForActiveTab();
 
 function openSettings() {
   document.getElementById("settingsModal").style.display = "block";
@@ -314,97 +319,7 @@ function gitOps() {
 function closeGitOps() {
   document.getElementById("gitModal").style.display = "none";
 }
-function executeJavaScriptCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
 
-  const editorId = activeTab.getAttribute("data-editor-id");
-
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const jsCode = activeEditor.getValue();
-
-  const functionRegex = /function\s+([^\(]+)\(([^)]*)\)\s*{([^]*)}/g;
-
-  let match;
-  while ((match = functionRegex.exec(jsCode)) !== null) {
-    const functionName = match[1];
-    const functionParameters = match[2].split(',').map(param => param.trim());
-    const functionBody = match[3];
-
-    window[functionName] = new Function(...functionParameters, functionBody);
-  }
-
-  try {
-    eval(jsCode);
-  } catch (error) {
-    console.error('Error executing JavaScript code:', error);
-  }
-}
-
-function htmlOutput() {
-  var x = document.getElementById("output-container");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
-
-function executeHtmlCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const htmlCode = activeEditor.getValue();
-
-  const resultDiv = document.createElement("div");
-
-  resultDiv.innerHTML = htmlCode;
-
-  const scripts = resultDiv.querySelectorAll('script');
-  scripts.forEach(script => {
-    const newScript = document.createElement('script');
-    newScript.textContent = script.textContent;
-    document.body.appendChild(newScript);
-  });
-
-  const outputContainer = document.getElementById("output-container");
-  outputContainer.innerHTML = "";
-
-  outputContainer.appendChild(resultDiv);
-}
-
-function runMarkdown() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  const editorValue = activeEditor.getValue();
-
-  const convertedHtml = convertToHtml(editorValue);
-
-  const resultDiv = document.createElement("div");
-  resultDiv.innerHTML = convertedHtml;
-
-  const outputContainer = document.getElementById("output-container");
-  outputContainer.innerHTML = "";
-  outputContainer.appendChild(resultDiv);
-}
-
-function convertToHtml(markdown) {
-  return markdown
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
-      .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
-}
 function createInput(labelText, inputId, container) {
   const label = document.createElement("label");
   label.textContent = labelText;
@@ -468,6 +383,7 @@ async function loadRepoFiles() {
               response.text()
           );
           newEditor.setValue(fileContent);
+          newEditor.setKeyboardHandler("ace/keyboard/vim");
 
           const editorId = `editor-${Date.now()}`;
           newEditor.container.id = editorId;
