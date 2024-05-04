@@ -88,7 +88,7 @@ function openFolderFile(filePath, editorId) {
 
     const newEditor = ace.edit(document.createElement("div"));
     newEditor.setOptions({
-        maxLines: Infinity, // Set max lines to Infinity to accommodate large files
+        maxLines: 38,
         minLines: 38,
     });
     newEditor.container.style.width = "99%";
