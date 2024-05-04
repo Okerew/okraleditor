@@ -290,7 +290,6 @@ function setLanguageForActiveTab() {
 const languageDropdown = document.getElementById("language-select");
 languageSelect.addEventListener("change", setLanguageForActiveTab);
 
-setLanguageForActiveTab();
 
 function openSettings() {
   document.getElementById("settingsModal").style.display = "block";
