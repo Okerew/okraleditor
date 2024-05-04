@@ -29,12 +29,16 @@
     <option value="jsx">JSX</option>
     <option value="mysql">MySql</option>
     <option value="graphqlschema">GraphQL</option>
+    <option value="python">Python</option>
+    <option value="golang">Go</option>
+    <option value="ruby">Ruby</option>
+    <option value="rust">Rust</option>
   </select>
   <button onclick="runCode()">Run</button>
   <button onclick="fileOps()">File</button>
   <button onclick="openSettings()">Settings</button>
   <button onclick="gitOps()">Git</button>
-   <button onclick="loadExtensions()">Load Extensions</button>
+  <button onclick="loadExtensions()">Load Extensions</button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -85,6 +89,18 @@
     <br><br>
     <label>Markdown</label>
     <button onclick="runMarkdown()">Run</button>
+    <br><br>
+    <label>Python</label>
+    <button onclick="executePythonCode()">Run</button>
+    <br><br>
+    <label>Go</label>
+    <button onclick="executeGoCode()">Run</button>
+    <br><br>
+    <label>Ruby</label>
+    <button onclick="executeRubyCode()">Run</button>
+    <br><br>
+    <label>Rust</label>
+    <button onclick="executeRustCode()">Run</button>
   </div>
 </div>
   <div id="gitModal" class="modal">
@@ -106,5 +122,6 @@
 <div id="output-container"></div>
 <div id="file-explorer"></div>
 <script src="web_sources/folder_renderer.js"></script>
+<script src="web_sources/run_code.js"></script>
 </body>
 </html>
