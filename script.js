@@ -32,6 +32,7 @@ function openFile(event) {
 
     const extension = file.name.split(".").pop();
     newEditor.session.setMode(`ace/mode/${extension}`);
+    newEditor.setKeyboardHandler("ace/keyboard/vim");
 
     newTab.setAttribute("data-editor-id", editorId);
     newEditor.container.style.width = "99%";
@@ -128,6 +129,7 @@ function addTab() {
 
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
+  newEditor.setKeyboardHandler("ace/keyboard/vim");
   newTab.setAttribute("data-language", language);
   newEditor.setOptions({
     enableLiveAutocompletion: true,
@@ -287,7 +289,7 @@ function setLanguageForActiveTab() {
 const languageDropdown = document.getElementById("language-select");
 languageSelect.addEventListener("change", setLanguageForActiveTab);
 
-setLanguageForActiveTab();
+
 
 function openSettings() {
   document.getElementById("settingsModal").style.display = "block";
@@ -477,6 +479,7 @@ async function loadRepoFiles() {
           response.text()
         );
         newEditor.setValue(fileContent);
+        newEditor.setKeyboardHandler("ace/keyboard/vim");
 
         const editorId = `editor-${Date.now()}`;
         newEditor.container.id = editorId;
