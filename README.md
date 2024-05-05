@@ -4,8 +4,6 @@ Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
 To build desktop version yourself download the electron_app branch then run setup.py, when prompted for a password on linux/macos enter it.
 --------------------------
-If you want to use vim motions change the import in index.html from script.js to vim_motions.js if not delete the vim_motions.js file
-------------------------------------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------
 Dependencies:
