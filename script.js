@@ -637,7 +637,6 @@ function mergeBranches() {
 }
 
 function executeCodeInWorker() {
-  
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
 
@@ -647,7 +646,41 @@ function executeCodeInWorker() {
   if (!activeEditor) return;
   const jsCode = activeEditor.getValue();
 
-  const worker = new Worker('worker.js');
+  const worker = new Worker("worker.js");
 
   worker.postMessage({ jsCode, editorId });
 }
+
+function saveToCookie() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const config = activeEditor.getValue();
+
+  document.cookie = `config=${encodeURIComponent(config)}; path=/`;
+}
+
+function loadFromCookie() {
+  const cookies = document.cookie.split(';');
+  let config = null;
+
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith('config=')) {
+      config = decodeURIComponent(cookie.substring('config='.length));
+      break;
+    }
+  }
+
+  if (!config) return;
+
+  const scriptTag = document.createElement("script");
+  scriptTag.textContent = config;
+  document.body.appendChild(scriptTag);
+}
+
+loadFromCookie();
