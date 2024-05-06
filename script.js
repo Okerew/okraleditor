@@ -509,8 +509,7 @@ function pushToGithub() {
     console.error("Invalid repository name provided.");
     return;
   }
-
-  const token = prompt("Enter your GitHub token:");
+  
   if (!token || !isValidFileName(token)) {
     console.error("GitHub token not provided.");
     return;
@@ -601,7 +600,6 @@ function mergeBranches() {
     return;
   }
 
-  const token = prompt("Enter your GitHub token:");
   if (!token || !isValidFileName(token)) {
     console.error("GitHub token not provided.");
     return;
