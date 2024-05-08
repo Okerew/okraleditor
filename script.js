@@ -649,6 +649,17 @@ function executeCodeInWorker() {
   worker.postMessage({ jsCode, editorId });
 }
 
+function encryptConfig(config, key) {
+  const encrypted = CryptoJS.AES.encrypt(config, key);
+  return encrypted.toString();
+}
+
+function decryptConfig(encryptedConfig, key) {
+  const decrypted = CryptoJS.AES.decrypt(encryptedConfig, key);
+  return decrypted.toString(CryptoJS.enc.Utf8);
+}
+
+
 function saveToCookie() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
@@ -656,25 +667,53 @@ function saveToCookie() {
   const editorId = activeTab.getAttribute("data-editor-id");
   const activeEditor = ace.edit(editorId);
   if (!activeEditor) return;
+  
+  const unsafe_config = activeEditor.getValue();
+  const config = DOMPurify.sanitize(unsafe_config);
 
-  const config = activeEditor.getValue();
+  // Generate a random key
+  const key = generateRandomKey();
 
-  document.cookie = `config=${encodeURIComponent(config)}; path=/`;
+  const encryptedConfig = encryptConfig(config, key);
+
+  document.cookie = `encryptedConfig=${encodeURIComponent(encryptedConfig)}; path=/;`;
+
+  // Save the key to localStorage
+  localStorage.setItem('encryptionKey', key);
+}
+
+function generateRandomKey() {
+  // Generate a random string to be used as the key
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = '';
+  for (let i = 0; i < 32; i++) {
+    key += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return key;
 }
 
 function loadFromCookie() {
   const cookies = document.cookie.split(';');
-  let config = null;
+  let encryptedConfig = null;
 
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
-    if (cookie.startsWith('config=')) {
-      config = decodeURIComponent(cookie.substring('config='.length));
+    if (cookie.startsWith('encryptedConfig=')) {
+      encryptedConfig = decodeURIComponent(cookie.substring('encryptedConfig='.length));
       break;
     }
   }
 
-  if (!config) return;
+  if (!encryptedConfig) return;
+
+  const key = localStorage.getItem('encryptionKey');
+
+  if (!key) {
+    console.error('Encryption key not found!');
+    return;
+  }
+
+  const config = decryptConfig(encryptedConfig, key);
 
   const scriptTag = document.createElement("script");
   scriptTag.textContent = config;
@@ -682,3 +721,31 @@ function loadFromCookie() {
 }
 
 loadFromCookie();
+
+async function executePythonCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  
+  const unsafe_value = activeEditor.getValue();
+  
+  const editorValue = DOMPurify.sanitize(unsafe_value);
+
+  try {
+    const response = await fetch('https://viridian-scratch-relative.glitch.me/execute-python', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code: editorValue })
+    });
+
+    const result = await response.json();
+    console.log(result); // Do something with the result
+  } catch (error) {
+    console.error('Error executing Python code:', error);
+  }
+}
