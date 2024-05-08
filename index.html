@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -29,6 +30,7 @@
         <option value="jsx">JSX</option>
         <option value="mysql">MySql</option>
         <option value="graphqlschema">GraphQL</option>
+        <option value="python">Python</option>
       </select>
       <button onclick="fileOps()">File</button>
       <a href="https://okral.glitch.me">Go back</a>
@@ -104,6 +106,11 @@
         <br><br>
         <label>JavaScript</label>
         <button onclick="executeCodeInWorker()">
+          Run
+        </button>
+        <br><br>
+        <label>Python</label>
+        <button onclick="executePythonCode()">
           Run
         </button>
       </div>
