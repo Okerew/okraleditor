@@ -744,7 +744,7 @@ async function executePythonCode() {
     });
 
     const result = await response.json();
-    console.log(result); // Do something with the result
+    console.log(result); 
   } catch (error) {
     console.error('Error executing Python code:', error);
   }
