@@ -440,6 +440,9 @@ async function loadRepoFiles() {
     return;
   }
 
+  const container = document.createElement("div");
+  container.id = "fileTreeContainer";
+
   const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents`;
 
   try {
@@ -449,53 +452,101 @@ async function loadRepoFiles() {
     }
     const data = await response.json();
 
-    for (const item of data) {
-      if (item.type === "file") {
-        const fileName = item.name;
-        const fileUrl = item.download_url;
+    await createGitFileTree("", container, username, repo);
 
-        const newTab = document.createElement("button");
-        newTab.className = "tab";
-        newTab.textContent = fileName;
-        newTab.addEventListener("click", switchToTab);
-
-        const newEditor = ace.edit(document.createElement("div"));
-        newEditor.setOptions({
-          maxLines: 38,
-          minLines: 38,
-        });
-        newEditor.container.style.width = "99%";
-        newEditor.container.style.height = "600px";
-        newEditor.container.style.border = "1px solid #ccc";
-        newEditor.container.style.marginTop = "10px";
-        newEditor.container.style.border = "2px solid #cccccc";
-        newEditor.container.style.borderRadius = "5px";
-        newEditor.container.style.fontSize = "15px";
-        newEditor.container.style.fontFamily = "monospace";
-
-        const fileContent = await fetch(fileUrl).then((response) =>
-          response.text()
-        );
-        newEditor.setValue(fileContent);
-        newEditor.setKeyboardHandler("ace/keyboard/vim");
-
-        const editorId = `editor-${Date.now()}`;
-        newEditor.container.id = editorId;
-        newTab.setAttribute("data-editor-id", editorId);
-
-        document.getElementById("tabBar").appendChild(newTab);
-        document.body.appendChild(newEditor.container);
-        toggleTheme();
-        toggleTheme();
-      }
-    }
+    container.style.display = "block";
   } catch (error) {
     console.error("Error loading repository files:", error);
     alert(
       "Error loading repository files. Please check the console for details."
     );
   }
+
+  document.body.appendChild(container);
 }
+
+async function createGitFileTree(dirPath, parentNode, username, repo) {
+    const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents${dirPath}`;
+
+    try {
+        const response = await fetch(repoUrl);
+        if (!response.ok) {
+            throw new Error("Failed to fetch directory contents");
+        }
+        const data = await response.json();
+
+        const ul = document.createElement('ul');
+
+        for (const item of data) {
+            const li = document.createElement('li');
+            const itemName = item.name;
+
+            if (item.type === "file") {
+                const button = document.createElement('button');
+                button.textContent = itemName;
+                button.addEventListener('click', async () => {
+                    const fileUrl = item.download_url;
+                    const fileContent = await fetch(fileUrl).then((response) => response.text());
+                    const editorId = `editor-${Date.now()}`;
+                    openGitFolderFile(fileContent, editorId);
+                });
+                li.appendChild(button);
+            } else if (item.type === "dir") {
+                const button = document.createElement('button');
+                button.textContent = itemName;
+                button.classList.add('folder');
+                button.addEventListener('click', async () => {
+                    // Clear the parent node
+                    ul.innerHTML = '';
+                    // Recursively create file tree for the directory
+                    await createGitFileTree(`${dirPath}/${itemName}`, li, username, repo);
+                });
+                li.appendChild(button);
+            }
+
+            ul.appendChild(li);
+        }
+
+        parentNode.appendChild(ul);
+    } catch (error) {
+        console.error("Error creating file tree:", error);
+        alert("Error creating file tree. Please check the console for details.");
+    }
+}
+
+function openGitFolderFile(fileContent, editorId) {
+  const newTab = document.createElement("button");
+  newTab.className = "tab";
+  newTab.textContent = "New File";
+  newTab.addEventListener("click", switchToTab);
+
+  const newEditor = ace.edit(document.createElement("div"));
+  newEditor.setOptions({
+    maxLines: 38,
+    minLines: 38,
+  });
+  newEditor.container.style.width = "99%";
+  newEditor.container.style.height = "600px";
+  newEditor.container.style.border = "1px solid #ccc";
+  newEditor.container.style.marginTop = "10px";
+  newEditor.container.style.border = "2px solid #cccccc";
+  newEditor.container.style.borderRadius = "5px";
+  newEditor.container.style.fontSize = "15px";
+  newEditor.container.style.fontFamily = "monospace";
+
+  newEditor.setValue(fileContent);
+  newEditor.setKeyboardHandler("ace/keyboard/vim");
+
+  newEditor.container.id = editorId;
+  newTab.setAttribute("data-editor-id", editorId);
+
+  document.getElementById("tabBar").appendChild(newTab);
+  document.body.appendChild(newEditor.container);
+  switchToTab({target: newTab});
+  toggleTheme();
+  toggleTheme();
+}
+
 
 function pushToGithub() {
   const username = prompt("Enter your GitHub username:");
@@ -747,5 +798,15 @@ async function executePythonCode() {
     console.log(result); 
   } catch (error) {
     console.error('Error executing Python code:', error);
+  }
+}
+
+function hideFileTree() {
+  const fileTreeContainer = document.getElementById("fileTreeContainer");
+  if (fileTreeContainer.style.display === "block") {
+    fileTreeContainer.style.display = "none";
+  }
+  else{
+    fileTreeContainer.style.display = "block";
   }
 }
