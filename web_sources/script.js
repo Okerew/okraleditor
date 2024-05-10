@@ -63,9 +63,9 @@ function openFile(event) {
     toggleTheme()
   };
 
+
   reader.readAsText(file);
 }
-
 function saveFile() {
   const activeTab = document.querySelector(".tab.active");
   const editorId = activeTab.getAttribute("data-editor-id");
@@ -332,8 +332,101 @@ function createInput(labelText, inputId, container) {
   container.appendChild(input);
 }
 
+async function createGitFileTree(dirPath, parentNode, username, repo) {
+  const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents${dirPath}`;
+
+  try {
+    const response = await fetch(repoUrl);
+    if (!response.ok) {
+      throw new Error("Failed to fetch directory contents");
+    }
+    const data = await response.json();
+
+    const ul = document.createElement('ul');
+
+    for (const item of data) {
+      const li = document.createElement('li');
+      const itemName = item.name;
+
+      if (item.type === "file") {
+        const button = document.createElement('button');
+        button.textContent = itemName;
+        button.addEventListener('click', async () => {
+          const fileUrl = item.download_url;
+          const fileContent = await fetch(fileUrl).then((response) => response.text());
+          const editorId = `editor-${Date.now()}`;
+          openGitFolderFile(fileContent, editorId);
+        });
+        li.appendChild(button);
+      } else if (item.type === "dir") {
+        const button = document.createElement('button');
+        button.textContent = itemName;
+        button.classList.add('folder');
+        button.addEventListener('click', async () => {
+          if (li.classList.contains('expanded')) {
+            li.classList.remove('expanded');
+            // Collapse folder
+            while (li.nextElementSibling) {
+              ul.removeChild(li.nextElementSibling);
+            }
+          } else {
+            li.classList.add('expanded');
+            // Expand folder
+            await createGitFileTree(`${dirPath}/${itemName}`, li, username, repo);
+          }
+        });
+        li.appendChild(button);
+      }
+
+      ul.appendChild(li);
+    }
+
+    parentNode.appendChild(ul);
+    toggleTheme()
+    toggleTheme()
+  } catch (error) {
+    console.error("Error creating file tree:", error);
+    alert("Error creating file tree. Please check the console for details.");
+  }
+}
+
+function openGitFolderFile(fileContent, editorId) {
+  const newTab = document.createElement("button");
+  newTab.className = "tab";
+  newTab.textContent = "New File";
+  newTab.addEventListener("click", switchToTab);
+
+  const newEditor = ace.edit(document.createElement("div"));
+  newEditor.setOptions({
+    maxLines: 38,
+    minLines: 38,
+  });
+  newEditor.container.style.width = "99%";
+  newEditor.container.style.height = "600px";
+  newEditor.container.style.border = "1px solid #ccc";
+  newEditor.container.style.marginTop = "10px";
+  newEditor.container.style.border = "2px solid #cccccc";
+  newEditor.container.style.borderRadius = "5px";
+  newEditor.container.style.fontSize = "15px";
+  newEditor.container.style.fontFamily = "monospace";
+
+  newEditor.setValue(fileContent);
+  newEditor.setKeyboardHandler("ace/keyboard/vim");
+
+  newEditor.container.id = editorId;
+  newTab.setAttribute("data-editor-id", editorId);
+
+  document.getElementById("tabBar").appendChild(newTab);
+  document.body.appendChild(newEditor.container);
+  switchToTab({target: newTab});
+  toggleTheme();
+  toggleTheme();
+}
+
+// Usage example:
 async function loadRepoFiles() {
   const container = document.createElement("div");
+  container.id = "fileTreeContainer";
 
   createInput("GitHub username:", "usernameInput", container);
   createInput("Repository name:", "repoInput", container);
@@ -346,63 +439,9 @@ async function loadRepoFiles() {
     const username = document.getElementById("usernameInput").value.trim();
     const repo = document.getElementById("repoInput").value.trim();
 
-    const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents`;
+    await createGitFileTree("", container, username, repo);
 
-    try {
-      const response = await fetch(repoUrl);
-      if (!response.ok) {
-        throw new Error("Failed to fetch repository contents");
-      }
-      const data = await response.json();
-
-      for (const item of data) {
-        if (item.type === "file") {
-          const fileName = item.name;
-          const fileUrl = item.download_url;
-
-          const newTab = document.createElement("button");
-          newTab.className = "tab";
-          newTab.textContent = fileName;
-          newTab.addEventListener("click", switchToTab);
-
-          const newEditor = ace.edit(document.createElement("div"));
-          newEditor.setOptions({
-            maxLines: 38,
-            minLines: 38,
-          });
-          newEditor.container.style.width = "99%";
-          newEditor.container.style.height = "600px";
-          newEditor.container.style.border = "1px solid #ccc";
-          newEditor.container.style.marginTop = "10px";
-          newEditor.container.style.border = "2px solid #cccccc";
-          newEditor.container.style.borderRadius = "5px";
-          newEditor.container.style.fontSize = "15px";
-          newEditor.container.style.fontFamily = "monospace";
-
-          const fileContent = await fetch(fileUrl).then((response) =>
-              response.text()
-          );
-          newEditor.setValue(fileContent);
-          newEditor.setKeyboardHandler("ace/keyboard/vim");
-
-          const editorId = `editor-${Date.now()}`;
-          newEditor.container.id = editorId;
-          newTab.setAttribute("data-editor-id", editorId);
-
-          document.getElementById("tabBar").appendChild(newTab);
-          document.body.appendChild(newEditor.container);
-          toggleTheme();
-          toggleTheme();
-        }
-      }
-    } catch (error) {
-      console.error("Error loading repository files:", error);
-      alert(
-          "Error loading repository files. Please check the console for details."
-      );
-    }
-
-    container.style.display = "none";
+    container.style.display = "block";
   });
 
   container.appendChild(submitButton);
@@ -410,12 +449,12 @@ async function loadRepoFiles() {
   document.body.appendChild(container);
 }
 
+
 function pushToGithub() {
   const container = document.createElement("div");
 
   createInput("GitHub username:", "usernameInput", container);
   createInput("Repository name:", "repoInput", container);
-  createInput("GitHub token:", "tokenInput", container);
   createInput("Filename:", "filenameInput", container);
   createInput("Commit message:", "messageInput", container);
   createInput("Branch name:", "branchInput", container);
@@ -427,7 +466,6 @@ function pushToGithub() {
   submitButton.addEventListener("click", async () => {
     const username = document.getElementById("usernameInput").value.trim();
     const repo = document.getElementById("repoInput").value.trim();
-    const token = document.getElementById("tokenInput").value.trim();
     const filename = document.getElementById("filenameInput").value.trim();
     const commitMessage = document.getElementById("messageInput").value.trim();
     const branchName = document.getElementById("branchInput").value.trim();
@@ -489,7 +527,6 @@ function mergeBranches() {
   createInput("Repository name:", "repoInput", container);
   createInput("Base branch:", "baseBranchInput", container);
   createInput("Head branch:", "headBranchInput", container);
-  createInput("GitHub token:", "tokenInput", container);
 
   container.appendChild(document.createElement("br"));
 
@@ -500,7 +537,6 @@ function mergeBranches() {
     const repo = document.getElementById("repoInput").value.trim();
     const baseBranch = document.getElementById("baseBranchInput").value.trim();
     const headBranch = document.getElementById("headBranchInput").value.trim();
-    const token = document.getElementById("tokenInput").value.trim();
 
     const apiUrl = `https://api.github.com/repos/${username}/${repo}/merges`;
 
@@ -570,4 +606,14 @@ function loadExtensions() {
   };
 
   input.click();
+}
+
+function hideFileTree() {
+  const fileTreeContainer = document.getElementById("fileTreeContainer");
+  if (fileTreeContainer.style.display === "block") {
+    fileTreeContainer.style.display = "none";
+  }
+  else{
+    fileTreeContainer.style.display = "block";
+  }
 }
