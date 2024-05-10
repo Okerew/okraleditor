@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Okral Code Editor</title>
-  <script src="ace/src/ace.js"></script>
-  <script src="ace/src/ext_language_tools.js"></script>
+   <script src="ace/src/ace.js"></script>
+  <script src="ace/src/ext-language_tools.js"></script>
   <script src="web_sources/script.js" defer></script>
   <link rel="stylesheet" href="web_sources/style.css" />
   <link
           rel="icon"
-          href="icons/icon.png"
+          href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
   />
 </head>
 <body>
@@ -32,6 +32,8 @@
     <option value="golang">Go</option>
     <option value="ruby">Ruby</option>
     <option value="rust">Rust</option>
+    <option value="kotlin">Kotlin</option>
+    <option value="c_cpp">C/C++</option>
   </select>
   <button onclick="runCode()">Run</button>
   <button onclick="fileOps()">File</button>
@@ -64,7 +66,7 @@
             onchange="openFile(event)"
     />
     <br>
-    <label>Save</label>
+    <label>Save As</label>
     <button onclick="saveFile()">File</button>
     <br>
     <label>Folder</label>
@@ -79,27 +81,36 @@
     <span class="close" onclick="closeRunCode()">&times;</span>
     <label>HTML</label>
     <button onclick="executeHtmlCode()">Run</button>
-    <br><br>
+    <br>
     <label>Show/Hide</label>
     <button onclick="htmlOutput()">Output</button>
-    <br><br>
+    <br>
     <label>Javascript</label>
     <button onclick="executeJavaScriptCode()">Run</button>
-    <br><br>
+    <br>
     <label>Markdown</label>
     <button onclick="runMarkdown()">Run</button>
-    <br><br>
+    <br>
     <label>Python</label>
     <button onclick="executePythonCode()">Run</button>
-    <br><br>
+    <br>
     <label>Go</label>
     <button onclick="executeGoCode()">Run</button>
-    <br><br>
+    <br>
     <label>Ruby</label>
     <button onclick="executeRubyCode()">Run</button>
-    <br><br>
+    <br>
     <label>Rust</label>
     <button onclick="executeRustCode()">Run</button>
+    <br>
+    <label>Kotlin</label>
+    <button onclick="executeKotlinCode()">Run</button>
+    <br>
+    <label>C++</label>
+    <button onclick="executeCppCode()">Run</button>
+    <br>
+    <label>C</label>
+    <button onclick="executeCCode()">Run</button>
   </div>
 </div>
   <div id="gitModal" class="modal">
@@ -115,6 +126,9 @@
         <button onclick="mergeBranches()">
           Merge
         </button>
+        <br><br>
+        <label>Git File Tree</label>
+        <button onclick="hideFileTree()">Show/Hide</button>
       </div>
     </div>
 
