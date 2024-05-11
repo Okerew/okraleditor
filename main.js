@@ -1,10 +1,10 @@
 const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
-
+const os = require('os');
 app.name = 'Okral Editor';
 
-let extensionsDir = path.join(__dirname, 'extensions');
+let extensionsDir = path.join(os.homedir(), 'Documents', 'OCE', 'Extensions');
 
 function loadExtensions(extensionsPath) {
     try {
@@ -113,5 +113,19 @@ ipcMain.on('open-folder-dialog', (event) => {
         }
     }).catch(err => {
         console.error(err);
+    });
+});
+
+ipcMain.on('open-file-dialog', (event) => {
+    dialog.showOpenDialog( {
+        properties: ['openFile']
+    }).then(result => {
+        if (!result.canceled) {
+            const filePath = result.filePaths[0];
+            // Send the selected file path to the renderer process to load its content
+            event.sender.send('file-selected', filePath);
+        }
+    }).catch(err => {
+        console.log(err);
     });
 });
