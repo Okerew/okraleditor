@@ -59,18 +59,16 @@
   <div class="modal-content">
     <label>Open</label>
     <span class="close" onclick="closefileOps()">&times;</span>
-    <input
-            type="file"
-            id="fileInput"
-            accept=""
-            onchange="openFile(event)"
-    />
+    <button onclick="openFileDialog()">File</button>
     <br>
     <label>Save As</label>
     <button onclick="saveFile()">File</button>
     <br>
+    <label>Save</label>
+    <button onclick="saveToFile()">File</button>
+    <br>
     <label>Folder</label>
-    <button id="open-folder">Open</button>
+    <button onclick="openFolderDialog()">Open</button>
     <br>
     <label>File Tree</label>
     <button onclick="fileTreeShow()">Show/Hide</button>
@@ -79,17 +77,22 @@
 <div id="runModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeRunCode()">&times;</span>
+    <label>Active File</label>
+    <button onclick="executeActiveFile()">Run</button>
+    <br>
     <label>HTML</label>
     <button onclick="executeHtmlCode()">Run</button>
     <br>
     <label>Show/Hide</label>
     <button onclick="htmlOutput()">Output</button>
     <br>
-    <label>Javascript</label>
-    <button onclick="executeJavaScriptCode()">Run</button>
-    <br>
     <label>Markdown</label>
     <button onclick="runMarkdown()">Run</button>
+    <hr>
+    <label>Temps:</label>
+    <br><br>
+    <label>Javascript</label>
+    <button onclick="executeJavaScriptCode()">Run</button>
     <br>
     <label>Python</label>
     <button onclick="executePythonCode()">Run</button>
@@ -134,7 +137,7 @@
 
 <div id="output-container"></div>
 <div id="file-explorer"></div>
-<script src="web_sources/folder_renderer.js"></script>
+<script src="web_sources/file_ops.js"></script>
 <script src="web_sources/run_code.js"></script>
 </body>
 </html>
