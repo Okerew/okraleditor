@@ -8,96 +8,6 @@ languageSelect.addEventListener("change", function () {
   editor.session.setMode("ace/mode/" + selectedLanguage);
 });
 
-function openFile(event) {
-  const input = event.target;
-  const file = input.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function () {
-    const newTab = document.createElement("button");
-    newTab.className = "tab";
-    newTab.textContent = file.name;
-    newTab.addEventListener("click", switchToTab);
-
-    const newEditor = ace.edit(document.createElement("div"));
-    newEditor.setOptions({
-      maxLines: Infinity,
-      minLines: 38,
-    });
-
-    newEditor.setValue(reader.result);
-
-    const editorId = `editor-${Date.now()}`;
-    newEditor.container.id = editorId;
-
-    const extension = file.name.split(".").pop();
-    newEditor.session.setMode(`ace/mode/${extension}`);
-    newEditor.setKeyboardHandler("ace/keyboard/vim");
-
-    newTab.setAttribute("data-editor-id", editorId);
-    newEditor.container.style.width = "99%";
-    newEditor.container.style.height = "600px";
-    newEditor.container.style.border = "1px solid #ccc";
-    newEditor.container.style.marginTop = "10px";
-    newEditor.container.style.border = "2px solid #cccccc";
-    newEditor.container.style.borderRadius = "5px";
-    newEditor.container.style.fontSize = "15px";
-    newEditor.container.style.fontFamily = "monospace";
-
-    const language = document.getElementById("language-select").value;
-    newEditor.session.setMode(`ace/mode/${extension}`);
-    newTab.setAttribute("data-language", extension);
-    newEditor.setOptions({
-      enableLiveAutocompletion: true,
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-    });
-
-    const closeButton = document.createElement("button");
-    document.getElementById("tabBar").appendChild(newTab);
-
-    document.body.appendChild(newEditor.container);
-
-    switchToTab({ target: newTab });
-    toggleTheme()
-    toggleTheme()
-  };
-
-
-  reader.readAsText(file);
-}
-function saveFile() {
-  const activeTab = document.querySelector(".tab.active");
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const editor = document.getElementById(editorId);
-
-  const code = editor.env.editor.getValue();
-
-  const blob = new Blob([code], { type: "text/plain" });
-
-  const fileName = activeTab.textContent.trim();
-  if (!fileName) {
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = function (event) {
-    const a = document.createElement("a");
-
-    a.href = event.target.result;
-
-    a.download = fileName;
-
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-  };
-
-  reader.readAsDataURL(blob);
-}
-
 function addTab() {
   const currentTheme = editor.getTheme();
   const newTab = document.createElement("button");
@@ -130,7 +40,7 @@ function addTab() {
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
   newTab.setAttribute("data-language", language);
-  newEditor.setKeyboardHandler("ace/keyboard/vim");
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
   newEditor.setOptions({
     enableLiveAutocompletion: true,
     enableBasicAutocompletion: true,
@@ -411,8 +321,7 @@ function openGitFolderFile(fileContent, editorId) {
   newEditor.container.style.fontFamily = "monospace";
 
   newEditor.setValue(fileContent);
-  newEditor.setKeyboardHandler("ace/keyboard/vim");
-
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
   newEditor.container.id = editorId;
   newTab.setAttribute("data-editor-id", editorId);
 
@@ -423,7 +332,6 @@ function openGitFolderFile(fileContent, editorId) {
   toggleTheme();
 }
 
-// Usage example:
 async function loadRepoFiles() {
   const container = document.createElement("div");
   container.id = "fileTreeContainer";
@@ -616,4 +524,8 @@ function hideFileTree() {
   else{
     fileTreeContainer.style.display = "block";
   }
+}
+
+if (typeof keyboard_mode == 'undefined') {
+  keyboard_mode = null;
 }
