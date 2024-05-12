@@ -813,9 +813,7 @@ async function executePythonCode() {
   const activeEditor = ace.edit(editorId);
   if (!activeEditor) return;
   
-  const unsafe_value = activeEditor.getValue();
-  
-  const editorValue = DOMPurify.sanitize(unsafe_value);
+  const editorValue = activeEditor.getValue();
 
   try {
     const response = await fetch('https://viridian-scratch-relative.glitch.me/execute-python', {
@@ -913,3 +911,29 @@ function restoreWorkspace() {
 }
 
 document.addEventListener('DOMContentLoaded', restoreWorkspace);
+
+async function executeCppCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+    
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch('https://magical-daily-shallot.glitch.me/execute-cpp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code: editorValue })
+    });
+
+    const result = await response.json();
+    console.log(result); 
+  } catch (error) {
+    console.error('Error executing C++ code:', error);
+  }
+}
