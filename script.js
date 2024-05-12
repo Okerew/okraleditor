@@ -196,10 +196,6 @@ document
     }
   });
 
-setTimeout(function () {
-  document.getElementById("hideDiv").style.display = "none";
-}, 5000);
-
 function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =

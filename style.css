@@ -94,12 +94,6 @@ button {
   border-radius: 5px;
 }
 
-
-#hideDiv {
-  text-align:center;
-  white-space: nowrap;
-}
-
 /* Styles for the modal */
 .modal {
   display: none;
