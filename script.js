@@ -32,7 +32,7 @@ function openFile(event) {
 
     const extension = file.name.split(".").pop();
     newEditor.session.setMode(`ace/mode/${extension}`);
-    newEditor.setKeyboardHandler("ace/keyboard/vim");
+    newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
 
     newTab.setAttribute("data-editor-id", editorId);
     newEditor.container.style.width = "99%";
@@ -129,7 +129,7 @@ function addTab() {
 
   const language = document.getElementById("language-select").value;
   newEditor.session.setMode(`ace/mode/${language}`);
-  newEditor.setKeyboardHandler("ace/keyboard/vim");
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
   newTab.setAttribute("data-language", language);
   newEditor.setOptions({
     enableLiveAutocompletion: true,
@@ -535,7 +535,7 @@ function openGitFolderFile(fileContent, editorId) {
   newEditor.container.style.fontFamily = "monospace";
 
   newEditor.setValue(fileContent);
-  newEditor.setKeyboardHandler("ace/keyboard/vim");
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
 
   newEditor.container.id = editorId;
   newTab.setAttribute("data-editor-id", editorId);
@@ -727,11 +727,16 @@ function saveToCookie() {
 
   const encryptedConfig = encryptConfig(config, key);
 
-  document.cookie = `encryptedConfig=${encodeURIComponent(encryptedConfig)}; path=/;`;
+  const now = new Date();
+  // Calculate expiration date (30 days from now)
+  const expirationDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  document.cookie = `encryptedConfig=${encodeURIComponent(encryptedConfig)}; expires=${expirationDate.toUTCString()}; path=/;`;
 
   // Save the key to localStorage
   localStorage.setItem('encryptionKey', key);
 }
+
 
 function generateRandomKey() {
   // Generate a random string to be used as the key
@@ -810,3 +815,75 @@ function hideFileTree() {
     fileTreeContainer.style.display = "block";
   }
 }
+
+if (typeof keyboard_mode == 'undefined') {
+  keyboard_mode = null;
+}
+
+function shareWorkspace() {
+  // Get the state of all tabs
+  const tabsState = [];
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    const editorId = tab.getAttribute('data-editor-id');
+    const editor = ace.edit(editorId);
+    tabsState.push({
+      value: editor.getValue()
+    });
+  });
+
+  // Generate a unique URL with the state of all tabs
+  const url = new URL(window.location.href);
+  url.searchParams.set('state', JSON.stringify(tabsState));
+
+  prompt('Your workspace', url.toString(), '_blank');
+}
+
+function restoreWorkspace() {
+  const url = new URL(window.location.href);
+  const state = url.searchParams.get('state');
+  if (state) {
+    const tabsState = JSON.parse(state);
+    tabsState.forEach((tabState, index) => {
+      const newTab = document.createElement("button");
+      newTab.className = "tab";
+      newTab.textContent = `Restored File ${index + 1}`;
+      newTab.addEventListener("click", switchToTab);
+
+      const newEditorContainer = document.createElement("div");
+      newEditorContainer.style.width = "99%";
+      newEditorContainer.style.height = "600px";
+      newEditorContainer.style.border = "1px solid #ccc";
+      newEditorContainer.style.marginTop = "10px";
+      newEditorContainer.style.border = "2px solid #cccccc";
+      newEditorContainer.style.borderRadius = "5px";
+      newEditorContainer.style.fontSize = "15px";
+      newEditorContainer.style.fontFamily = "monospace";
+      
+      const newEditor = ace.edit(newEditorContainer);
+      newEditor.setOptions({
+        maxLines: Infinity,
+        minLines: 38,
+      });
+
+      newEditor.setValue(tabState.value);
+
+      const editorId = `editor-${Date.now()}`;
+      newEditor.container.id = editorId;
+      newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
+      newTab.setAttribute("data-editor-id", editorId);
+
+      document.getElementById("tabBar").appendChild(newTab);
+      document.body.appendChild(newEditorContainer);
+      toggleTheme();
+      toggleTheme();
+
+      if (index === 0) {
+        switchToTab({ target: newTab });
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', restoreWorkspace);
+
