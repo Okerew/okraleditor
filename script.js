@@ -340,19 +340,46 @@ function executeHtmlCode() {
 
   const htmlCode = activeEditor.getValue();
 
+  // Separate script tags from the main process
+  const { htmlContent, scriptContent } = separateScriptTags(htmlCode);
+
   // Sanitize HTML content
-  const sanitizedHtml = DOMPurify.sanitize(htmlCode);
+  const sanitizedHtml = DOMPurify.sanitize(htmlContent);
 
   const resultDiv = document.createElement("div");
 
-  // Set sanitized HTML content
   resultDiv.innerHTML = sanitizedHtml;
 
   const outputContainer = document.getElementById("output-container");
   outputContainer.innerHTML = "";
 
   outputContainer.appendChild(resultDiv);
+
+  // Execute script content
+  executeScripts(scriptContent);
 }
+
+function separateScriptTags(htmlCode) {
+  const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
+
+  let htmlContent = htmlCode;
+  let scriptContent = '';
+
+  htmlCode = htmlCode.replace(scriptRegex, (match, script) => {
+    scriptContent += script;
+    return '';
+  });
+
+  return { htmlContent, scriptContent };
+}
+
+function executeScripts(scriptContent) {
+  // Execute the extracted script content
+  const scriptElement = document.createElement('script');
+  scriptElement.textContent = scriptContent;
+  document.body.appendChild(scriptElement);
+}
+
 
 function runMarkdown() {
   const activeTab = document.querySelector(".tab.active");
@@ -886,4 +913,3 @@ function restoreWorkspace() {
 }
 
 document.addEventListener('DOMContentLoaded', restoreWorkspace);
-
