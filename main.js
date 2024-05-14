@@ -58,7 +58,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Quit',
-                    click: () => app.quit()
+                    role: 'quit'
                 }
             ]
         },
@@ -75,11 +75,17 @@ app.whenReady().then(() => {
         {
             label: 'View',
             submenu: [
+                { role: 'togglefullscreen' },
+                { role: 'toggleDevTools' },
+                { role: 'minimize'}
+            ]
+        },
+        {
+            label: 'Zoom',
+            submenu: [
                 { role: 'zoomIn' },
                 { role: 'zoomOut' },
                 { role: 'resetZoom' },
-                { role: 'togglefullscreen' },
-                { role: 'toggleDevTools' }
             ]
         }
     ];
