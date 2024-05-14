@@ -12,7 +12,7 @@ function executeJavaScriptCode() {
 
     const nodeCode = activeEditor.getValue();
 
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.js');
@@ -46,8 +46,7 @@ function executePythonCode() {
     const pythonCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
-
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.py');
     fs.writeFileSync(tempFilePath, pythonCode);
@@ -142,7 +141,7 @@ function executeGoCode() {
     const goCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.go');
@@ -175,7 +174,7 @@ function executeRubyCode() {
     const rubyCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.rb');
@@ -207,7 +206,7 @@ function executeRustCode() {
     const rustCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary directory in downloads folder
     const tempDirPath = path.join(downloadsPath, 'tempCodeRunnerRust');
@@ -268,17 +267,225 @@ function parseDependencies(rustCode) {
     const dependencies = new Set();
     const lines = rustCode.split('\n');
 
+    const ignoredDependencies = [
+        /^alloc::AllocError$/,
+        /^alloc::Global$/,
+        /^alloc::Layout$/,
+        /^alloc::LayoutError$/,
+        /^boxed::Box$/,
+        /^boxed::ThinBox$/,
+        /^collections::TryReserveError$/,
+        /^collections::binary_heap::BinaryHeap$/,
+        /^collections::binary_heap::Drain$/,
+        /^collections::binary_heap::DrainSorted$/,
+        /^collections::binary_heap::IntoIter$/,
+        /^collections::binary_heap::IntoIterSorted$/,
+        /^collections::binary_heap::Iter$/,
+        /^collections::binary_heap::PeekMut$/,
+        /^collections::btree_map::BTreeMap$/,
+        /^collections::btree_map::Cursor$/,
+        /^collections::btree_map::CursorMut$/,
+        /^collections::btree_map::CursorMutKey$/,
+        /^collections::btree_map::ExtractIf$/,
+        /^collections::btree_map::IntoIter$/,
+        /^collections::btree_map::IntoKeys$/,
+        /^collections::btree_map::IntoValues$/,
+        /^collections::btree_map::Iter$/,
+        /^collections::btree_map::IterMut$/,
+        /^collections::btree_map::Keys$/,
+        /^collections::btree_map::OccupiedEntry$/,
+        /^collections::btree_map::OccupiedError$/,
+        /^collections::btree_map::Range$/,
+        /^collections::btree_map::RangeMut$/,
+        /^collections::btree_map::UnorderedKeyError$/,
+        /^collections::btree_map::VacantEntry$/,
+        /^collections::btree_map::Values$/,
+        /^collections::btree_map::ValuesMut$/,
+        /^collections::btree_set::BTreeSet$/,
+        /^collections::btree_set::Difference$/,
+        /^collections::btree_set::ExtractIf$/,
+        /^collections::btree_set::Intersection$/,
+        /^collections::btree_set::IntoIter$/,
+        /^collections::btree_set::Iter$/,
+        /^collections::btree_set::Range$/,
+        /^collections::btree_set::SymmetricDifference$/,
+        /^collections::btree_set::Union$/,
+        /^collections::linked_list::Cursor$/,
+        /^collections::linked_list::CursorMut$/,
+        /^collections::linked_list::ExtractIf$/,
+        /^collections::linked_list::IntoIter$/,
+        /^collections::linked_list::Iter$/,
+        /^collections::linked_list::IterMut$/,
+        /^collections::linked_list::LinkedList$/,
+        /^collections::vec_deque::Drain$/,
+        /^collections::vec_deque::IntoIter$/,
+        /^collections::vec_deque::Iter$/,
+        /^collections::vec_deque::IterMut$/,
+        /^collections::vec_deque::VecDeque$/,
+        /^ffi::CString$/,
+        /^ffi::c_str::CString$/,
+        /^ffi::c_str::FromVecWithNulError$/,
+        /^ffi::c_str::IntoStringError$/,
+        /^ffi::c_str::NulError$/,
+        /^fmt::Arguments$/,
+        /^fmt::DebugList$/,
+        /^fmt::DebugMap$/,
+        /^fmt::DebugSet$/,
+        /^fmt::DebugStruct$/,
+        /^fmt::DebugTuple$/,
+        /^fmt::Error$/,
+        /^fmt::Formatter$/,
+        /^fmt::FormatterFn$/,
+        /^rc::Rc$/,
+        /^rc::UniqueRc$/,
+        /^rc::Weak$/,
+        /^slice::ArrayChunks$/,
+        /^slice::ArrayChunksMut$/,
+        /^slice::ArrayWindows$/,
+        /^slice::ChunkBy$/,
+        /^slice::ChunkByMut$/,
+        /^slice::Chunks$/,
+        /^slice::ChunksExact$/,
+        /^slice::ChunksExactMut$/,
+        /^slice::ChunksMut$/,
+        /^slice::EscapeAscii$/,
+        /^slice::Iter$/,
+        /^slice::IterMut$/,
+        /^slice::RChunks$/,
+        /^slice::RChunksExact$/,
+        /^slice::RChunksExactMut$/,
+        /^slice::RChunksMut$/,
+        /^slice::RSplit$/,
+        /^slice::RSplitMut$/,
+        /^slice::RSplitN$/,
+        /^slice::RSplitNMut$/,
+        /^slice::Split$/,
+        /^slice::SplitInclusive$/,
+        /^slice::SplitInclusiveMut$/,
+        /^slice::SplitMut$/,
+        /^slice::SplitN$/,
+        /^slice::SplitNMut$/,
+        /^slice::Windows$/,
+        /^str::Bytes$/,
+        /^str::CharIndices$/,
+        /^str::Chars$/,
+        /^str::EncodeUtf16$/,
+        /^str::EscapeDebug$/,
+        /^str::EscapeDefault$/,
+        /^str::EscapeUnicode$/,
+        /^str::Lines$/,
+        /^str::LinesAny$/,
+        /^str::MatchIndices$/,
+        /^str::Matches$/,
+        /^str::ParseBoolError$/,
+        /^str::RMatchIndices$/,
+        /^str::RMatches$/,
+        /^str::RSplit$/,
+        /^str::RSplitN$/,
+        /^str::RSplitTerminator$/,
+        /^str::Split$/,
+        /^str::SplitAsciiWhitespace$/,
+        /^str::SplitInclusive$/,
+        /^str::SplitN$/,
+        /^str::SplitTerminator$/,
+        /^str::SplitWhitespace$/,
+        /^str::Utf8Chunk$/,
+        /^str::Utf8Chunks$/,
+        /^str::Utf8Error$/,
+        /^str::pattern::CharArrayRefSearcher$/,
+        /^str::pattern::CharArraySearcher$/,
+        /^str::pattern::CharPredicateSearcher$/,
+        /^str::pattern::CharSearcher$/,
+        /^str::pattern::CharSliceSearcher$/,
+        /^str::pattern::StrSearcher$/,
+        /^string::Drain$/,
+        /^string::FromUtf16Error$/,
+        /^string::FromUtf8Error$/,
+        /^string::String$/,
+        /^sync::Arc$/,
+        /^sync::Weak$/,
+        /^vec::Drain$/,
+        /^vec::ExtractIf$/,
+        /^vec::IntoIter$/,
+        /^vec::Splice$/,
+        /^vec::Vec$/,
+        /^borrow::Cow$/,
+        /^collections::TryReserveErrorKind$/,
+        /^collections::btree_map::Entry$/,
+        /^fmt::Alignment$/,
+        /^str::pattern::SearchStep$/,
+        /^alloc::Allocator$/,
+        /^alloc::GlobalAlloc$/,
+        /^borrow::Borrow$/,
+        /^borrow::BorrowMut$/,
+        /^borrow::ToOwned$/,
+        /^fmt::Binary$/,
+        /^fmt::Debug$/,
+        /^fmt::Display$/,
+        /^fmt::LowerExp$/,
+        /^fmt::LowerHex$/,
+        /^fmt::Octal$/,
+        /^fmt::Pointer$/,
+        /^fmt::UpperExp$/,
+        /^fmt::UpperHex$/,
+        /^fmt::Write$/,
+        /^slice::Concat$/,
+        /^slice::Join$/,
+        /^slice::SliceIndex$/,
+        /^str::FromStr$/,
+        /^str::pattern::DoubleEndedSearcher$/,
+        /^str::pattern::Pattern$/,
+        /^str::pattern::ReverseSearcher$/,
+        /^str::pattern::Searcher$/,
+        /^string::ToString$/,
+        /^task::LocalWake$/,
+        /^task::Wake$/,
+        /^format$/,
+        /^vec$/,
+        /^fmt::Debug$/,
+        /^alloc::alloc$/,
+        /^alloc::alloc_zeroed$/,
+        /^alloc::dealloc$/,
+        /^alloc::handle_alloc_error$/,
+        /^alloc::realloc$/,
+        /^fmt::format$/,
+        /^fmt::write$/,
+        /^slice::from_mut$/,
+        /^slice::from_mut_ptr_range$/,
+        /^slice::from_ptr_range$/,
+        /^slice::from_raw_parts$/,
+        /^slice::from_raw_parts_mut$/,
+        /^slice::from_ref$/,
+        /^slice::range$/,
+        /^slice::try_range$/,
+        /^str::from_boxed_utf8_unchecked$/,
+        /^str::from_raw_parts$/,
+        /^str::from_raw_parts_mut$/,
+        /^str::from_utf8$/,
+        /^str::from_utf8_mut$/,
+        /^str::from_utf8_unchecked$/,
+        /^str::from_utf8_unchecked_mut$/,
+        /^alloc::LayoutErr$/,
+        /^fmt::Result$/,
+        /^string::ParseError$/
+    ];
+
     lines.forEach(line => {
         // Check if the line contains an extern crate declaration
         const match = line.match(/^\s*extern\s+crate\s+(\w+)\s*;/);
         if (match) {
             const dependency = match[1];
-            dependencies.add(dependency);
+            // Check if the dependency is not in the ignored list
+            if (!ignoredDependencies.some(pattern => pattern.test(dependency))) {
+                dependencies.add(dependency);
+            }
         }
     });
 
     return Array.from(dependencies);
 }
+
+
 
 function generateCargoToml(dependencies) {
     let cargoTomlContent = '[package]\n';
@@ -309,7 +516,7 @@ function executeKotlinCode() {
     const kotlinCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.kt');
@@ -341,7 +548,7 @@ function executeCppCode() {
     const cppCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary directory in downloads folder
     const tempDirPath = path.join(downloadsPath, 'tempCodeRunnerCpp');
@@ -539,7 +746,7 @@ function executeCCode() {
     const cCode = activeEditor.getValue();
 
     // Get the system's downloads folder path
-    const downloadsPath = path.join(os.homedir(), 'Documents', 'OCE', 'Temps');
+    const downloadsPath = path.join(os.homedir(), 'Downloads');
 
     // Create a temporary directory in downloads folder
     const tempDirPath = path.join(downloadsPath, 'tempCodeRunnerC');
