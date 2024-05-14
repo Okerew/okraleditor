@@ -17,6 +17,14 @@ function executeJavaScriptCode() {
     // Create a temporary file in downloads folder
     const tempFilePath = path.join(downloadsPath, 'tempCodeRunner.js');
     fs.writeFileSync(tempFilePath, nodeCode);
+    if (os.platform() === 'darwin') {
+        const homebrewPath = '/opt/homebrew/bin';
+        if (fs.existsSync(homebrewPath)) {
+            process.env.PATH = `${homebrewPath}:${process.env.PATH}`;
+        } else {
+           // Homebrew path doesn't exist on Mac OS, skipping
+        }
+    }
 
     // Execute Node.js code using child_process
     exec(`node ${tempFilePath}`, (error, stdout, stderr) => {
