@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const os = require("os");
 
 let activeFilePath = null;
 
@@ -269,6 +270,14 @@ function executeActiveFile() {
             command = `python3 ${activeFilePath}`;
             break;
         case '.js':
+            if (os.platform() === 'darwin') {
+                const homebrewPath = '/opt/homebrew/bin';
+                if (fs.existsSync(homebrewPath)) {
+                    process.env.PATH = `${homebrewPath}:${process.env.PATH}`;
+                } else {
+                    // Homebrew path doesn't exist on Mac OS, skipping
+                }
+            }
             command = `node ${activeFilePath}`;
             break;
         case '.go':
