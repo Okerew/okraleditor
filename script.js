@@ -21,7 +21,7 @@ function openFile(event) {
 
     const newEditor = ace.edit(document.createElement("div"));
     newEditor.setOptions({
-      maxLines: Infinity,
+      maxLines: 38,
       minLines: 38,
     });
 
@@ -883,7 +883,7 @@ function restoreWorkspace() {
       
       const newEditor = ace.edit(newEditorContainer);
       newEditor.setOptions({
-        maxLines: Infinity,
+        maxLines: 38,
         minLines: 38,
       });
 
