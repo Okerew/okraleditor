@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Current MacOS dmg on https://okral.glitch.me.
+Current MacOS dmg and Linux app image on https://okral.glitch.me.
 <br>
 All of the branches, created by Okerew.
 ## Reporting a Vulnerability
