@@ -103,6 +103,24 @@ app.whenReady().then(() => {
                 { role: 'zoomOut' },
                 { role: 'resetZoom' },
             ]
+        },
+        {
+            label: 'Help',
+            submenu: [
+                { role: 'about' },
+                {
+                    label: 'Wiki/Help',
+                    click: () => {
+                        require('electron').shell.openExternal('https://github.com/Okerew/okraleditor/wiki');
+                    }
+                },
+                {
+                    label: 'Keybinds',
+                    click: () => {
+                        require('electron').shell.openExternal('https://github.com/Okerew/okraleditor/wiki/Keybinds');
+                    }
+                }
+            ]
         }
     ];
 
