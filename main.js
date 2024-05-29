@@ -5,8 +5,8 @@ const os = require('os');
 app.name = 'Okral Editor';
 
 const oceDir = path.join(os.homedir(), 'Documents', 'OCE');
-const extensionsDir = path.join(oceDir, 'extensions');
-const configDir = path.join(oceDir, 'config');
+const extensionsDir = path.join(oceDir, 'Extensions');
+const configDir = path.join(oceDir, 'Config');
 
 function ensureOceDirectory() {
     if (!fs.existsSync(oceDir)) {
