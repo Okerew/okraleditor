@@ -4,8 +4,23 @@ const fs = require('fs');
 const os = require('os');
 app.name = 'Okral Editor';
 
-let extensionsDir = path.join(os.homedir(), 'Documents', 'OCE', 'Extensions');
+const oceDir = path.join(os.homedir(), 'Documents', 'OCE');
+const extensionsDir = path.join(oceDir, 'extensions');
+const configDir = path.join(oceDir, 'config');
 
+function ensureOceDirectory() {
+    if (!fs.existsSync(oceDir)) {
+        fs.mkdirSync(oceDir);
+    }
+    if (!fs.existsSync(extensionsDir)) {
+        fs.mkdirSync(extensionsDir);
+    }
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir);
+    }
+}
+
+// Function to load extensions from the extensions directory
 function loadExtensions(extensionsPath) {
     try {
         fs.readdirSync(extensionsPath).forEach(file => {
@@ -45,6 +60,7 @@ app.on('window-all-closed', () => {
 
 // When the app is ready
 app.whenReady().then(() => {
+    ensureOceDirectory();
     loadExtensions(extensionsDir);
     createWindow();
 
@@ -99,8 +115,8 @@ function selectExtensionsDirectory() {
         properties: ['openDirectory']
     }).then(result => {
         if (!result.canceled && result.filePaths.length > 0) {
-            extensionsDir = result.filePaths[0];
-            loadExtensions(extensionsDir);
+            const selectedDirectory = result.filePaths[0];
+            loadExtensions(selectedDirectory);
         } else {
             console.log('Extension directory selection canceled.');
         }
@@ -123,12 +139,11 @@ ipcMain.on('open-folder-dialog', (event) => {
 });
 
 ipcMain.on('open-file-dialog', (event) => {
-    dialog.showOpenDialog( {
+    dialog.showOpenDialog({
         properties: ['openFile']
     }).then(result => {
         if (!result.canceled) {
             const filePath = result.filePaths[0];
-            // Send the selected file path to the renderer process to load its content
             event.sender.send('file-selected', filePath);
         }
     }).catch(err => {
