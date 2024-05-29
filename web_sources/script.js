@@ -32,8 +32,8 @@ function addTab() {
   newEditor.container.style.marginTop = "10px";
   newEditor.container.style.border = "2px solid #cccccc";
   newEditor.container.style.borderRadius = "5px";
-  newEditor.container.style.fontSize = "15px";
-  newEditor.container.style.fontFamily = "monospace";
+  newEditor.container.style.fontSize = fontSize;
+  newEditor.container.style.fontFamily = fontFamily;
 
   newEditor.container.id = editorId;
 
@@ -317,10 +317,13 @@ function openGitFolderFile(fileContent, editorId) {
   newEditor.container.style.marginTop = "10px";
   newEditor.container.style.border = "2px solid #cccccc";
   newEditor.container.style.borderRadius = "5px";
-  newEditor.container.style.fontSize = "15px";
-  newEditor.container.style.fontFamily = "monospace";
+  newEditor.container.style.fontSize = fontSize;
+  newEditor.container.style.fontFamily = fontFamily;
 
   newEditor.setValue(fileContent);
+  const language = document.getElementById("language-select").value;
+  newEditor.session.setMode(`ace/mode/${language}`);
+  newTab.setAttribute("data-language", language);
   newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
   newEditor.container.id = editorId;
   newTab.setAttribute("data-editor-id", editorId);
@@ -528,4 +531,12 @@ function hideFileTree() {
 
 if (typeof keyboard_mode == 'undefined') {
   keyboard_mode = null;
+}
+
+if (typeof fontSize == 'undefined') {
+  fontSize = "15px";
+}
+
+if (typeof fontFamily == 'undefined') {
+  fontFamily = "monospace";
 }
