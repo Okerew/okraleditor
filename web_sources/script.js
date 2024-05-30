@@ -49,16 +49,8 @@ function addTab() {
   document.body.appendChild(newEditor.container);
 
   switchToTab({ target: newTab });
-  const isDarkTheme = currentTheme === "ace/theme/monokai";
-  const newTheme = isDarkTheme ? "ace/theme/monokai" : "ace/theme/chrome";
-  newEditor.setTheme(newTheme);
-  const backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
-  const textColor = isDarkTheme ? "#dddddd" : "#000000";
-
-  document.querySelectorAll(".tab").forEach(function (tab) {
-    tab.style.backgroundColor = backgroundColor;
-    tab.style.color = textColor;
-  });
+  toggleTheme();
+  toggleTheme();
 }
 
 function switchToTab(event) {
@@ -109,9 +101,9 @@ document
 function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =
-    currentTheme === "ace/theme/chrome"
-      ? "ace/theme/monokai"
-      : "ace/theme/chrome";
+    currentTheme === `ace/theme/${light_theme}`
+      ? `ace/theme/${dark_theme}`
+      : `ace/theme/${light_theme}`;
 
   const editorInstances = document.querySelectorAll(".ace_editor");
   for (const editorInstance of editorInstances) {
@@ -120,7 +112,7 @@ function toggleTheme(theme) {
   }
 
   const body = document.body;
-  const isDarkTheme = newTheme === "ace/theme/monokai";
+  const isDarkTheme = newTheme === `ace/theme/${dark_theme}`;
   body.classList.toggle("dark-theme", isDarkTheme);
   body.classList.toggle("light-theme", !isDarkTheme);
   body.style.backgroundColor = isDarkTheme ? "#272822" : "#bdbdbd";
@@ -539,4 +531,12 @@ if (typeof fontSize == 'undefined') {
 
 if (typeof fontFamily == 'undefined') {
   fontFamily = "monospace";
+}
+
+if (typeof light_theme == 'undefined') {
+  light_theme = 'chrome';
+}
+
+if (typeof dark_theme == 'undefined') {
+  dark_theme = 'monokai';
 }
