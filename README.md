@@ -4,7 +4,7 @@ Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
 To build desktop version yourself download the electron_app or tauri branch then run setup.py.
 ------------------------------------------------------------
-#Note it is designed for web development, ai was used for comments.
+#Note it was designed for web development, ai was used for some comments
 ----------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------

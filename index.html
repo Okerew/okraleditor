@@ -8,7 +8,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.msgpack.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
+    <scirpt src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></scirpt>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -43,6 +45,9 @@
       <button onclick="loadExtensions()">Load extension</button>
       <button onclick="shareWorkspace()">
         Share
+      </button>
+      <button onclick="beautifyCode()">
+        Beautify 
       </button>
     </div>
     <h1>Okral Code Editor</h1>
@@ -123,6 +128,11 @@
         <label>Git File Tree</label>
         <button onclick="hideFileTree()">
           Show/Hide
+        </button>
+        <br><br>
+        <label>Git</label>
+        <button onclick="pushAllToGithub()">
+          Push All
         </button>
       </div>
     </div>
