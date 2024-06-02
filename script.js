@@ -141,8 +141,6 @@ function addTab() {
   switchToTab({ target: newTab });
   toggleTheme();
   toggleTheme();
-
-  
 }
 
 function switchToTab(event) {
@@ -266,8 +264,8 @@ function toggleTheme(theme) {
   }
   const ulElements = document.querySelectorAll("ul");
   for (const ulElement of ulElements) {
-     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
-     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+    ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+    ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
 }
 
@@ -358,11 +356,11 @@ function separateScriptTags(htmlCode) {
   const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
 
   let htmlContent = htmlCode;
-  let scriptContent = '';
+  let scriptContent = "";
 
   htmlCode = htmlCode.replace(scriptRegex, (match, script) => {
     scriptContent += script;
-    return '';
+    return "";
   });
 
   return { htmlContent, scriptContent };
@@ -370,11 +368,10 @@ function separateScriptTags(htmlCode) {
 
 function executeScripts(scriptContent) {
   // Execute the extracted script content
-  const scriptElement = document.createElement('script');
+  const scriptElement = document.createElement("script");
   scriptElement.textContent = scriptContent;
   document.body.appendChild(scriptElement);
 }
-
 
 function runMarkdown() {
   const activeTab = document.querySelector(".tab.active");
@@ -488,52 +485,54 @@ async function loadRepoFiles() {
 }
 
 async function createGitFileTree(dirPath, parentNode, username, repo) {
-    const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents${dirPath}`;
+  const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents${dirPath}`;
 
-    try {
-        const response = await fetch(repoUrl);
-        if (!response.ok) {
-            throw new Error("Failed to fetch directory contents");
-        }
-        const data = await response.json();
-
-        const ul = document.createElement('ul');
-
-        for (const item of data) {
-            const li = document.createElement('li');
-            const itemName = item.name;
-
-            if (item.type === "file") {
-                const button = document.createElement('button');
-                button.textContent = itemName;
-                button.addEventListener('click', async () => {
-                    const fileUrl = item.download_url;
-                    const fileContent = await fetch(fileUrl).then((response) => response.text());
-                    const editorId = `editor-${Date.now()}`;
-                    openGitFolderFile(fileContent, editorId);
-                });
-                li.appendChild(button);
-            } else if (item.type === "dir") {
-                const button = document.createElement('button');
-                button.textContent = itemName;
-                button.classList.add('folder');
-                button.addEventListener('click', async () => {
-                    // Clear the parent node
-                    ul.innerHTML = '';
-                    // Recursively create file tree for the directory
-                    await createGitFileTree(`${dirPath}/${itemName}`, li, username, repo);
-                });
-                li.appendChild(button);
-            }
-
-            ul.appendChild(li);
-        }
-
-        parentNode.appendChild(ul);
-    } catch (error) {
-        console.error("Error creating file tree:", error);
-        alert("Error creating file tree. Please check the console for details.");
+  try {
+    const response = await fetch(repoUrl);
+    if (!response.ok) {
+      throw new Error("Failed to fetch directory contents");
     }
+    const data = await response.json();
+
+    const ul = document.createElement("ul");
+
+    for (const item of data) {
+      const li = document.createElement("li");
+      const itemName = item.name;
+
+      if (item.type === "file") {
+        const button = document.createElement("button");
+        button.textContent = itemName;
+        button.addEventListener("click", async () => {
+          const fileUrl = item.download_url;
+          const fileContent = await fetch(fileUrl).then((response) =>
+            response.text()
+          );
+          const editorId = `editor-${Date.now()}`;
+          openGitFolderFile(fileContent, editorId);
+        });
+        li.appendChild(button);
+      } else if (item.type === "dir") {
+        const button = document.createElement("button");
+        button.textContent = itemName;
+        button.classList.add("folder");
+        button.addEventListener("click", async () => {
+          // Clear the parent node
+          ul.innerHTML = "";
+          // Recursively create file tree for the directory
+          await createGitFileTree(`${dirPath}/${itemName}`, li, username, repo);
+        });
+        li.appendChild(button);
+      }
+
+      ul.appendChild(li);
+    }
+
+    parentNode.appendChild(ul);
+  } catch (error) {
+    console.error("Error creating file tree:", error);
+    alert("Error creating file tree. Please check the console for details.");
+  }
 }
 
 function openGitFolderFile(fileContent, editorId) {
@@ -566,11 +565,10 @@ function openGitFolderFile(fileContent, editorId) {
 
   document.getElementById("tabBar").appendChild(newTab);
   document.body.appendChild(newEditor.container);
-  switchToTab({target: newTab});
+  switchToTab({ target: newTab });
   toggleTheme();
   toggleTheme();
 }
-
 
 function pushToGithub() {
   const username = prompt("Enter your GitHub username:");
@@ -584,7 +582,7 @@ function pushToGithub() {
     console.error("Invalid repository name provided.");
     return;
   }
-  
+
   if (!token || !isValidFileName(token)) {
     console.error("GitHub token not provided.");
     return;
@@ -734,7 +732,6 @@ function decryptConfig(encryptedConfig, key) {
   return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
-
 function saveToCookie() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
@@ -742,7 +739,7 @@ function saveToCookie() {
   const editorId = activeTab.getAttribute("data-editor-id");
   const activeEditor = ace.edit(editorId);
   if (!activeEditor) return;
-  
+
   const unsafe_config = activeEditor.getValue();
   const config = DOMPurify.sanitize(unsafe_config);
 
@@ -755,17 +752,19 @@ function saveToCookie() {
   // Calculate expiration date (30 days from now)
   const expirationDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-  document.cookie = `encryptedConfig=${encodeURIComponent(encryptedConfig)}; expires=${expirationDate.toUTCString()}; path=/;`;
+  document.cookie = `encryptedConfig=${encodeURIComponent(
+    encryptedConfig
+  )}; expires=${expirationDate.toUTCString()}; path=/;`;
 
   // Save the key to localStorage
-  localStorage.setItem('encryptionKey', key);
+  localStorage.setItem("encryptionKey", key);
 }
-
 
 function generateRandomKey() {
   // Generate a random string to be used as the key
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let key = '';
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let key = "";
   for (let i = 0; i < 32; i++) {
     key += characters.charAt(Math.floor(Math.random() * characters.length));
   }
@@ -773,23 +772,25 @@ function generateRandomKey() {
 }
 
 function loadFromCookie() {
-  const cookies = document.cookie.split(';');
+  const cookies = document.cookie.split(";");
   let encryptedConfig = null;
 
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
-    if (cookie.startsWith('encryptedConfig=')) {
-      encryptedConfig = decodeURIComponent(cookie.substring('encryptedConfig='.length));
+    if (cookie.startsWith("encryptedConfig=")) {
+      encryptedConfig = decodeURIComponent(
+        cookie.substring("encryptedConfig=".length)
+      );
       break;
     }
   }
 
   if (!encryptedConfig) return;
 
-  const key = localStorage.getItem('encryptionKey');
+  const key = localStorage.getItem("encryptionKey");
 
   if (!key) {
-    console.error('Encryption key not found!');
+    console.error("Encryption key not found!");
     return;
   }
 
@@ -809,22 +810,25 @@ async function executePythonCode() {
   const editorId = activeTab.getAttribute("data-editor-id");
   const activeEditor = ace.edit(editorId);
   if (!activeEditor) return;
-  
+
   const editorValue = activeEditor.getValue();
 
   try {
-    const response = await fetch('https://viridian-scratch-relative.glitch.me/execute-python', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ code: editorValue })
-    });
+    const response = await fetch(
+      "https://viridian-scratch-relative.glitch.me/execute-python",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
 
     const result = await response.json();
-    console.log(result); 
+    console.log(result);
   } catch (error) {
-    console.error('Error executing Python code:', error);
+    console.error("Error executing Python code:", error);
   }
 }
 
@@ -832,55 +836,53 @@ function hideFileTree() {
   const fileTreeContainer = document.getElementById("fileTreeContainer");
   if (fileTreeContainer.style.display === "block") {
     fileTreeContainer.style.display = "none";
-  }
-  else{
+  } else {
     fileTreeContainer.style.display = "block";
   }
 }
 
-if (typeof keyboard_mode == 'undefined') {
+if (typeof keyboard_mode == "undefined") {
   keyboard_mode = null;
 }
 
-if (typeof fontSize == 'undefined') {
+if (typeof fontSize == "undefined") {
   fontSize = "15px";
 }
 
-if (typeof fontFamily == 'undefined') {
+if (typeof fontFamily == "undefined") {
   fontFamily = "monospace";
 }
 
-if (typeof light_theme == 'undefined') {
-  light_theme = 'chrome';
+if (typeof light_theme == "undefined") {
+  light_theme = "chrome";
 }
 
-if (typeof dark_theme == 'undefined') {
-  dark_theme = 'monokai';
+if (typeof dark_theme == "undefined") {
+  dark_theme = "monokai";
 }
-
 
 function shareWorkspace() {
   // Get the state of all tabs
   const tabsState = [];
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    const editorId = tab.getAttribute('data-editor-id');
+  const tabs = document.querySelectorAll(".tab");
+  tabs.forEach((tab) => {
+    const editorId = tab.getAttribute("data-editor-id");
     const editor = ace.edit(editorId);
     tabsState.push({
-      value: editor.getValue()
+      value: editor.getValue(),
     });
   });
 
   // Generate a unique URL with the state of all tabs
   const url = new URL(window.location.href);
-  url.searchParams.set('state', JSON.stringify(tabsState));
+  url.searchParams.set("state", JSON.stringify(tabsState));
 
-  prompt('Your workspace', url.toString(), '_blank');
+  prompt("Your workspace", url.toString(), "_blank");
 }
 
 function restoreWorkspace() {
   const url = new URL(window.location.href);
-  const state = url.searchParams.get('state');
+  const state = url.searchParams.get("state");
   if (state) {
     const tabsState = JSON.parse(state);
     tabsState.forEach((tabState, index) => {
@@ -898,7 +900,7 @@ function restoreWorkspace() {
       newEditorContainer.style.borderRadius = "5px";
       newEditorContainer.style.fontSize = "15px";
       newEditorContainer.style.fontFamily = "monospace";
-      
+
       const newEditor = ace.edit(newEditorContainer);
       newEditor.setOptions({
         maxLines: 38,
@@ -924,7 +926,7 @@ function restoreWorkspace() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', restoreWorkspace);
+document.addEventListener("DOMContentLoaded", restoreWorkspace);
 
 async function executeCppCode() {
   const activeTab = document.querySelector(".tab.active");
@@ -933,21 +935,126 @@ async function executeCppCode() {
   const editorId = activeTab.getAttribute("data-editor-id");
   const activeEditor = ace.edit(editorId);
   if (!activeEditor) return;
-    
+
   const editorValue = activeEditor.getValue();
 
   try {
-    const response = await fetch('https://magical-daily-shallot.glitch.me/execute-cpp', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ code: editorValue })
-    });
+    const response = await fetch(
+      "https://magical-daily-shallot.glitch.me/execute-cpp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
 
     const result = await response.json();
-    console.log(result); 
+    console.log(result);
   } catch (error) {
-    console.error('Error executing C++ code:', error);
+    console.error("Error executing C++ code:", error);
   }
 }
+
+async function pushAllToGithub() {
+  const username = prompt("Enter your GitHub username:");
+  if (!username || !isValidFileName(username)) {
+    console.error("GitHub username not provided or invalid.");
+    return;
+  }
+
+  const repo = prompt("Enter the name of your repository:");
+  if (!repo || !isValidFileName(repo)) {
+    console.error("Invalid repository name provided.");
+    return;
+  }
+
+  if (!token) {
+    console.error("GitHub token not provided.");
+    return;
+  }
+
+  const commitMessage = prompt("Enter your commit message:");
+  if (!commitMessage) {
+    console.error("Commit message not provided.");
+    return;
+  }
+
+  const branchName = prompt("Enter the name of the branch to commit to:");
+  if (!branchName || !isValidFileName(branchName)) {
+    console.error("Branch name not provided or invalid.");
+    return;
+  }
+  const editorInstances = document.querySelectorAll(".ace_editor");
+
+  for (let i = 1; i < editorInstances.length; i++) {
+    const editorInstance = editorInstances[i];
+    const tabName = prompt("Enter file name: ")
+    const editorId = editorInstance.id;
+    const editor = ace.edit(editorId);
+    const code = editor.getValue();
+
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${encodeURIComponent(
+      tabName
+    )}`;
+
+    const data = {
+      message: commitMessage,
+      content: btoa(unescape(encodeURIComponent(code))),
+      branch: branchName,
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to push changes for ${tabName}`);
+      }
+
+      console.log(`Changes for ${tabName} pushed successfully`);
+    } catch (error) {
+      console.error(`Error pushing changes for ${tabName}:`, error);
+    }
+  }
+
+  alert("All changes pushed to GitHub successfully!");
+}
+
+function beautifyCode() {
+      const activeTab = document.querySelector(".tab.active");
+      if (!activeTab) return;
+
+      const editorId = activeTab.getAttribute("data-editor-id");
+      const activeEditor = ace.edit(editorId);
+      if (!activeEditor) return;
+
+      const editorValue = activeEditor.getValue();
+
+      const language = prompt("Enter the language (js - javascript, html, css):");
+
+      let beautifiedCode;
+      switch (language.toLowerCase()) {
+        case 'js':
+          beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
+          break;
+        case 'html':
+          beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
+          break;
+        case 'css':
+          beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
+          break;
+        default:
+          alert('Unsupported language');
+          return;
+      }
+
+      activeEditor.setValue(beautifiedCode, 1);
+    }
