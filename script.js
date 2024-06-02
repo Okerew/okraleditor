@@ -1029,32 +1029,34 @@ async function pushAllToGithub() {
 }
 
 function beautifyCode() {
-      const activeTab = document.querySelector(".tab.active");
-      if (!activeTab) return;
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
 
-      const editorId = activeTab.getAttribute("data-editor-id");
-      const activeEditor = ace.edit(editorId);
-      if (!activeEditor) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
 
-      const editorValue = activeEditor.getValue();
+  const editorValue = activeEditor.getValue();
 
-      const language = prompt("Enter the language (js - javascript, html, css):");
+  const language = prompt("Enter the language (js - javascript, html, css):");
 
-      let beautifiedCode;
-      switch (language.toLowerCase()) {
-        case 'js':
-          beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
-          break;
-        case 'html':
-          beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
-          break;
-        case 'css':
-          beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
-          break;
-        default:
-          alert('Unsupported language');
-          return;
-      }
+  let beautifiedCode;
+  switch (language.toLowerCase()) {
+    case "js":
+      beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
+      break;
+    case "html":
+      beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
+      break;
+    case "css":
+      beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
+      break;
+    default:
+      alert("Unsupported language");
+      return;
+  }
 
-      activeEditor.setValue(beautifiedCode, 1);
+  activeEditor.setValue(beautifiedCode, 1);
+}
+
     }
