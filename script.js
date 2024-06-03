@@ -990,7 +990,11 @@ async function pushAllToGithub() {
 
   for (let i = 1; i < editorInstances.length; i++) {
     const editorInstance = editorInstances[i];
-    const tabName = prompt("Enter file name: ")
+    const tabName = prompt("Enter file name: ");
+    if (!tabName || !isValideFileName(tabName)) {
+      console.error("File name not provided");
+      return;
+    }
     const editorId = editorInstance.id;
     const editor = ace.edit(editorId);
     const code = editor.getValue();
@@ -1039,7 +1043,10 @@ function beautifyCode() {
   const editorValue = activeEditor.getValue();
 
   const language = prompt("Enter the language (js - javascript, html, css):");
-
+  if (!language || !isValidFileName(language)) {
+    console.error("There was a mistake please try again. ");
+    return;
+  }
   let beautifiedCode;
   switch (language.toLowerCase()) {
     case "js":
@@ -1058,5 +1065,3 @@ function beautifyCode() {
 
   activeEditor.setValue(beautifiedCode, 1);
 }
-
-    }
