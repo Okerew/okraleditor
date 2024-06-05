@@ -32,8 +32,8 @@ function addTab() {
   newEditor.container.style.marginTop = "10px";
   newEditor.container.style.border = "2px solid #cccccc";
   newEditor.container.style.borderRadius = "5px";
-  newEditor.container.style.fontSize = fontSize;
-  newEditor.container.style.fontFamily = fontFamily;
+  newEditor.container.style.fontSize = "15px";
+  newEditor.container.style.fontFamily = "monospace";
 
   newEditor.container.id = editorId;
 
@@ -49,8 +49,16 @@ function addTab() {
   document.body.appendChild(newEditor.container);
 
   switchToTab({ target: newTab });
-  toggleTheme();
-  toggleTheme();
+  const isDarkTheme = currentTheme === "ace/theme/monokai";
+  const newTheme = isDarkTheme ? "ace/theme/monokai" : "ace/theme/chrome";
+  newEditor.setTheme(newTheme);
+  const backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+  const textColor = isDarkTheme ? "#dddddd" : "#000000";
+
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.style.backgroundColor = backgroundColor;
+    tab.style.color = textColor;
+  });
 }
 
 function switchToTab(event) {
@@ -101,9 +109,9 @@ document
 function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =
-    currentTheme === `ace/theme/${light_theme}`
-      ? `ace/theme/${dark_theme}`
-      : `ace/theme/${light_theme}`;
+    currentTheme === "ace/theme/chrome"
+      ? "ace/theme/monokai"
+      : "ace/theme/chrome";
 
   const editorInstances = document.querySelectorAll(".ace_editor");
   for (const editorInstance of editorInstances) {
@@ -112,7 +120,7 @@ function toggleTheme(theme) {
   }
 
   const body = document.body;
-  const isDarkTheme = newTheme === `ace/theme/${dark_theme}`;
+  const isDarkTheme = newTheme === "ace/theme/monokai";
   body.classList.toggle("dark-theme", isDarkTheme);
   body.classList.toggle("light-theme", !isDarkTheme);
   body.style.backgroundColor = isDarkTheme ? "#272822" : "#bdbdbd";
@@ -309,13 +317,10 @@ function openGitFolderFile(fileContent, editorId) {
   newEditor.container.style.marginTop = "10px";
   newEditor.container.style.border = "2px solid #cccccc";
   newEditor.container.style.borderRadius = "5px";
-  newEditor.container.style.fontSize = fontSize;
-  newEditor.container.style.fontFamily = fontFamily;
+  newEditor.container.style.fontSize = "15px";
+  newEditor.container.style.fontFamily = "monospace";
 
   newEditor.setValue(fileContent);
-  const language = document.getElementById("language-select").value;
-  newEditor.session.setMode(`ace/mode/${language}`);
-  newTab.setAttribute("data-language", language);
   newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
   newEditor.container.id = editorId;
   newTab.setAttribute("data-editor-id", editorId);
@@ -525,18 +530,136 @@ if (typeof keyboard_mode == 'undefined') {
   keyboard_mode = null;
 }
 
-if (typeof fontSize == 'undefined') {
-  fontSize = "15px";
+async function pushAllToGithub() {
+  const container = document.createElement("div");
+
+  createInput("GitHub username:", "usernameInput", container);
+  createInput("Repository name:", "repoInput", container);
+  createInput("Commit message:", "commitMessageInput", container);
+  createInput("Branch name:", "branchNameInput", container);
+
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Submit";
+  container.appendChild(submitButton);
+
+  document.body.appendChild(container);
+
+  await new Promise((resolve) => {
+    submitButton.addEventListener("click", resolve);
+  });
+
+  const username = document.getElementById("usernameInput").value;
+  const repo = document.getElementById("repoInput").value;
+  const commitMessage = document.getElementById("commitMessageInput").value;
+  const branchName = document.getElementById("branchNameInput").value;
+
+  if (!username) {
+    console.error("GitHub username not provided or invalid.");
+    return;
+  }
+  if (!repo) {
+    console.error("Invalid repository name provided.");
+    return;
+  }
+  if (!commitMessage) {
+    console.error("Commit message not provided.");
+    return;
+  }
+  if (!branchName) {
+    console.error("Branch name not provided or invalid.");
+    return;
+  }
+
+  const editorInstances = document.querySelectorAll(".ace_editor");
+
+  for (let i = 0; i < editorInstances.length; i++) {
+    const editorInstance = editorInstances[i];
+    createInput("File name: ", "tabInput", container)
+    const tabName = document.getElementById("tabInput").value;
+    if (!tabName) {
+      console.error("File name not provided or invalid.");
+      return;
+    }
+    const editorId = editorInstance.id;
+    const editor = ace.edit(editorId);
+    const code = editor.getValue();
+
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${encodeURIComponent(tabName)}`;
+
+    const data = {
+      message: commitMessage,
+      content: btoa(unescape(encodeURIComponent(code))),
+      branch: branchName,
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to push changes for ${tabName}`);
+      }
+
+      console.log(`Changes for ${tabName} pushed successfully`);
+    } catch (error) {
+      console.error(`Error pushing changes for ${tabName}:`, error);
+    }
+  }
+
+  alert("All changes pushed to GitHub successfully!");
 }
 
-if (typeof fontFamily == 'undefined') {
-  fontFamily = "monospace";
-}
+function beautifyCode() {
+  const container = document.createElement("div");
 
-if (typeof light_theme == 'undefined') {
-  light_theme = 'chrome';
-}
+  createInput("Enter the language (js - javascript, html, css):", "languageInput", container);
 
-if (typeof dark_theme == 'undefined') {
-  dark_theme = 'monokai';
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Beautify";
+  container.appendChild(submitButton);
+
+  document.body.appendChild(container);
+
+  submitButton.addEventListener("click", () => {
+    const activeTab = document.querySelector(".tab.active");
+    if (!activeTab) return;
+
+    const editorId = activeTab.getAttribute("data-editor-id");
+    const activeEditor = ace.edit(editorId);
+    if (!activeEditor) return;
+
+    const editorValue = activeEditor.getValue();
+    const language = document.getElementById("languageInput").value;
+
+    if (!language) {
+      console.error("There was a mistake, please try again.");
+      return;
+    }
+
+    let beautifiedCode;
+    switch (language.toLowerCase()) {
+      case "js":
+        beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
+        break;
+      case "html":
+        beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
+        break;
+      case "css":
+        beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
+        break;
+      default:
+        alert("Unsupported language");
+        return;
+    }
+
+    activeEditor.setValue(beautifiedCode, 1);
+
+    document.body.removeChild(container);
+  });
 }
