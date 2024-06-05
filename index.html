@@ -4,13 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Okral Code Editor</title>
-   <script src="ace/src/ace.js"></script>
-  <script src="ace/src/ext-language_tools.js"></script>
+   <script src="libs/ace/src/ace.js"></script>
+  <script src="libs/ace/src/ext-language_tools.js"></script>
+  <script src="libs/js-beautify/beautify.min.js.js"></script>
+  <script src="libs/js-beautify/beautify-html.min.js.js"></script>
+  <script src="libs/js-beautify/beautify-css.min.js.js"></script>
   <script src="web_sources/script.js" defer></script>
   <link rel="stylesheet" href="web_sources/style.css" />
   <link
           rel="icon"
-          href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+          href="icons/icon.png"
   />
 </head>
 <body>
@@ -40,6 +43,7 @@
   <button onclick="openSettings()">Settings</button>
   <button onclick="gitOps()">Git</button>
   <button onclick="loadExtensions()">Load Extensions</button>
+  <button onclick="beautifyCode()">Beautify</button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -132,6 +136,9 @@
         <br><br>
         <label>Git File Tree</label>
         <button onclick="hideFileTree()">Show/Hide</button>
+        <br><br>
+        <label>Git</label>
+        <button onclick="pushAllToGithub()">Push All</button>
       </div>
     </div>
 
