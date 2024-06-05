@@ -10,7 +10,7 @@ def os_function():
 
 
 os_function()
-os.system("git clone https://github.com/ajaxorg/ace-builds.git ace")
+os.system("git clone https://github.com/ajaxorg/ace-builds.git libs/ace")
 os.system("yarn add electron-builder --dev")
 os.system("yarn build")
-print("Create OCE folder in documents and add in it Temps, Extensions, Config.
+print("If you want to use a config in Config folder in OCE create a config.js put there your config")
