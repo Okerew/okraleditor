@@ -1065,3 +1065,68 @@ function beautifyCode() {
 
   activeEditor.setValue(beautifiedCode, 1);
 }
+
+function getServerUrl() {
+  return new Promise((resolve, reject) => {
+    const url = prompt(
+      "Please enter the collaborative server URL: ",
+      "https://thin-sprout-cactus.glitch.me/"
+    );
+    if (url) {
+      resolve(url);
+    } else {
+      reject("Server URL is required to connect to the collaborative server.");
+    }
+  });
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+function connectToCollaborativeServer() {
+  getServerUrl()
+    .then((serverUrl) => {
+      const socket = io(serverUrl);
+
+      function sendEditorValue() {
+        const activeTab = document.querySelector(".tab.active");
+        if (!activeTab) return;
+
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        if (!activeEditor) return;
+
+        const editorValue = activeEditor.getValue();
+        socket.emit("editorChange", editorValue);
+      }
+
+      const activeTab = document.querySelector(".tab.active");
+      if (!activeTab) return;
+
+      const editorId = activeTab.getAttribute("data-editor-id");
+      const activeEditor = ace.edit(editorId);
+      const debouncedSendEditorValue = debounce(sendEditorValue, 1000);
+
+      activeEditor.session.on("change", debouncedSendEditorValue);
+
+      socket.on("updateEditor", (editorValue) => {
+        const activeTab = document.querySelector(".tab.active");
+        if (!activeTab) return;
+
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        if (!activeEditor) return;
+
+        activeEditor.setValue(editorValue);
+      });
+    })
+    .catch((error) => {
+      alert(error);
+      console.error(error);
+    });
+}

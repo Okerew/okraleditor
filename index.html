@@ -10,7 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
-    <scirpt src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></scirpt>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -48,6 +49,9 @@
       </button>
       <button onclick="beautifyCode()">
         Beautify 
+      </button>
+      <button onclick="connectToCollaborativeServer()">
+        Join Collab Session
       </button>
     </div>
     <h1>Okral Code Editor</h1>
