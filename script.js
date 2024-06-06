@@ -990,7 +990,11 @@ async function pushAllToGithub() {
 
   for (let i = 1; i < editorInstances.length; i++) {
     const editorInstance = editorInstances[i];
-    const tabName = prompt("Enter file name: ")
+    const tabName = prompt("Enter file name: ");
+    if (!tabName || !isValideFileName(tabName)) {
+      console.error("File name not provided");
+      return;
+    }
     const editorId = editorInstance.id;
     const editor = ace.edit(editorId);
     const code = editor.getValue();
@@ -1029,32 +1033,100 @@ async function pushAllToGithub() {
 }
 
 function beautifyCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  const language = prompt("Enter the language (js - javascript, html, css):");
+  if (!language || !isValidFileName(language)) {
+    console.error("There was a mistake please try again. ");
+    return;
+  }
+  let beautifiedCode;
+  switch (language.toLowerCase()) {
+    case "js":
+      beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
+      break;
+    case "html":
+      beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
+      break;
+    case "css":
+      beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
+      break;
+    default:
+      alert("Unsupported language");
+      return;
+  }
+
+  activeEditor.setValue(beautifiedCode, 1);
+}
+
+function getServerUrl() {
+  return new Promise((resolve, reject) => {
+    const url = prompt(
+      "Please enter the collaborative server URL: ",
+      "https://thin-sprout-cactus.glitch.me/"
+    );
+    if (url) {
+      resolve(url);
+    } else {
+      reject("Server URL is required to connect to the collaborative server.");
+    }
+  });
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+function connectToCollaborativeServer() {
+  getServerUrl()
+    .then((serverUrl) => {
+      const socket = io(serverUrl);
+
+      function sendEditorValue() {
+        const activeTab = document.querySelector(".tab.active");
+        if (!activeTab) return;
+
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        if (!activeEditor) return;
+
+        const editorValue = activeEditor.getValue();
+        socket.emit("editorChange", editorValue);
+      }
+
       const activeTab = document.querySelector(".tab.active");
       if (!activeTab) return;
 
       const editorId = activeTab.getAttribute("data-editor-id");
       const activeEditor = ace.edit(editorId);
-      if (!activeEditor) return;
+      const debouncedSendEditorValue = debounce(sendEditorValue, 1000);
 
-      const editorValue = activeEditor.getValue();
+      activeEditor.session.on("change", debouncedSendEditorValue);
 
-      const language = prompt("Enter the language (js - javascript, html, css):");
+      socket.on("updateEditor", (editorValue) => {
+        const activeTab = document.querySelector(".tab.active");
+        if (!activeTab) return;
 
-      let beautifiedCode;
-      switch (language.toLowerCase()) {
-        case 'js':
-          beautifiedCode = js_beautify(editorValue, { indent_size: 2 });
-          break;
-        case 'html':
-          beautifiedCode = html_beautify(editorValue, { indent_size: 2 });
-          break;
-        case 'css':
-          beautifiedCode = css_beautify(editorValue, { indent_size: 2 });
-          break;
-        default:
-          alert('Unsupported language');
-          return;
-      }
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        if (!activeEditor) return;
 
-      activeEditor.setValue(beautifiedCode, 1);
-    }
+        activeEditor.setValue(editorValue);
+      });
+    })
+    .catch((error) => {
+      alert(error);
+      console.error(error);
+    });
+}
