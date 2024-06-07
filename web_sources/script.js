@@ -13,7 +13,7 @@ function addTab() {
   const newTab = document.createElement("button");
   newTab.className = "tab";
   newTab.textContent = `Tab ${
-    document.getElementsByClassName("tab").length + 1
+      document.getElementsByClassName("tab").length + 1
   }`;
   const editorId = `editor${Date.now()}`;
   newTab.setAttribute("data-editor-id", editorId);
@@ -65,14 +65,14 @@ function switchToTab(event) {
   const tab = event.target;
 
   document
-    .querySelectorAll(".tab.active")
-    .forEach((tab) => tab.classList.remove("active"));
+      .querySelectorAll(".tab.active")
+      .forEach((tab) => tab.classList.remove("active"));
 
   tab.classList.add("active");
 
   document
-    .querySelectorAll(".ace_editor")
-    .forEach((editor) => (editor.style.display = "none"));
+      .querySelectorAll(".ace_editor")
+      .forEach((editor) => (editor.style.display = "none"));
 
   const activeEditor = ace.edit(tab.getAttribute("data-editor-id"));
   activeEditor.container.style.display = "block";
@@ -98,20 +98,20 @@ function closeTab(event) {
 }
 
 document
-  .getElementById("closeActiveTab")
-  .addEventListener("click", function () {
-    const activeTab = document.querySelector(".tab.active");
-    if (activeTab) {
-      closeTab({ target: activeTab });
-    }
-  });
+    .getElementById("closeActiveTab")
+    .addEventListener("click", function () {
+      const activeTab = document.querySelector(".tab.active");
+      if (activeTab) {
+        closeTab({ target: activeTab });
+      }
+    });
 
 function toggleTheme(theme) {
   const currentTheme = editor.getTheme();
   const newTheme =
-    currentTheme === "ace/theme/chrome"
-      ? "ace/theme/monokai"
-      : "ace/theme/chrome";
+      currentTheme === "ace/theme/chrome"
+          ? "ace/theme/monokai"
+          : "ace/theme/chrome";
 
   const editorInstances = document.querySelectorAll(".ace_editor");
   for (const editorInstance of editorInstances) {
@@ -182,8 +182,8 @@ function toggleTheme(theme) {
   }
   const ulElements = document.querySelectorAll("ul");
   for (const ulElement of ulElements) {
-     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
-     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+    ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+    ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
 }
 
@@ -388,7 +388,7 @@ function pushToGithub() {
     const code = activeEditor.getValue();
 
     const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${encodeURIComponent(
-      filename
+        filename
     )}`;
 
     const data = {
@@ -414,7 +414,7 @@ function pushToGithub() {
     } catch (error) {
       console.error("Error pushing changes to branch:", error);
       alert(
-        "Error pushing changes to branch. Please check the console for details."
+          "Error pushing changes to branch. Please check the console for details."
       );
     } finally {
       container.style.display = "none";
@@ -662,4 +662,89 @@ function beautifyCode() {
 
     document.body.removeChild(container);
   });
+}
+
+function getServerUrl() {
+  return new Promise((resolve, reject) => {
+    const container = document.createElement('div');
+    container.id = 'inputContainer';
+    document.body.appendChild(container);
+
+    const label = document.createElement('label');
+    label.for = 'serverUrlInput';
+    label.textContent = 'Please enter the collaborative server URL: ';
+    container.appendChild(label);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'serverUrlInput';
+    input.placeholder = 'https://thin-sprout-cactus.glitch.me/';
+    container.appendChild(input);
+
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Connect';
+    container.appendChild(submitButton);
+
+    submitButton.addEventListener('click', () => {
+      const url = input.value;
+      if (url) {
+        resolve(url);
+        document.body.removeChild(container);
+      } else {
+        reject('Server URL is required to connect to the collaborative server.');
+        document.body.removeChild(container);
+      }
+    });
+  });
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+function connectToCollaborativeServer() {
+  getServerUrl()
+      .then((serverUrl) => {
+        const socket = io(serverUrl);
+
+        function sendEditorValue() {
+          const activeTab = document.querySelector('.tab.active');
+          if (!activeTab) return;
+
+          const editorId = activeTab.getAttribute('data-editor-id');
+          const activeEditor = ace.edit(editorId);
+          if (!activeEditor) return;
+
+          const editorValue = activeEditor.getValue();
+          socket.emit('editorChange', editorValue);
+        }
+
+        const activeTab = document.querySelector('.tab.active');
+        if (!activeTab) return;
+
+        const editorId = activeTab.getAttribute('data-editor-id');
+        const activeEditor = ace.edit(editorId);
+        const debouncedSendEditorValue = debounce(sendEditorValue, 1000);
+
+        activeEditor.session.on('change', debouncedSendEditorValue);
+
+        socket.on('updateEditor', (editorValue) => {
+          const activeTab = document.querySelector('.tab.active');
+          if (!activeTab) return;
+
+          const editorId = activeTab.getAttribute('data-editor-id');
+          const activeEditor = ace.edit(editorId);
+          if (!activeEditor) return;
+
+          activeEditor.setValue(editorValue);
+        });
+      })
+      .catch((error) => {
+        alert(error);
+        console.error(error);
+      });
 }
