@@ -1,127 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Okral Code Editor</title>
-   <script src="libs/ace/src/ace.js"></script>
-  <script src="libs/ace/src/ext-language_tools.js"></script>
-  <script src="libs/js-beautify/beautify.min.js.js"></script>
-  <script src="libs/js-beautify/beautify-html.min.js.js"></script>
-  <script src="libs/js-beautify/beautify-css.min.js.js"></script>
-  <script src="web_sources/script.js" defer></script>
-  <link rel="stylesheet" href="web_sources/style.css" />
-  <link
-          rel="icon"
-          href="icons/icon.png"
-  />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Okral Code Editor</title>
+    <script src="libs/ace/src/ace.js"></script>
+    <script src="libs/ace/src/ext-language_tools.js"></script>
+    <script src="libs/js-beautify/beautify.min.js.js"></script>
+    <script src="libs/js-beautify/beautify-html.min.js.js"></script>
+    <script src="libs/js-beautify/beautify-css.min.js.js"></script>
+    <script src="libs/socket.io.js"></script>
+    <script src="web_sources/script.js" defer></script>
+    <link rel="stylesheet" href="web_sources/style.css" />
+    <link
+            rel="icon"
+            href="icons/icon.png"
+    />
 </head>
 <body>
 <div class="navbar">
-  <select id="language-select">
-    <option value="text">Select a language</option>
-    <option value="javascript">JavaScript</option>
-    <option value="html">HTML</option>
-    <option value="css">CSS</option>
-    <option value="php">PHP</option>
-    <option value="sql">SQL</option>
-    <option value="markdown">Markdown</option>
-    <option value="dockerfile">Docker File</option>
-    <option value="json">JSON</option>
-    <option value="jsx">JSX</option>
-    <option value="mysql">MySql</option>
-    <option value="graphqlschema">GraphQL</option>
-    <option value="python">Python</option>
-    <option value="golang">Go</option>
-    <option value="ruby">Ruby</option>
-    <option value="rust">Rust</option>
-    <option value="kotlin">Kotlin</option>
-    <option value="c_cpp">C/C++</option>
-  </select>
-  <button onclick="runCode()">Run</button>
-  <button onclick="fileOps()">File</button>
-  <button onclick="openSettings()">Settings</button>
-  <button onclick="gitOps()">Git</button>
-  <button onclick="loadExtensions()">Load Extensions</button>
-  <button onclick="beautifyCode()">Beautify</button>
+    <select id="language-select">
+        <option value="text">Select a language</option>
+        <option value="javascript">JavaScript</option>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="php">PHP</option>
+        <option value="sql">SQL</option>
+        <option value="markdown">Markdown</option>
+        <option value="dockerfile">Docker File</option>
+        <option value="json">JSON</option>
+        <option value="jsx">JSX</option>
+        <option value="mysql">MySql</option>
+        <option value="graphqlschema">GraphQL</option>
+        <option value="python">Python</option>
+        <option value="golang">Go</option>
+        <option value="ruby">Ruby</option>
+        <option value="rust">Rust</option>
+        <option value="kotlin">Kotlin</option>
+        <option value="c_cpp">C/C++</option>
+    </select>
+    <button onclick="runCode()">Run</button>
+    <button onclick="fileOps()">File</button>
+    <button onclick="openSettings()">Settings</button>
+    <button onclick="gitOps()">Git</button>
+    <button onclick="loadExtensions()">Load Extensions</button>
+    <button onclick="beautifyCode()">Beautify</button>
+    <button onclick="connectToCollaborativeServer()">Join Collab Session</button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
-  <button id="closeActiveTab">Close Active Tab</button>
-  <button onclick="addTab()">Add Tab</button>
+    <button id="closeActiveTab">Close Active Tab</button>
+    <button onclick="addTab()">Add Tab</button>
 </div>
 <div id="editor"></div>
 <div id="settingsModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeSettings()">&times;</span>
-    <h2>Settings</h2>
-    <label>Darkmode/Lightmode</label>
-    <button onclick="toggleTheme()">Toggle</button>
-  </div>
+    <div class="modal-content">
+        <span class="close" onclick="closeSettings()">&times;</span>
+        <h2>Settings</h2>
+        <label>Darkmode/Lightmode</label>
+        <button onclick="toggleTheme()">Toggle</button>
+    </div>
 </div>
 <div id="fileModal" class="modal">
-  <div class="modal-content">
-    <label>Open</label>
-    <span class="close" onclick="closefileOps()">&times;</span>
-    <button onclick="openFileDialog()">File</button>
-    <br>
-    <label>Save As</label>
-    <button onclick="saveFile()">File</button>
-    <br>
-    <label>Save</label>
-    <button onclick="saveToFile()">File</button>
-    <br>
-    <label>Folder</label>
-    <button onclick="openFolderDialog()">Open</button>
-    <br>
-    <label>File Tree</label>
-    <button onclick="fileTreeShow()">Show/Hide</button>
-  </div>
+    <div class="modal-content">
+        <label>Open</label>
+        <span class="close" onclick="closefileOps()">&times;</span>
+        <button onclick="openFileDialog()">File</button>
+        <br>
+        <label>Save As</label>
+        <button onclick="saveFile()">File</button>
+        <br>
+        <label>Save</label>
+        <button onclick="saveToFile()">File</button>
+        <br>
+        <label>Folder</label>
+        <button onclick="openFolderDialog()">Open</button>
+        <br>
+        <label>File Tree</label>
+        <button onclick="fileTreeShow()">Show/Hide</button>
+    </div>
 </div>
 <div id="runModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeRunCode()">&times;</span>
-    <label>Active File</label>
-    <button onclick="executeActiveFile()">Run</button>
-    <br>
-    <label>HTML</label>
-    <button onclick="executeHtmlCode()">Run</button>
-    <br>
-    <label>Show/Hide</label>
-    <button onclick="htmlOutput()">Output</button>
-    <br>
-    <label>Markdown</label>
-    <button onclick="runMarkdown()">Run</button>
-    <hr>
-    <label>Temps:</label>
-    <br><br>
-    <label>Javascript</label>
-    <button onclick="executeJavaScriptCode()">Run</button>
-    <br>
-    <label>Python</label>
-    <button onclick="executePythonCode()">Run</button>
-    <br>
-    <label>Go</label>
-    <button onclick="executeGoCode()">Run</button>
-    <br>
-    <label>Ruby</label>
-    <button onclick="executeRubyCode()">Run</button>
-    <br>
-    <label>Rust</label>
-    <button onclick="executeRustCode()">Run</button>
-    <br>
-    <label>Kotlin</label>
-    <button onclick="executeKotlinCode()">Run</button>
-    <br>
-    <label>C++</label>
-    <button onclick="executeCppCode()">Run</button>
-    <br>
-    <label>C</label>
-    <button onclick="executeCCode()">Run</button>
-  </div>
+    <div class="modal-content">
+        <span class="close" onclick="closeRunCode()">&times;</span>
+        <label>Active File</label>
+        <button onclick="executeActiveFile()">Run</button>
+        <br>
+        <label>HTML</label>
+        <button onclick="executeHtmlCode()">Run</button>
+        <br>
+        <label>Show/Hide</label>
+        <button onclick="htmlOutput()">Output</button>
+        <br>
+        <label>Markdown</label>
+        <button onclick="runMarkdown()">Run</button>
+        <hr>
+        <label>Temps:</label>
+        <br><br>
+        <label>Javascript</label>
+        <button onclick="executeJavaScriptCode()">Run</button>
+        <br>
+        <label>Python</label>
+        <button onclick="executePythonCode()">Run</button>
+        <br>
+        <label>Go</label>
+        <button onclick="executeGoCode()">Run</button>
+        <br>
+        <label>Ruby</label>
+        <button onclick="executeRubyCode()">Run</button>
+        <br>
+        <label>Rust</label>
+        <button onclick="executeRustCode()">Run</button>
+        <br>
+        <label>Kotlin</label>
+        <button onclick="executeKotlinCode()">Run</button>
+        <br>
+        <label>C++</label>
+        <button onclick="executeCppCode()">Run</button>
+        <br>
+        <label>C</label>
+        <button onclick="executeCCode()">Run</button>
+    </div>
 </div>
-  <div id="gitModal" class="modal">
-      <div class="modal-content">
+<div id="gitModal" class="modal">
+    <div class="modal-content">
         <span class="close" onclick="closeGitOps()">&times;</span>
         <label>Git</label>
         <button onclick="pushToGithub()">Push</button>
@@ -131,7 +133,7 @@
         <br><br>
         <label>Git</label>
         <button onclick="mergeBranches()">
-          Merge
+            Merge
         </button>
         <br><br>
         <label>Git File Tree</label>
@@ -139,8 +141,8 @@
         <br><br>
         <label>Git</label>
         <button onclick="pushAllToGithub()">Push All</button>
-      </div>
     </div>
+</div>
 
 <div id="output-container"></div>
 <div id="file-explorer"></div>
