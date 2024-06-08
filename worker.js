@@ -10,25 +10,24 @@ self.addEventListener('fetch', function(event) {
 
 function executeJavaScriptCode(jsCode, editorId) {
   jsCode = jsCode.replace(/eval\s*\(/g, '');
+  jsCode = jsCode.replace(/importScripts\s*\(/g, '');
+  jsCode = jsCode.replace(/document\s*\./g, '');
 
-  const functionRegex = /function\s+([^\(]+)\(([^)]*)\)\s*{([^]*)}/g;
+  const functionRegex = /function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(([^)]*)\)\s*{([^]*)}/g;
 
   let match;
   while ((match = functionRegex.exec(jsCode)) !== null) {
-    const functionName = match[1];
+    const functionName = match[1].trim();
     const functionParameters = match[2].split(',').map(param => param.trim());
     const functionBody = match[3];
 
-    self[functionName] = new Function(...functionParameters, functionBody);
-  }
-
-  try {
-    eval(jsCode); 
-  } catch (error) {
-    console.error('Error executing JavaScript code:', error);
+    try {
+      self[functionName] = new Function(...functionParameters, functionBody);
+    } catch (error) {
+      console.error(`Error creating function ${functionName}:`, error);
+    }
   }
 }
-
 
 self.onmessage = function(event) {
   const { jsCode, editorId } = event.data;

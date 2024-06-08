@@ -336,20 +336,35 @@ function executeHtmlCode() {
   // Separate script tags from the main process
   const { htmlContent, scriptContent } = separateScriptTags(htmlCode);
 
-  // Sanitize HTML content
   const sanitizedHtml = DOMPurify.sanitize(htmlContent);
-
-  const resultDiv = document.createElement("div");
-
-  resultDiv.innerHTML = sanitizedHtml;
 
   const outputContainer = document.getElementById("output-container");
   outputContainer.innerHTML = "";
 
-  outputContainer.appendChild(resultDiv);
+  const blob = new Blob([`
+  <!DOCTYPE html>
+    <html>
+    <head></head>
+    <body>
+      ${sanitizedHtml}
+      <script>
+        ${scriptContent}
+      <\/script>
+    </body>
+    </html>
+  `], { type: 'text/html' });
 
-  // Execute script content
-  executeScripts(scriptContent);
+  const blobUrl = URL.createObjectURL(blob);
+
+  // Create an iframe for sandboxed execution
+  const iframe = document.createElement("iframe");
+  iframe.style.width = "100%";
+  iframe.style.height = "100%";
+  iframe.sandbox = "allow-scripts"; 
+
+  iframe.src = blobUrl;
+
+  outputContainer.appendChild(iframe);
 }
 
 function separateScriptTags(htmlCode) {
@@ -364,13 +379,6 @@ function separateScriptTags(htmlCode) {
   });
 
   return { htmlContent, scriptContent };
-}
-
-function executeScripts(scriptContent) {
-  // Execute the extracted script content
-  const scriptElement = document.createElement("script");
-  scriptElement.textContent = scriptContent;
-  document.body.appendChild(scriptElement);
 }
 
 function runMarkdown() {
@@ -395,17 +403,16 @@ function runMarkdown() {
 }
 
 function convertToHtml(markdown) {
-  const sanitizedMarkdown = markdown.replace(
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    ""
-  );
+  const noScripts = markdown.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  const noJavaScriptLinks = noScripts.replace(/\bhttps?:\/\/\S+\bjavascript:/gi, '');
+  const noDataURIImages = noJavaScriptLinks.replace(/\bdata:image\/\S+;base64,\S+/gi, '');
 
-  return sanitizedMarkdown
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>")
-    .replace(/\n- (.*?)\n/g, "<ul><li>$1</li></ul>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
+  return noDataURIImages
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
+    .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
 function loadExtensions() {
