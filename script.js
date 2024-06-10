@@ -341,7 +341,9 @@ function executeHtmlCode() {
   const outputContainer = document.getElementById("output-container");
   outputContainer.innerHTML = "";
 
-  const blob = new Blob([`
+  const blob = new Blob(
+    [
+      `
   <!DOCTYPE html>
     <html>
     <head></head>
@@ -352,7 +354,10 @@ function executeHtmlCode() {
       <\/script>
     </body>
     </html>
-  `], { type: 'text/html' });
+  `,
+    ],
+    { type: "text/html" }
+  );
 
   const blobUrl = URL.createObjectURL(blob);
 
@@ -360,7 +365,7 @@ function executeHtmlCode() {
   const iframe = document.createElement("iframe");
   iframe.style.width = "100%";
   iframe.style.height = "100%";
-  iframe.sandbox = "allow-scripts"; 
+  iframe.sandbox = "allow-scripts";
 
   iframe.src = blobUrl;
 
@@ -403,16 +408,25 @@ function runMarkdown() {
 }
 
 function convertToHtml(markdown) {
-  const noScripts = markdown.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  const noJavaScriptLinks = noScripts.replace(/\bhttps?:\/\/\S+\bjavascript:/gi, '');
-  const noDataURIImages = noJavaScriptLinks.replace(/\bdata:image\/\S+;base64,\S+/gi, '');
+  const noScripts = markdown.replace(
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    ""
+  );
+  const noJavaScriptLinks = noScripts.replace(
+    /\bhttps?:\/\/\S+\bjavascript:/gi,
+    ""
+  );
+  const noDataURIImages = noJavaScriptLinks.replace(
+    /\bdata:image\/\S+;base64,\S+/gi,
+    ""
+  );
 
   return noDataURIImages
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
-    .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>")
+    .replace(/\n- (.*?)\n/g, "<ul><li>$1</li></ul>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function loadExtensions() {
@@ -1137,3 +1151,82 @@ function connectToCollaborativeServer() {
       console.error(error);
     });
 }
+
+
+function appendImageToTab() {
+  const activeTab = document.querySelector('.tab.active');
+  if (activeTab) {
+    const fileName = activeTab.textContent.trim();
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+    let imageSrc = '';
+    switch (fileExtension) {
+      case 'py':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/python-icon.png?v=1718043792751';
+        break;
+      case 'js':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/javascript-icon.png?v=1718043790844';
+        break;
+      case 'html':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/html-icon.png?v=1718043786000';
+        break;
+      case 'css':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/css-icon.png?v=1718043787317';
+        break;
+      case 'json':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/json-icon.png?v=1718043776075';
+        break;
+      case 'md':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/markdown-icon.png?v=1718043796183';
+        break;
+      case 'jsx':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/jsx-icon.png?v=1718043816791';
+        break;
+      case 'php':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/php-icon.png?v=1718044475075';
+        break;
+      case 'cpp':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/cpp-icon.png?v=1718043827762';
+        break;
+      case 'sql':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/sql-icon.png?v=1718043813734';
+        break;
+      case 'dockerfile':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/docker-icon.png?v=1718043784184';
+        break;
+      case 'mysql':
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/mysql-icon.png?v=1718043811298';
+        break;
+      default:
+        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/default.png?v=1718043794435';
+        break;
+    }
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = `${fileExtension} icon`;
+    img.style.width = '16px';
+    img.style.height = '16px';
+
+    // Clear previous images
+    const previousImg = activeTab.querySelector('img');
+    if (previousImg) {
+      previousImg.remove();
+    }
+
+    activeTab.appendChild(img);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        appendImageToTab();
+      }
+    });
+  });
+
+  const config = { attributes: true, subtree: true, attributeFilter: ['class'] };
+  observer.observe(document, config);
+});
