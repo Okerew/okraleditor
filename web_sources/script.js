@@ -748,3 +748,97 @@ function connectToCollaborativeServer() {
         console.error(error);
       });
 }
+
+
+function appendImageToTab() {
+  const activeTab = document.querySelector('.tab.active');
+  if (activeTab) {
+    const fileName = activeTab.textContent.trim();
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+    let imageSrc = '';
+    switch (fileExtension) {
+      case 'py':
+        imageSrc = 'icons/python-icon.png';
+        break;
+      case 'js':
+        imageSrc = 'icons/javascript-icon.png';
+        break;
+      case 'html':
+        imageSrc = 'icons/html-icon.png';
+        break;
+      case 'css':
+        imageSrc = 'icons/css-icon.png';
+        break;
+      case 'json':
+        imageSrc = 'icons/json-icon.png';
+        break;
+      case 'md':
+        imageSrc = 'icons/markdown-icon.png';
+        break;
+      case 'jsx':
+        imageSrc = 'icons/jsx-icon.png';
+        break;
+      case 'php':
+        imageSrc = 'icons/php-icon.png';
+        break;
+      case 'cpp':
+        imageSrc = 'icons/cpp-icon.png';
+        break;
+      case 'c':
+        imageSrc = 'icons/c-icon.png';
+        break;
+      case 'sql':
+        imageSrc = 'icons/sql-icon.png';
+        break;
+      case 'dockerfile':
+        imageSrc = 'icons/dockerfile-icon.png';
+        break;
+      case 'kt':
+        imageSrc = 'icons/kotlin-icon.png';
+        break;
+      case 'go':
+        imageSrc = 'icons/go-icon.png';
+        break;
+      case 'ruby':
+        imageSrc = 'icons/ruby-icon.png';
+        break;
+      case 'rust':
+        imageSrc = 'icons/rust-icon.png';
+        break;
+      case 'mysql':
+        imageSrc = 'icons/mysql-icon.png';
+        break;
+      default:
+        imageSrc = 'icons/default.png';
+        break;
+    }
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = `${fileExtension} icon`;
+    img.style.width = '16px';
+    img.style.height = '16px';
+
+    // Clear previous images
+    const previousImg = activeTab.querySelector('img');
+    if (previousImg) {
+      previousImg.remove();
+    }
+
+    activeTab.appendChild(img);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        appendImageToTab();
+      }
+    });
+  });
+
+  const config = { attributes: true, subtree: true, attributeFilter: ['class'] };
+  observer.observe(document, config);
+});
