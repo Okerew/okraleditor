@@ -1335,3 +1335,88 @@ function loadCodeSnippet() {
 function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
+
+function generateProjectOutline() {
+    const activeTab = document.querySelector(".tab.active");
+    if (!activeTab) return;
+
+    const editorId = activeTab.getAttribute("data-editor-id");
+    const activeEditor = ace.edit(editorId);
+    if (!activeEditor) return;
+
+    const editorValue = activeEditor.getValue();
+
+    const parsed = esprima.parseModule(editorValue, { jsx: true, tolerant: true });
+
+    const outline = [];
+
+    function traverse(node, parent) {
+        switch (node.type) {
+            case 'FunctionDeclaration':
+                outline.push({ type: 'Function', name: node.id.name, loc: node.loc });
+                break;
+            case 'ClassDeclaration':
+                outline.push({ type: 'Class', name: node.id.name, loc: node.loc });
+                break;
+            case 'VariableDeclaration':
+                node.declarations.forEach(decl => {
+                    outline.push({ type: 'Variable', name: decl.id.name, loc: node.loc });
+                });
+                break;
+        }
+
+        for (let key in node) {
+            if (node[key] && typeof node[key] === 'object') {
+                traverse(node[key], node);
+            }
+        }
+    }
+
+    traverse(parsed, null);
+
+    const outlineElement = document.createElement('div');
+    outlineElement.innerHTML = `<pre>${JSON.stringify(outline, null, 2)}</pre>`;
+    outlineElement.id = 'projectOutline';
+
+    const existingOutlineElement = document.querySelector('#projectOutline');
+    if (existingOutlineElement) {
+        existingOutlineElement.parentNode.replaceChild(outlineElement, existingOutlineElement);
+    } else {
+        document.body.appendChild(outlineElement);
+    }
+}
+
+
+const targetNode = document.body;
+
+const config = { attributes: true, childList: true, subtree: true };
+
+const callback = function(mutationsList, observer) {
+    if (activeTab) {
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        activeEditor.session.off('change', generateProjectOutline);
+    }
+
+    activeTab = document.querySelector(".tab.active");
+    if (activeTab) {
+        const editorId = activeTab.getAttribute("data-editor-id");
+        const activeEditor = ace.edit(editorId);
+        activeEditor.session.on('change', generateProjectOutline);
+    }
+};
+
+const observer = new MutationObserver(callback);
+
+observer.observe(targetNode, config);
+
+let activeTab = document.querySelector(".tab.active");
+if (activeTab) {
+    const editorId = activeTab.getAttribute("data-editor-id");
+    const activeEditor = ace.edit(editorId);
+    activeEditor.session.on('change', generateProjectOutline);
+}
+
+function removeStructure() {
+  document.getElementById('projectOutline').remove();
+}
