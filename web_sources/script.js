@@ -842,3 +842,108 @@ document.addEventListener('DOMContentLoaded', function() {
   const config = { attributes: true, subtree: true, attributeFilter: ['class'] };
   observer.observe(document, config);
 });
+
+function saveCodeSnippet() {
+  const container = document.createElement('div');
+  container.id = 'inputContainer';
+  document.body.appendChild(container);
+
+  const label = document.createElement('label');
+  label.for = 'Code snippet name';
+  label.textContent = 'Please enter the code snippet name: ';
+  container.appendChild(label);
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = 'snippetInput';
+  container.appendChild(input);
+
+  const submitButton = document.createElement('button');
+  submitButton.textContent = 'Save Code Snippet';
+  container.appendChild(submitButton);
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const codeSnippet = activeEditor.getValue();
+
+  submitButton.onclick = function () {
+    const snippetName = document.getElementById("snippetInput").value;
+
+    if (snippetName) {
+      localStorage.setItem(snippetName, codeSnippet);
+      alert(`Code snippet "${snippetName}" saved successfully!`);
+    } else {
+      alert("No name provided. Snippet not saved.");
+    }
+    container.remove();
+  };
+}
+
+function loadCodeSnippet() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const snippetNames = Object.keys(localStorage);
+  const snippetList = document.getElementById("snippetList");
+  snippetList.innerHTML = "";
+
+  snippetNames.forEach((snippetName) => {
+    const listItem = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = snippetName;
+    link.onclick = function () {
+      loadSnippetAndClose(snippetName);
+    };
+    listItem.appendChild(link);
+
+    const deleteButton = document.createElement("span");
+    deleteButton.textContent = "✖";
+    deleteButton.className = "delete";
+    deleteButton.onclick = function (event) {
+      event.stopPropagation();
+      deleteSnippet(snippetName, listItem);
+    };
+    listItem.appendChild(deleteButton);
+
+    snippetList.appendChild(listItem);
+  });
+
+  const modal = document.getElementById("snippetModal");
+  modal.style.display = "block";
+
+  const closeModal = document.querySelector(".close");
+  closeModal.onclick = function () {
+    modal.style.display = "none";
+  };
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  function loadSnippetAndClose(snippetName) {
+    const codeSnippet = localStorage.getItem(snippetName);
+    if (codeSnippet) {
+      activeEditor.setValue(codeSnippet);
+      modal.style.display = "none";
+    }
+  }
+
+  function deleteSnippet(snippetName, listItem) {
+    localStorage.removeItem(snippetName);
+    listItem.remove();
+  }
+}
+
+function closeSnipetOps() {
+  document.getElementById("snippetModal").style.display = "none";
+}
