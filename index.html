@@ -38,21 +38,59 @@
         <option value="c_cpp">C++</option>
       </select>
       <button onclick="fileOps()">File</button>
-      <a href="https://okral.glitch.me">Download</a>
-      <a href="https://github.com/Okerew/okraleditor/wiki">Help</a>
-      <button onclick="openSettings()">Settings</button>
-      <button onclick="runCode()">Run</button>
-      <button onclick="gitOps()">Git</button>
-      <button onclick="loadExtensions()">Load extension</button>
+      <a href="https://okral.glitch.me"
+        ><img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/7623247_arrow_down_download_essential_download%20icon_icon.png?v=1718119372571"
+      /></a>
+      <a href="https://github.com/Okerew/okraleditor/wiki"
+        ><img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/3937344_help_helpdesk_info_information_question_icon.png?v=1718119337173"
+      /></a>
+      <button onclick="openSettings()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/settings-svgrepo-com.png?v=1718119957148"
+        />
+      </button>
+      <button onclick="runCode()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/debug-alt-svgrepo-com(1).png?v=1718119788062"
+        />
+      </button>
+      <button onclick="gitOps()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/9041208_git_icon.png?v=1718119096710"
+        />
+      </button>
+      <button onclick="loadExtensions()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/add-ons-svgrepo-com.png?v=1718119842796"
+        />
+      </button>
       <button onclick="shareWorkspace()">
-        Share
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/share-svgrepo-com.png?v=1718120049222"
+        />
       </button>
       <button onclick="beautifyCode()">
-        Beautify 
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/prettier-svgrepo-com.svg?v=1718120177640"
+        />
       </button>
       <button onclick="connectToCollaborativeServer()">
-        Join Collab Session
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/live-share-svgrepo-com.svg?v=1718120045898"
+        />
       </button>
+      <button onclick="loadCodeSnippet()"><img class="n_icon" src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"></button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -68,10 +106,8 @@
         <button onclick="toggleTheme()">Toggle</button>
         <br /><br />
         <label>Config</label>
-        <button onclick="saveToCookie()">
-          Save
-        </button>
-        <br><br>
+        <button onclick="saveToCookie()">Save</button>
+        <br /><br />
         <a href="https://github.com/Okerew/okraleditor/wiki/Keybinds"
           >Keybinds</a
         >
@@ -100,21 +136,15 @@
         <br /><br />
         <label>Markdown</label>
         <button onclick="runMarkdown()">Run</button>
-        <br><br>
+        <br /><br />
         <label>JavaScript</label>
-        <button onclick="executeCodeInWorker()">
-          Run
-        </button>
-        <br><br>
+        <button onclick="executeCodeInWorker()">Run</button>
+        <br /><br />
         <label>Python</label>
-        <button onclick="executePythonCode()">
-          Run
-        </button>
-        <br><br>
+        <button onclick="executePythonCode()">Run</button>
+        <br /><br />
         <label>C++</label>
-        <button onclick="executeCppCode()">
-          Run
-        </button>
+        <button onclick="executeCppCode()">Run</button>
       </div>
     </div>
     <div id="gitModal" class="modal">
@@ -128,16 +158,20 @@
         <br /><br />
         <label>Git</label>
         <button onclick="mergeBranches()">Merge</button>
-        <br><br>
+        <br /><br />
         <label>Git File Tree</label>
-        <button onclick="hideFileTree()">
-          Show/Hide
-        </button>
-        <br><br>
+        <button onclick="hideFileTree()">Show/Hide</button>
+        <br /><br />
         <label>Git</label>
-        <button onclick="pushAllToGithub()">
-          Push All
-        </button>
+        <button onclick="pushAllToGithub()">Push All</button>
+      </div>
+    </div>
+    <div id="snippetModal" class="modal">
+      <div class="modal-content">
+        <span onclick="closeSnipetOps()" class="close">&times;</span>
+        <button onclick="saveCodeSnippet()">Save Snippet</button>
+        <h2>Saved Snippets</h2>
+        <ul id="snippetList"></ul>
       </div>
     </div>
     <div id="output-container"></div>
