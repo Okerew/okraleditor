@@ -39,13 +39,14 @@
         <option value="kotlin">Kotlin</option>
         <option value="c_cpp">C/C++</option>
     </select>
-    <button onclick="runCode()">Run</button>
+    <button onclick="runCode()"><img src="icons/run.png" class="n_icon"></button>
     <button onclick="fileOps()">File</button>
-    <button onclick="openSettings()">Settings</button>
-    <button onclick="gitOps()">Git</button>
-    <button onclick="loadExtensions()">Load Extensions</button>
-    <button onclick="beautifyCode()">Beautify</button>
-    <button onclick="connectToCollaborativeServer()">Join Collab Session</button>
+    <button onclick="openSettings()"><img src="icons/settings.png" class="n_icon"></button>
+    <button onclick="gitOps()"><img src="icons/git.png" class="n_icon"></button>
+    <button onclick="loadExtensions()"><img src="icons/extensions.png" class="n_icon"></button>
+    <button onclick="beautifyCode()"><img src="icons/prettier.svg" class="n_icon"></button>
+    <button onclick="connectToCollaborativeServer()"><img src="icons/live-share.svg" class="n_icon"></button>
+    <button onclick="loadCodeSnippet()"><img class="n_icon" src="icons/snippets.svg"></button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -141,6 +142,14 @@
         <br><br>
         <label>Git</label>
         <button onclick="pushAllToGithub()">Push All</button>
+    </div>
+</div>
+<div id="snippetModal" class="modal">
+    <div class="modal-content">
+        <span onclick="closeSnipetOps()" class="close">&times;</span>
+        <button onclick="saveCodeSnippet()">Save Snippet</button>
+        <h2>Saved Snippets</h2>
+        <ul id="snippetList"></ul>
     </div>
 </div>
 
