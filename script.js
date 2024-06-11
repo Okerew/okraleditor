@@ -1152,64 +1152,76 @@ function connectToCollaborativeServer() {
     });
 }
 
-
 function appendImageToTab() {
-  const activeTab = document.querySelector('.tab.active');
+  const activeTab = document.querySelector(".tab.active");
   if (activeTab) {
     const fileName = activeTab.textContent.trim();
-    const fileExtension = fileName.split('.').pop().toLowerCase();
+    const fileExtension = fileName.split(".").pop().toLowerCase();
 
-    let imageSrc = '';
+    let imageSrc = "";
     switch (fileExtension) {
-      case 'py':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/python-icon.png?v=1718043792751';
+      case "py":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/python-icon.png?v=1718043792751";
         break;
-      case 'js':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/javascript-icon.png?v=1718043790844';
+      case "js":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/javascript-icon.png?v=1718043790844";
         break;
-      case 'html':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/html-icon.png?v=1718043786000';
+      case "html":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/html-icon.png?v=1718043786000";
         break;
-      case 'css':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/css-icon.png?v=1718043787317';
+      case "css":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/css-icon.png?v=1718043787317";
         break;
-      case 'json':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/json-icon.png?v=1718043776075';
+      case "json":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/json-icon.png?v=1718043776075";
         break;
-      case 'md':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/markdown-icon.png?v=1718043796183';
+      case "md":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/markdown-icon.png?v=1718043796183";
         break;
-      case 'jsx':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/jsx-icon.png?v=1718043816791';
+      case "jsx":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/jsx-icon.png?v=1718043816791";
         break;
-      case 'php':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/php-icon.png?v=1718044475075';
+      case "php":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/php-icon.png?v=1718044475075";
         break;
-      case 'cpp':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/cpp-icon.png?v=1718043827762';
+      case "cpp":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/cpp-icon.png?v=1718043827762";
         break;
-      case 'sql':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/sql-icon.png?v=1718043813734';
+      case "sql":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/sql-icon.png?v=1718043813734";
         break;
-      case 'dockerfile':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/docker-icon.png?v=1718043784184';
+      case "dockerfile":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/docker-icon.png?v=1718043784184";
         break;
-      case 'mysql':
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/mysql-icon.png?v=1718043811298';
+      case "mysql":
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/mysql-icon.png?v=1718043811298";
         break;
       default:
-        imageSrc = 'https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/default.png?v=1718043794435';
+        imageSrc =
+          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/default.png?v=1718043794435";
         break;
     }
 
-    const img = document.createElement('img');
+    const img = document.createElement("img");
     img.src = imageSrc;
     img.alt = `${fileExtension} icon`;
-    img.style.width = '16px';
-    img.style.height = '16px';
+    img.style.width = "16px";
+    img.style.height = "16px";
 
     // Clear previous images
-    const previousImg = activeTab.querySelector('img');
+    const previousImg = activeTab.querySelector("img");
     if (previousImg) {
       previousImg.remove();
     }
@@ -1218,15 +1230,108 @@ function appendImageToTab() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+document.addEventListener("DOMContentLoaded", function () {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "class"
+      ) {
         appendImageToTab();
       }
     });
   });
 
-  const config = { attributes: true, subtree: true, attributeFilter: ['class'] };
+  const config = {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ["class"],
+  };
   observer.observe(document, config);
 });
+
+function saveCodeSnippet() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const codeSnippet = activeEditor.getValue();
+
+  const snippetName = prompt("Enter a name for the code snippet:");
+
+  if (snippetName) {
+    // Save the code snippet to local storage
+    localStorage.setItem(snippetName, codeSnippet);
+    alert(`Code snippet "${snippetName}" saved successfully!`);
+  } else {
+    alert("No name provided. Snippet not saved.");
+  }
+}
+
+function loadCodeSnippet() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const snippetNames = Object.keys(localStorage);
+  const snippetList = document.getElementById("snippetList");
+  snippetList.innerHTML = "";
+
+  snippetNames.forEach((snippetName) => {
+    const listItem = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = snippetName;
+    link.onclick = function () {
+      loadSnippetAndClose(snippetName);
+    };
+    listItem.appendChild(link);
+
+    const deleteButton = document.createElement("span");
+    deleteButton.textContent = "✖";
+    deleteButton.className = "delete";
+    deleteButton.onclick = function (event) {
+      event.stopPropagation();
+      deleteSnippet(snippetName, listItem);
+    };
+    listItem.appendChild(deleteButton);
+
+    snippetList.appendChild(listItem);
+  });
+
+  const modal = document.getElementById("snippetModal");
+  modal.style.display = "block";
+
+  const closeModal = document.querySelector(".close");
+  closeModal.onclick = function () {
+    modal.style.display = "none";
+  };
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  function loadSnippetAndClose(snippetName) {
+    const codeSnippet = localStorage.getItem(snippetName);
+    if (codeSnippet) {
+      activeEditor.setValue(codeSnippet);
+      modal.style.display = "none";
+    }
+  }
+
+  function deleteSnippet(snippetName, listItem) {
+    localStorage.removeItem(snippetName);
+    listItem.remove();
+  }
+}
+
+function closeSnipetOps() {
+  document.getElementById("snippetModal").style.display = "none";
+}

@@ -63,6 +63,7 @@ button {
 .navbar {
   background-color: #e0e0e0;
   overflow: hidden;
+  
 }
 
 .navbar a {
@@ -131,4 +132,10 @@ select {
 select:hover{
   outline: none;
   box-shadow: 0 0 5px darkgray;
+}
+
+.n_icon{
+  vertical-align:middle;
+  width: 24px;
+  height: 24px;
 }
