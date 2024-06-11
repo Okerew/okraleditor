@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/esprima@4.0.1/dist/esprima.min.js"></script>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -116,13 +117,19 @@
     <div id="fileModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closefileOps()">&times;</span>
+        <label>File</label>
         <input
           type="file"
           id="fileInput"
           accept=""
           onchange="openFile(event)"
         />
+        <br>
+        <label>File</label>
         <button onclick="saveFile()">Save</button>
+        <br>
+         <label>File Structure</label>
+        <button onclick="removeStructure()">Remove</button>
       </div>
     </div>
     <div id="runModal" class="modal">
