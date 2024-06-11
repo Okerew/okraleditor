@@ -136,3 +136,10 @@ input{
   border-radius: 8px;
   padding: 8px 8px;
 }
+
+.n_icon{
+  vertical-align:middle;
+  width: 24px;
+  height: 24px;
+}
+
