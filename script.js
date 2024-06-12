@@ -753,7 +753,39 @@ function decryptConfig(encryptedConfig, key) {
   return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
-function saveToCookie() {
+async function encryptOnServer(config) {
+  const response = await fetch(
+    "https://candle-cheerful-warlock.glitch.me/encrypt",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ config }),
+    }
+  );
+
+  const data = await response.json();
+  return data.encryptedConfig;
+}
+
+async function decryptOnServer(encryptedConfig) {
+  const response = await fetch(
+    "https://candle-cheerful-warlock.glitch.me/decrypt",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ encryptedConfig }),
+    }
+  );
+
+  const data = await response.json();
+  return data.config;
+}
+
+async function saveToCookie() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
 
@@ -768,18 +800,52 @@ function saveToCookie() {
   const key = generateRandomKey();
 
   const encryptedConfig = encryptConfig(config, key);
+  const doublyEncryptedConfig = await encryptOnServer(encryptedConfig);
 
   const now = new Date();
   // Calculate expiration date (30 days from now)
   const expirationDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   document.cookie = `encryptedConfig=${encodeURIComponent(
-    encryptedConfig
+    doublyEncryptedConfig
   )}; expires=${expirationDate.toUTCString()}; path=/;`;
+  ("SameSite=None");
 
-  // Save the key to localStorage
   localStorage.setItem("encryptionKey", key);
 }
+
+async function loadFromCookie() {
+  const cookies = document.cookie.split(";");
+  let doublyEncryptedConfig = null;
+
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("encryptedConfig=")) {
+      doublyEncryptedConfig = decodeURIComponent(
+        cookie.substring("encryptedConfig=".length)
+      );
+      break;
+    }
+  }
+
+  if (!doublyEncryptedConfig) return;
+
+  const serverDecryptedConfig = await decryptOnServer(doublyEncryptedConfig);
+  const key = localStorage.getItem("encryptionKey");
+
+  if (!key) {
+    console.error("Encryption key not found!");
+    return;
+  }
+
+  const config = decryptConfig(serverDecryptedConfig, key);
+
+  const scriptTag = document.createElement("script");
+  scriptTag.textContent = config;
+  document.body.appendChild(scriptTag);
+}
+
+loadFromCookie();
 
 function generateRandomKey() {
   // Generate a random string to be used as the key
@@ -791,38 +857,6 @@ function generateRandomKey() {
   }
   return key;
 }
-
-function loadFromCookie() {
-  const cookies = document.cookie.split(";");
-  let encryptedConfig = null;
-
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith("encryptedConfig=")) {
-      encryptedConfig = decodeURIComponent(
-        cookie.substring("encryptedConfig=".length)
-      );
-      break;
-    }
-  }
-
-  if (!encryptedConfig) return;
-
-  const key = localStorage.getItem("encryptionKey");
-
-  if (!key) {
-    console.error("Encryption key not found!");
-    return;
-  }
-
-  const config = decryptConfig(encryptedConfig, key);
-
-  const scriptTag = document.createElement("script");
-  scriptTag.textContent = config;
-  document.body.appendChild(scriptTag);
-}
-
-loadFromCookie();
 
 async function executePythonCode() {
   const activeTab = document.querySelector(".tab.active");
@@ -1337,6 +1371,7 @@ function closeSnipetOps() {
 }
 
 function generateProjectOutline() {
+  try {
     const activeTab = document.querySelector(".tab.active");
     if (!activeTab) return;
 
@@ -1345,78 +1380,144 @@ function generateProjectOutline() {
     if (!activeEditor) return;
 
     const editorValue = activeEditor.getValue();
-
-    const parsed = esprima.parseModule(editorValue, { jsx: true, tolerant: true });
+    let parsed;
+    try {
+      parsed = esprima.parseModule(editorValue, {
+        jsx: true,
+        tolerant: true,
+        loc: true,
+      });
+    } catch (parseError) {
+      console.error("Error parsing the editor content:", parseError);
+      return; // Exit if parsing fails
+    }
 
     const outline = [];
 
     function traverse(node, parent) {
+      try {
         switch (node.type) {
-            case 'FunctionDeclaration':
-                outline.push({ type: 'Function', name: node.id.name, loc: node.loc });
-                break;
-            case 'ClassDeclaration':
-                outline.push({ type: 'Class', name: node.id.name, loc: node.loc });
-                break;
-            case 'VariableDeclaration':
-                node.declarations.forEach(decl => {
-                    outline.push({ type: 'Variable', name: decl.id.name, loc: node.loc });
-                });
-                break;
+          case "FunctionDeclaration":
+            outline.push({
+              type: "Function",
+              name: node.id.name,
+              loc: node.loc,
+            });
+            break;
+          case "ClassDeclaration":
+            outline.push({ type: "Class", name: node.id.name, loc: node.loc });
+            break;
+          case "VariableDeclaration":
+            node.declarations.forEach((decl) => {
+              outline.push({
+                type: "Variable",
+                name: decl.id.name,
+                loc: node.loc,
+              });
+            });
+            break;
+          default:
+            break;
         }
 
         for (let key in node) {
-            if (node[key] && typeof node[key] === 'object') {
-                traverse(node[key], node);
-            }
+          if (node[key] && typeof node[key] === "object") {
+            traverse(node[key], node);
+          }
         }
+      } catch (traverseError) {
+        console.error("Error traversing the AST:", traverseError);
+      }
     }
 
     traverse(parsed, null);
 
-    const outlineElement = document.createElement('div');
-    outlineElement.innerHTML = `<pre>${JSON.stringify(outline, null, 2)}</pre>`;
-    outlineElement.id = 'projectOutline';
+    const outlineElement = document.createElement("div");
+    outlineElement.id = "projectOutline";
 
-    const existingOutlineElement = document.querySelector('#projectOutline');
+    outline.forEach((item) => {
+      if (item.loc) {
+        // Ensure item.loc is defined
+        const itemElement = document.createElement("div");
+        itemElement.classList.add("outline-item");
+        itemElement.textContent = `${item.type}: ${item.name}`;
+        itemElement.style.cursor = "pointer";
+        itemElement.onclick = () => {
+          activeEditor.scrollToLine(
+            item.loc.start.line - 1,
+            true,
+            true,
+            function () {}
+          );
+          activeEditor.gotoLine(
+            item.loc.start.line,
+            item.loc.start.column,
+            true
+          );
+        };
+        outlineElement.appendChild(itemElement);
+      }
+    });
+
+    const existingOutlineElement = document.querySelector("#projectOutline");
     if (existingOutlineElement) {
-        existingOutlineElement.parentNode.replaceChild(outlineElement, existingOutlineElement);
+      existingOutlineElement.parentNode.replaceChild(
+        outlineElement,
+        existingOutlineElement
+      );
     } else {
-        document.body.appendChild(outlineElement);
+      document.body.appendChild(outlineElement);
     }
+  } catch (error) {
+    console.error("Error generating project outline:", error);
+  }
 }
 
-
 const targetNode = document.body;
-
 const config = { attributes: true, childList: true, subtree: true };
 
-const callback = function(mutationsList, observer) {
+let activeTab = document.querySelector(".tab.active");
+
+const callback = function (mutationsList, observer) {
+  try {
     if (activeTab) {
-        const editorId = activeTab.getAttribute("data-editor-id");
-        const activeEditor = ace.edit(editorId);
-        activeEditor.session.off('change', generateProjectOutline);
+      const editorId = activeTab.getAttribute("data-editor-id");
+      const activeEditor = ace.edit(editorId);
+      activeEditor.session.off("change", generateProjectOutline);
     }
 
     activeTab = document.querySelector(".tab.active");
     if (activeTab) {
-        const editorId = activeTab.getAttribute("data-editor-id");
-        const activeEditor = ace.edit(editorId);
-        activeEditor.session.on('change', generateProjectOutline);
+      const editorId = activeTab.getAttribute("data-editor-id");
+      const activeEditor = ace.edit(editorId);
+      activeEditor.session.on("change", generateProjectOutline);
     }
+  } catch (error) {
+    console.error("Error in MutationObserver callback:", error);
+  }
 };
 
 const observer = new MutationObserver(callback);
-
 observer.observe(targetNode, config);
 
-let activeTab = document.querySelector(".tab.active");
 if (activeTab) {
+  try {
     const editorId = activeTab.getAttribute("data-editor-id");
     const activeEditor = ace.edit(editorId);
-    activeEditor.session.on('change', generateProjectOutline);
+    activeEditor.session.on("change", generateProjectOutline);
+  } catch (error) {
+    console.error("Error attaching change event to initial editor:", error);
+  }
 }
 
 function removeStructure() {
-  document.getElementById('projectOutline').remove();
+  try {
+    const outlineElement = document.getElementById("projectOutline");
+    if (outlineElement) {
+      outlineElement.remove();
+    }
+  } catch (error) {
+    console.error("Error removing project outline:", error);
+  }
 }
+
