@@ -41,13 +41,14 @@
         <option value="c_cpp">C/C++</option>
     </select>
     <button onclick="runCode()"><img src="icons/run.png" class="n_icon"></button>
-    <button onclick="fileOps()">File</button>
+    <button onclick="fileOps()"><img src="icons/files.svg" class="n_icon"></button>
     <button onclick="openSettings()"><img src="icons/settings.png" class="n_icon"></button>
     <button onclick="gitOps()"><img src="icons/git.png" class="n_icon"></button>
     <button onclick="loadExtensions()"><img src="icons/extensions.png" class="n_icon"></button>
     <button onclick="beautifyCode()"><img src="icons/prettier.svg" class="n_icon"></button>
     <button onclick="connectToCollaborativeServer()"><img src="icons/live-share.svg" class="n_icon"></button>
     <button onclick="loadCodeSnippet()"><img class="n_icon" src="icons/snippets.svg"></button>
+    <button onclick="snapOps()"><img src="icons/snapshot.svg" class="n_icon"></button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -154,6 +155,13 @@
         <button onclick="saveCodeSnippet()">Save Snippet</button>
         <h2>Saved Snippets</h2>
         <ul id="snippetList"></ul>
+    </div>
+</div>
+<div id="snapshotModal" class="modal">
+    <div class="modal-content">
+        <span onclick="hideSnapOps()" class="close">&times;</span>
+        <h2>Editor Snapshots</h2>
+        <ul id="snapshotList"></ul>
     </div>
 </div>
 
