@@ -38,7 +38,12 @@
         <option value="python">Python</option>
         <option value="c_cpp">C++</option>
       </select>
-      <button onclick="fileOps()">File</button>
+      <button onclick="fileOps()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/files.svg?v=1718201369975"
+        />
+      </button>
       <a href="https://okral.glitch.me"
         ><img
           class="n_icon"
@@ -91,7 +96,13 @@
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/live-share-svgrepo-com.svg?v=1718120045898"
         />
       </button>
-      <button onclick="loadCodeSnippet()"><img class="n_icon" src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"></button>
+      <button onclick="loadCodeSnippet()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"
+        />
+      </button>
+      <button onclick="snapOps()"><img class="n_icon" src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"></button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -124,11 +135,11 @@
           accept=""
           onchange="openFile(event)"
         />
-        <br>
+        <br />
         <label>File</label>
         <button onclick="saveFile()">Save</button>
-        <br>
-         <label>File Structure</label>
+        <br />
+        <label>File Structure</label>
         <button onclick="removeStructure()">Remove</button>
       </div>
     </div>
@@ -179,6 +190,13 @@
         <button onclick="saveCodeSnippet()">Save Snippet</button>
         <h2>Saved Snippets</h2>
         <ul id="snippetList"></ul>
+      </div>
+    </div>
+    <div id="snapshotModal" class="modal">
+      <div class="modal-content">
+        <span onclick="hideSnapOps()" class="close">&times;</span>
+        <h2>Editor Snapshots</h2>
+        <ul id="snapshotList"></ul>
       </div>
     </div>
     <div id="output-container"></div>
