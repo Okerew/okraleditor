@@ -1098,3 +1098,75 @@ function removeStructure() {
     console.error("Error removing project outline:", error);
   }
 }
+
+class EditorHistory {
+  constructor() {
+    this.history = [];
+    this.currentIndex = -1;
+    this.lastSnapshot = null;
+    this.startAutoCapture();
+  }
+
+  startAutoCapture() {
+    setInterval(() => {
+      this.captureSnapshot();
+    }, 5000);
+  }
+
+  captureSnapshot() {
+    const activeTab = document.querySelector(".tab.active");
+    if (!activeTab) return;
+    const editorId = activeTab.getAttribute("data-editor-id");
+    const activeEditor = ace.edit(editorId);
+    if (!activeEditor) return;
+    const codeSnippet = activeEditor.getValue();
+
+    if (this.lastSnapshot && this.lastSnapshot.codeSnippet === codeSnippet)
+      return;
+
+    const timestamp = new Date();
+    if (this.currentIndex < this.history.length - 1) {
+      this.history = this.history.slice(0, this.currentIndex + 1);
+    }
+    this.history.push({ editorId, codeSnippet, timestamp });
+    this.currentIndex++;
+    this.lastSnapshot = { editorId, codeSnippet };
+    this.updateSnapshotList();
+  }
+
+  restoreSnapshot(index) {
+    const snapshot = this.history[index];
+    if (!snapshot) return;
+    const activeEditor = ace.edit(snapshot.editorId);
+    if (!activeEditor) return;
+    activeEditor.setValue(snapshot.codeSnippet, -1);
+    this.currentIndex = index;
+    this.lastSnapshot = snapshot;
+  }
+
+  updateSnapshotList() {
+    const snapshotList = document.getElementById("snapshotList");
+    snapshotList.innerHTML = "";
+    this.history.forEach((snapshot, index) => {
+      const li = document.createElement("li");
+      li.textContent = `Editor ID: ${
+          snapshot.editorId
+      }, Timestamp: ${snapshot.timestamp.toLocaleString()}`;
+      li.onclick = () => {
+        this.restoreSnapshot(index);
+        document.getElementById("snapshotModal").style.display = "none";
+      };
+      snapshotList.appendChild(li);
+    });
+  }
+}
+
+const editorHistory = new EditorHistory();
+
+function snapOps() {
+  document.getElementById("snapshotModal").style.display = "block";
+}
+
+function hideSnapOps() {
+  document.getElementById("snapshotModal").style.display = "none";
+}
