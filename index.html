@@ -49,6 +49,12 @@
     <button onclick="connectToCollaborativeServer()"><img src="icons/live-share.svg" class="n_icon"></button>
     <button onclick="loadCodeSnippet()"><img class="n_icon" src="icons/snippets.svg"></button>
     <button onclick="snapOps()"><img src="icons/snapshot.svg" class="n_icon"></button>
+    <button onclick="loadServerFiles()">
+        <img
+                src="icons/remote.svg"
+                class="n_icon"
+        />
+    </button>
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -84,6 +90,16 @@
         <br>
         <label>File Structure</label>
         <button onclick="removeStructure()">Remove</button>
+        <br>
+        <label>Remote File</label>
+        <button onclick="saveRemoteActiveFile()">
+            Save
+        </button>
+        <br>
+        <label>Remote File Tree</label>
+        <button onclick="remoteFileTree()">
+            Show/Hide
+        </button>
     </div>
 </div>
 <div id="runModal" class="modal">
@@ -91,6 +107,9 @@
         <span class="close" onclick="closeRunCode()">&times;</span>
         <label>Active File</label>
         <button onclick="executeActiveFile()">Run</button>
+        <br />
+        <label>Remote File</label>
+        <button onclick="executeRemoteActiveFile()">Run</button>
         <br>
         <label>HTML</label>
         <button onclick="executeHtmlCode()">Run</button>
