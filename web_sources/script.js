@@ -1170,3 +1170,244 @@ function snapOps() {
 function hideSnapOps() {
   document.getElementById("snapshotModal").style.display = "none";
 }
+
+async function loadServerFiles() {
+  const container1 = document.createElement("div");
+  container1.id = "loadContainer";
+  document.body.appendChild(container1);
+
+  const label = document.createElement("label");
+  label.textContent = "Please enter the directory path to load: ";
+  container1.appendChild(label);
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = "directoryPathInput";
+  container1.appendChild(input);
+
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Submit";
+  submitButton.onclick = async () => {
+    const directoryPath = document.getElementById("directoryPathInput").value;
+    if (!directoryPath) {
+      console.error("Directory path not provided.");
+      return;
+    }
+
+    container1.removeChild(label);
+    container1.removeChild(input);
+    container1.removeChild(submitButton);
+
+    try {
+      const container = document.createElement("div");
+      container.id = "fileTreeContainer";
+      document.body.appendChild(container);
+
+      await createFileTreeFromServer("", container, directoryPath);
+
+      container.style.display = "block";
+    } catch (error) {
+      console.error("Error loading files from server:", error);
+      alert("Error loading files from server. Please check the console for details.");
+    } finally {
+      document.body.removeChild(container1);
+    }
+  };
+
+  container1.appendChild(submitButton);
+}
+
+
+let remoteActiveFilePath;
+let remoteFileServerUrl;
+async function createFileTreeFromServer(dirPath, parentNode, basePath) {
+  const container = document.createElement('div');
+  container.id = 'inputContainer';
+  document.body.appendChild(container);
+
+  const label = document.createElement('label');
+  label.for = 'remoteServerUrlInput';
+  label.textContent = 'Please enter the remote server URL: ';
+  container.appendChild(label);
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = 'remoteServerUrlInput';
+  input.placeholder = 'https://mango-separate-leotard.glitch.me/';
+  container.appendChild(input);
+
+  const submitButton = document.createElement('button');
+  submitButton.textContent = 'Connect';
+  container.appendChild(submitButton);
+
+  const urlPromise = new Promise((resolve, reject) => {
+    submitButton.addEventListener('click', () => {
+      const remoteFileServerUrl = input.value.trim();
+      if (remoteFileServerUrl) {
+        resolve(remoteFileServerUrl);
+        document.body.removeChild(container);
+      } else {
+        reject('Server URL is required to connect to the collaborative server.');
+      }
+    });
+  });
+
+  try {
+    const remoteFileServerUrl = await urlPromise;
+    const serverUrl = `${remoteFileServerUrl}/files?path=${encodeURIComponent(basePath + dirPath)}`;
+    const response = await fetch(serverUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch directory contents");
+    }
+
+    const data = await response.json();
+    const ul = document.createElement("ul");
+    ul.id = "remoteFileTree";
+
+    for (const item of data) {
+      const li = document.createElement("li");
+      const itemName = item.name;
+
+      if (item.type === "file") {
+        const button = document.createElement("button");
+        button.textContent = itemName;
+        button.addEventListener("click", async () => {
+          const fileUrl = `${remoteFileServerUrl}/open-file?path=${encodeURIComponent(basePath + dirPath + "/" + itemName)}`;
+          const fileContent = await fetch(fileUrl).then((response) =>
+              response.text()
+          );
+          const editorId = `editor-${Date.now()}`;
+          remoteActiveFilePath = basePath + dirPath + "/" + itemName;
+          openFileInEditor(fileContent, editorId);
+        });
+        li.appendChild(button);
+      } else if (item.type === "dir") {
+        const button = document.createElement("button");
+        button.textContent = itemName;
+        button.classList.add("folder");
+        button.addEventListener("click", async () => {
+          li.innerHTML = ""; // Clear the parent node
+          await createFileTreeFromServer(`${dirPath}/${itemName}`, li, basePath); // Recursively create file tree for the directory
+        });
+        li.appendChild(button);
+      }
+
+      ul.appendChild(li);
+    }
+
+    parentNode.appendChild(ul);
+    return remoteFileServerUrl;
+  } catch (error) {
+    console.error("Error creating file tree:", error);
+    alert("Error creating file tree. Please check the console for details.");
+  }
+}
+
+
+function openFileInEditor(fileContent, editorId) {
+  const newTab = document.createElement("button");
+  newTab.className = "tab";
+  newTab.textContent = "New File";
+  newTab.addEventListener("click", switchToTab);
+
+  const newEditor = ace.edit(document.createElement("div"));
+  newEditor.setOptions({
+    maxLines: 38,
+    minLines: 38,
+  });
+  newEditor.container.style.width = "99%";
+  newEditor.container.style.height = "600px";
+  newEditor.container.style.border = "1px solid #ccc";
+  newEditor.container.style.marginTop = "10px";
+  newEditor.container.style.border = "2px solid #cccccc";
+  newEditor.container.style.borderRadius = "5px";
+  newEditor.container.style.fontSize = fontSize;
+  newEditor.container.style.fontFamily = fontFamily;
+
+  newEditor.setValue(fileContent);
+  const language = document.getElementById("language-select").value;
+  newEditor.session.setMode(`ace/mode/${language}`);
+  newTab.setAttribute("data-language", language);
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
+  newEditor.container.id = editorId;
+  newTab.setAttribute("data-editor-id", editorId);
+
+  document.getElementById("tabBar").appendChild(newTab);
+  document.body.appendChild(newEditor.container);
+  switchToTab({ target: newTab });
+  toggleTheme();
+  toggleTheme();
+}
+
+async function executeRemoteActiveFile() {
+  if (!activeFilePath) {
+    console.error("No active file path");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+        `${remoteFileServerUrl}/execute-file?path=${encodeURIComponent(
+            activeFilePath
+        )}`,
+        {
+          method: "GET",
+        }
+    );
+    const result = await response.json();
+    if (result.error) {
+      console.error(`Error executing file: ${result.error}`);
+    } else {
+      console.log(result.output);
+    }
+  } catch (error) {
+    console.error("Error executing file:", error);
+  }
+}
+
+function remoteFileTree() {
+  var x = document.getElementById("remoteFileTree");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+async function saveRemoteActiveFile() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const fileContent = activeEditor.getValue();
+
+  try {
+    const response = await fetch(`${remoteFileServerUrl}/save-file`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        path: activeFilePath,
+        content: fileContent,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to save the file");
+    }
+
+    const result = await response.json();
+    if (result.error) {
+      console.error(`Error saving file: ${result.error}`);
+    } else {
+      console.log("File saved successfully");
+    }
+  } catch (error) {
+    console.error("Error saving file:", error);
+  }
+}
