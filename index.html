@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/esprima@4.0.1/dist/esprima.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typo-js@1.2.4/typo.min.js"></script>
     <script src="/script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -102,7 +103,18 @@
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"
         />
       </button>
-      <button onclick="snapOps()"><img class="n_icon" src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"></button>
+      <button onclick="snapOps()">
+        <img
+          class="n_icon"
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"
+        />
+      </button>
+      <button onclick="loadServerFiles()">
+        <img
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/remote-svgrepo-com.svg?v=1718630857189"
+          class="n_icon"
+        />
+      </button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -141,6 +153,16 @@
         <br />
         <label>File Structure</label>
         <button onclick="removeStructure()">Remove</button>
+        <br>
+        <label>Remote File</label>
+        <button onclick="saveRemoteActiveFile()">
+          Save
+        </button>
+        <br>
+        <label>Remote File Tree</label>
+        <button onclick="remoteFileTree()">
+          Show/Hide
+        </button>
       </div>
     </div>
     <div id="runModal" class="modal">
@@ -163,6 +185,9 @@
         <br /><br />
         <label>C++</label>
         <button onclick="executeCppCode()">Run</button>
+        <br /> <br>
+        <label>Remote File</label>
+        <button onclick="executeRemoteActiveFile()">Run</button>
       </div>
     </div>
     <div id="gitModal" class="modal">
