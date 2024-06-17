@@ -807,9 +807,9 @@ async function saveToCookie() {
   const expirationDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   document.cookie = `encryptedConfig=${encodeURIComponent(
-    doublyEncryptedConfig
-  )}; expires=${expirationDate.toUTCString()}; path=/;`;
-  ("SameSite=None");
+  doublyEncryptedConfig
+)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=None; Secure`;
+
 
   localStorage.setItem("encryptionKey", key);
 }
