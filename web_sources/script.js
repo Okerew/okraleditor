@@ -1015,22 +1015,21 @@ function generateProjectOutline() {
 
     outline.forEach((item) => {
       if (item.loc) {
-        // Ensure item.loc is defined
         const itemElement = document.createElement("div");
         itemElement.classList.add("outline-item");
         itemElement.textContent = `${item.type}: ${item.name}`;
         itemElement.style.cursor = "pointer";
         itemElement.onclick = () => {
           activeEditor.scrollToLine(
-            item.loc.start.line - 1,
-            true,
-            true,
-            function () {}
+              item.loc.start.line - 1,
+              true,
+              true,
+              function () {}
           );
           activeEditor.gotoLine(
-            item.loc.start.line,
-            item.loc.start.column,
-            true
+              item.loc.start.line,
+              item.loc.start.column,
+              true
           );
         };
         outlineElement.appendChild(itemElement);
@@ -1040,8 +1039,8 @@ function generateProjectOutline() {
     const existingOutlineElement = document.querySelector("#projectOutline");
     if (existingOutlineElement) {
       existingOutlineElement.parentNode.replaceChild(
-        outlineElement,
-        existingOutlineElement
+          outlineElement,
+          existingOutlineElement
       );
     } else {
       document.body.appendChild(outlineElement);
@@ -1171,97 +1170,67 @@ function hideSnapOps() {
   document.getElementById("snapshotModal").style.display = "none";
 }
 
-async function loadServerFiles() {
-  const container1 = document.createElement("div");
-  container1.id = "loadContainer";
-  document.body.appendChild(container1);
+let currentFilePath;
+let remoteFileServerUrl;
 
-  const label = document.createElement("label");
-  label.textContent = "Please enter the directory path to load: ";
-  container1.appendChild(label);
+function loadServerFiles() {
+  const directoryPathInput = document.createElement("input");
+  directoryPathInput.type = "text";
+  directoryPathInput.placeholder = "Enter the directory path to load:";
+  document.body.appendChild(directoryPathInput);
 
-  const input = document.createElement("input");
-  input.type = "text";
-  input.id = "directoryPathInput";
-  container1.appendChild(input);
+  const remoteServerUrlInput = document.createElement("input");
+  remoteServerUrlInput.type = "text";
+  remoteServerUrlInput.placeholder = "Enter the remote server url:";
+  remoteServerUrlInput.value = "https://mango-separate-leotard.glitch.me/";
+  document.body.appendChild(remoteServerUrlInput);
 
   const submitButton = document.createElement("button");
   submitButton.textContent = "Submit";
-  submitButton.onclick = async () => {
-    const directoryPath = document.getElementById("directoryPathInput").value;
-    if (!directoryPath) {
-      console.error("Directory path not provided.");
+  submitButton.addEventListener("click", async () => {
+    const directoryPath = directoryPathInput.value;
+    remoteFileServerUrl = remoteServerUrlInput.value;
+
+    if (!directoryPath || !remoteFileServerUrl) {
+      console.error("Directory path and/or remote server URL not provided.");
       return;
     }
 
-    container1.removeChild(label);
-    container1.removeChild(input);
-    container1.removeChild(submitButton);
+    const container = document.createElement("div");
+    container.id = "fileTreeContainer";
 
     try {
-      const container = document.createElement("div");
-      container.id = "fileTreeContainer";
-      document.body.appendChild(container);
-
       await createFileTreeFromServer("", container, directoryPath);
-
       container.style.display = "block";
+
+      // Remove the input fields and submit button
+      directoryPathInput.remove();
+      remoteServerUrlInput.remove();
+      submitButton.remove();
     } catch (error) {
       console.error("Error loading files from server:", error);
-      alert("Error loading files from server. Please check the console for details.");
-    } finally {
-      document.body.removeChild(container1);
+      alert(
+          "Error loading files from server. Please check the console for details."
+      );
     }
-  };
 
-  container1.appendChild(submitButton);
+    document.body.appendChild(container);
+  });
+  document.body.appendChild(submitButton);
 }
 
-
-let remoteActiveFilePath;
-let remoteFileServerUrl;
 async function createFileTreeFromServer(dirPath, parentNode, basePath) {
-  const container = document.createElement('div');
-  container.id = 'inputContainer';
-  document.body.appendChild(container);
-
-  const label = document.createElement('label');
-  label.for = 'remoteServerUrlInput';
-  label.textContent = 'Please enter the remote server URL: ';
-  container.appendChild(label);
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.id = 'remoteServerUrlInput';
-  input.placeholder = 'https://mango-separate-leotard.glitch.me/';
-  container.appendChild(input);
-
-  const submitButton = document.createElement('button');
-  submitButton.textContent = 'Connect';
-  container.appendChild(submitButton);
-
-  const urlPromise = new Promise((resolve, reject) => {
-    submitButton.addEventListener('click', () => {
-      const remoteFileServerUrl = input.value.trim();
-      if (remoteFileServerUrl) {
-        resolve(remoteFileServerUrl);
-        document.body.removeChild(container);
-      } else {
-        reject('Server URL is required to connect to the collaborative server.');
-      }
-    });
-  });
+  const serverUrl = `${remoteFileServerUrl}/files?path=${encodeURIComponent(
+      basePath + dirPath
+  )}`;
 
   try {
-    const remoteFileServerUrl = await urlPromise;
-    const serverUrl = `${remoteFileServerUrl}/files?path=${encodeURIComponent(basePath + dirPath)}`;
     const response = await fetch(serverUrl);
-
     if (!response.ok) {
       throw new Error("Failed to fetch directory contents");
     }
-
     const data = await response.json();
+
     const ul = document.createElement("ul");
     ul.id = "remoteFileTree";
 
@@ -1273,12 +1242,14 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
         const button = document.createElement("button");
         button.textContent = itemName;
         button.addEventListener("click", async () => {
-          const fileUrl = `${remoteFileServerUrl}/open-file?path=${encodeURIComponent(basePath + dirPath + "/" + itemName)}`;
+          const fileUrl = `${remoteFileServerUrl}/open-file?path=${encodeURIComponent(
+              basePath + dirPath + "/" + itemName
+          )}`;
           const fileContent = await fetch(fileUrl).then((response) =>
               response.text()
           );
           const editorId = `editor-${Date.now()}`;
-          remoteActiveFilePath = basePath + dirPath + "/" + itemName;
+          currentFilePath = basePath + dirPath + "/" + itemName;
           openFileInEditor(fileContent, editorId);
         });
         li.appendChild(button);
@@ -1287,8 +1258,14 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
         button.textContent = itemName;
         button.classList.add("folder");
         button.addEventListener("click", async () => {
-          li.innerHTML = ""; // Clear the parent node
-          await createFileTreeFromServer(`${dirPath}/${itemName}`, li, basePath); // Recursively create file tree for the directory
+          // Clear the parent node
+          li.innerHTML = "";
+          // Recursively create file tree for the directory
+          await createFileTreeFromServer(
+              `${dirPath}/${itemName}`,
+              li,
+              basePath
+          );
         });
         li.appendChild(button);
       }
@@ -1297,13 +1274,11 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
     }
 
     parentNode.appendChild(ul);
-    return remoteFileServerUrl;
   } catch (error) {
     console.error("Error creating file tree:", error);
     alert("Error creating file tree. Please check the console for details.");
   }
 }
-
 
 function openFileInEditor(fileContent, editorId) {
   const newTab = document.createElement("button");
@@ -1339,17 +1314,16 @@ function openFileInEditor(fileContent, editorId) {
   toggleTheme();
   toggleTheme();
 }
-
 async function executeRemoteActiveFile() {
-  if (!activeFilePath) {
-    console.error("No active file path");
+  if (!currentFilePath) {
+    console.error("No current file path");
     return;
   }
 
   try {
     const response = await fetch(
         `${remoteFileServerUrl}/execute-file?path=${encodeURIComponent(
-            activeFilePath
+            currentFilePath
         )}`,
         {
           method: "GET",
@@ -1366,16 +1340,12 @@ async function executeRemoteActiveFile() {
   }
 }
 
-function remoteFileTree() {
-  var x = document.getElementById("remoteFileTree");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
-
 async function saveRemoteActiveFile() {
+  if (!currentFilePath) {
+    console.error("No current file path");
+    return;
+  }
+
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
 
@@ -1392,7 +1362,7 @@ async function saveRemoteActiveFile() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        path: activeFilePath,
+        path: currentFilePath,
         content: fileContent,
       }),
     });
@@ -1409,5 +1379,14 @@ async function saveRemoteActiveFile() {
     }
   } catch (error) {
     console.error("Error saving file:", error);
+  }
+}
+
+function remoteFileTree() {
+  var x = document.getElementById("remoteFileTree");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
   }
 }
