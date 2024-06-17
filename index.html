@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://okraleditor.glitch.me/" />
+    <meta property="og:title" content="Okral Code Editor | Created by Okerew" />
+    <meta
+      property="og:description"
+      content="Okral Code Editor is a coding editor created by Okerew, with features such as git integration, collab integration, remote servers, basic feautures, syntax highlighting, basic code completion and more."
+    />
+    <meta property="og:image" content="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543" />
+
     <title>Okral Code Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ext-language_tools.js"></script>
@@ -152,16 +161,12 @@
         <br />
         <label>File Structure</label>
         <button onclick="removeStructure()">Remove</button>
-        <br>
+        <br />
         <label>Remote File</label>
-        <button onclick="saveRemoteActiveFile()">
-          Save
-        </button>
-        <br>
+        <button onclick="saveRemoteActiveFile()">Save</button>
+        <br />
         <label>Remote File Tree</label>
-        <button onclick="remoteFileTree()">
-          Show/Hide
-        </button>
+        <button onclick="remoteFileTree()">Show/Hide</button>
       </div>
     </div>
     <div id="runModal" class="modal">
@@ -184,7 +189,8 @@
         <br /><br />
         <label>C++</label>
         <button onclick="executeCppCode()">Run</button>
-        <br /> <br>
+        <br />
+        <br />
         <label>Remote File</label>
         <button onclick="executeRemoteActiveFile()">Run</button>
       </div>
