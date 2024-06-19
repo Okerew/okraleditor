@@ -35,9 +35,11 @@ function loadExtensions(extensionsPath) {
     }
 }
 
+let mainWindow;
+
 // Function to create the main window
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1400,
         height: 950,
         webPreferences: {
@@ -49,6 +51,22 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
+
+    // Check for command-line arguments after the window is created
+    const args = process.argv.slice(2); // Skip the first argument (path to electron)
+    if (args.length > 0) {
+        const filePath = args[0];
+        openFile(filePath);
+    }
+}
+
+function openFile(filePath) {
+    // Send the file path to the renderer process
+    if (mainWindow) {
+        mainWindow.webContents.on('did-finish-load', () => {
+            mainWindow.webContents.send('file-selected', filePath);
+        });
+    }
 }
 
 // Quit the app when all windows are closed (except on macOS)
