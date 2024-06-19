@@ -1250,7 +1250,7 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
           );
           const editorId = `editor-${Date.now()}`;
           currentFilePath = basePath + dirPath + "/" + itemName;
-          openFileInEditor(fileContent, editorId);
+          openFileInEditor(fileContent, editorId, itemName);
         });
         li.appendChild(button);
       } else if (item.type === "dir") {
@@ -1280,10 +1280,10 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
   }
 }
 
-function openFileInEditor(fileContent, editorId) {
+function openFileInEditor(fileContent, editorId, fileName) {
   const newTab = document.createElement("button");
   newTab.className = "tab";
-  newTab.textContent = "New File";
+  newTab.textContent = fileName; // Use the provided fileName
   newTab.addEventListener("click", switchToTab);
 
   const newEditor = ace.edit(document.createElement("div"));
@@ -1314,6 +1314,7 @@ function openFileInEditor(fileContent, editorId) {
   toggleTheme();
   toggleTheme();
 }
+
 async function executeRemoteActiveFile() {
   if (!currentFilePath) {
     console.error("No current file path");
