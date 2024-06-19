@@ -808,8 +808,7 @@ async function saveToCookie() {
 
   document.cookie = `encryptedConfig=${encodeURIComponent(
     doublyEncryptedConfig
-  )}; expires=${expirationDate.toUTCString()}; path=/;`;
-  ("SameSite=None");
+  )}; expires=${expirationDate.toUTCString()}; path=/; SameSite=None; Secure`;
 
   localStorage.setItem("encryptionKey", key);
 }
@@ -1654,7 +1653,7 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
           );
           const editorId = `editor-${Date.now()}`;
           activeFilePath = basePath + dirPath + "/" + itemName;
-          openFileInEditor(fileContent, editorId);
+          openFileInEditor(fileContent, editorId, itemName);
           return activeFilePath;
         });
         li.appendChild(button);
@@ -1686,10 +1685,10 @@ async function createFileTreeFromServer(dirPath, parentNode, basePath) {
   }
 }
 
-function openFileInEditor(fileContent, editorId) {
+function openFileInEditor(fileContent, editorId, fileName) {
   const newTab = document.createElement("button");
   newTab.className = "tab";
-  newTab.textContent = "New File";
+  newTab.textContent = fileName; // Use the provided fileName
   newTab.addEventListener("click", switchToTab);
 
   const newEditor = ace.edit(document.createElement("div"));
