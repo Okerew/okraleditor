@@ -1,6 +1,5 @@
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
-
 const languageSelect = document.getElementById("language-select");
 
 languageSelect.addEventListener("change", function () {
@@ -1477,20 +1476,18 @@ const config = { attributes: true, childList: true, subtree: true };
 
 let activeTab = document.querySelector(".tab.active");
 
-const callback = function (mutationsList, observer) {
+const callback = function(mutationsList, observer) {
   try {
-    if (activeTab) {
-      const editorId = activeTab.getAttribute("data-editor-id");
-      const activeEditor = ace.edit(editorId);
+    const activeTab = document.querySelector(".tab.active");
+    if (!activeTab) return ;
+
+    const editorId = activeTab.getAttribute("data-editor-id");
+    const activeEditor = ace.edit(editorId);
+
+    if (activeEditor) {
       activeEditor.session.off("change", generateProjectOutline);
     }
-
-    activeTab = document.querySelector(".tab.active");
-    if (activeTab) {
-      const editorId = activeTab.getAttribute("data-editor-id");
-      const activeEditor = ace.edit(editorId);
-      activeEditor.session.on("change", generateProjectOutline);
-    }
+    activeEditor.session.on("change", generateProjectOutline);
   } catch (error) {
     console.error("Error in MutationObserver callback:", error);
   }
