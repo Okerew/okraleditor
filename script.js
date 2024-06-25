@@ -1417,37 +1417,34 @@ function generateProjectOutline() {
 const targetNode = document.body;
 const config = { attributes: true, childList: true, subtree: true };
 
-let activeTab = document.querySelector(".tab.active");
-
-const callback = function(mutationsList, observer) {
+const checkLanguageAndSetCallback = () => {
   try {
     const activeTab = document.querySelector(".tab.active");
-    if (!activeTab) return ;
+    if (!activeTab) return;
 
     const editorId = activeTab.getAttribute("data-editor-id");
     const activeEditor = ace.edit(editorId);
 
     if (activeEditor) {
-      activeEditor.session.off("change", generateProjectOutline);
+      const language = activeEditor.session.getMode().$id;
+      if (language.includes("javascript")) {
+        activeEditor.session.off("change", generateProjectOutline);
+        activeEditor.session.on("change", generateProjectOutline);
+      } else {
+        activeEditor.session.off("change", generateProjectOutline);
+      }
     }
-    activeEditor.session.on("change", generateProjectOutline);
   } catch (error) {
-    console.error("Error in MutationObserver callback:", error);
+    console.error("Error checking language and setting callback:", error);
   }
 };
 
-const observer = new MutationObserver(callback);
-observer.observe(targetNode, config);
+const callback = function(mutationsList, observer) {
+  checkLanguageAndSetCallback();
+};
 
-if (activeTab) {
-  try {
-    const editorId = activeTab.getAttribute("data-editor-id");
-    const activeEditor = ace.edit(editorId);
-    activeEditor.session.on("change", generateProjectOutline);
-  } catch (error) {
-    console.error("Error attaching change event to initial editor:", error);
-  }
-}
+// Check language every second
+setInterval(checkLanguageAndSetCallback, 1000);
 
 function removeStructure() {
   try {
