@@ -9,12 +9,10 @@ self.addEventListener('fetch', function(event) {
 });
 
 function executeJavaScriptCode(jsCode, editorId) {
-  jsCode = jsCode.replace(/eval\s*\(/g, '');
-  jsCode = jsCode.replace(/importScripts\s*\(/g, '');
-  jsCode = jsCode.replace(/document\s*\./g, '');
+  jsCode = sanitizeJavaScriptCode(jsCode);
 
   const functionRegex = /function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(([^)]*)\)\s*{([^]*)}/g;
-
+  
   let match;
   while ((match = functionRegex.exec(jsCode)) !== null) {
     const functionName = match[1].trim();
@@ -27,9 +25,43 @@ function executeJavaScriptCode(jsCode, editorId) {
       console.error(`Error creating function ${functionName}:`, error);
     }
   }
+
+  let result;
+  try {
+    result = new Function(jsCode)();
+  } catch (error) {
+    result = `Error: ${error.message}`;
+  }
+
+  self.postMessage(result);
 }
 
 self.onmessage = function(event) {
   const { jsCode, editorId } = event.data;
   executeJavaScriptCode(jsCode, editorId);
 };
+
+function sanitizeJavaScriptCode(jsCode) {
+  const dangerousPatterns = [
+    /eval\s*\(/g,
+    /importScripts\s*\(/g,
+    /document\s*\./g,
+    /window\s*\./g,
+    /self\s*\./g,
+    /XMLHttpRequest\s*\(/g,
+    /fetch\s*\(/g,
+    /WebSocket\s*\(/g,
+    /Worker\s*\(/g,
+    /navigator\s*\./g,
+    /localStorage\s*\./g,
+    /sessionStorage\s*\./g,
+    /IndexedDB\s*\./g,
+    /postMessage\s*\(/g
+  ];
+
+  dangerousPatterns.forEach(pattern => {
+    jsCode = jsCode.replace(pattern, '');
+  });
+
+  return jsCode;
+}

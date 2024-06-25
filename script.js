@@ -1511,8 +1511,6 @@ if (activeTab) {
 // Check language every second
 setInterval(checkLanguageAndSetCallback, 1000);
 
-
-
 function removeStructure() {
   try {
     const outlineElement = document.getElementById("projectOutline");
