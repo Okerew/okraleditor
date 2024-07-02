@@ -11,9 +11,6 @@ function ensureOceDirectory() {
     if (!fs.existsSync(oceDir)) {
         fs.mkdirSync(oceDir);
     }
-    if (!fs.existsSync(extensionsDir)) {
-        fs.mkdirSync(extensionsDir);
-    }
     if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir);
     }
