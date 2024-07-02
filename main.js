@@ -5,7 +5,6 @@ const os = require('os');
 app.name = 'Okral Editor';
 
 const oceDir = path.join(os.homedir(), 'Documents', 'OCE');
-const extensionsDir = path.join(oceDir, 'Extensions');
 const configDir = path.join(oceDir, 'Config');
 
 function ensureOceDirectory() {
@@ -17,21 +16,6 @@ function ensureOceDirectory() {
     }
     if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir);
-    }
-}
-
-// Function to load extensions from the extensions directory
-function loadExtensions(extensionsPath) {
-    try {
-        fs.readdirSync(extensionsPath).forEach(file => {
-            if (file.endsWith('.js')) {
-                const filePath = path.join(extensionsPath, file);
-                require(filePath);
-                console.log(`Loaded extension script: ${file}`);
-            }
-        });
-    } catch (error) {
-        console.error('Error loading extensions:', error);
     }
 }
 
@@ -79,7 +63,6 @@ app.on('window-all-closed', () => {
 // When the app is ready
 app.whenReady().then(() => {
     ensureOceDirectory();
-    loadExtensions(extensionsDir);
     createWindow();
 
     const menuTemplate = [
