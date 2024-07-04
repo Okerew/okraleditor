@@ -63,19 +63,45 @@ function addTab() {
 
 function switchToTab(event) {
   const tab = event.target;
+  const editorId = tab.getAttribute("data-editor-id");
+  const editor = document.getElementById(editorId);
 
-  document
-      .querySelectorAll(".tab.active")
-      .forEach((tab) => tab.classList.remove("active"));
+  if (splitViewActive) {
+    const leftPane = document.getElementById("left-pane");
+    const rightPane = document.getElementById("right-pane");
+    const activePane = leftPane.contains(editor) ? leftPane : rightPane;
+    const inactivePane = activePane === leftPane ? rightPane : leftPane;
 
-  tab.classList.add("active");
+    // Move the clicked editor to the active pane
+    activePane.innerHTML = "";
+    activePane.appendChild(editor);
+    editor.style.display = "block";
+    ace.edit(editorId).resize();
 
-  document
+    // If there's no editor in the inactive pane, move the next available one there
+    if (inactivePane.children.length === 0) {
+      const nextTab =
+        tab.nextElementSibling || document.querySelector(".tab:first-child");
+      if (nextTab && nextTab !== tab) {
+        const nextEditorId = nextTab.getAttribute("data-editor-id");
+        const nextEditor = document.getElementById(nextEditorId);
+        inactivePane.appendChild(nextEditor);
+        nextEditor.style.display = "block";
+        ace.edit(nextEditorId).resize();
+      }
+    }
+  } else {
+    document
       .querySelectorAll(".ace_editor")
-      .forEach((editor) => (editor.style.display = "none"));
+      .forEach((ed) => (ed.style.display = "none"));
+    editor.style.display = "block";
+    ace.edit(editorId).resize();
+  }
 
-  const activeEditor = ace.edit(tab.getAttribute("data-editor-id"));
-  activeEditor.container.style.display = "block";
+  document
+    .querySelectorAll(".tab.active")
+    .forEach((t) => t.classList.remove("active"));
+  tab.classList.add("active");
 }
 
 function closeTab(event) {
@@ -1394,3 +1420,126 @@ function remoteFileTree() {
     x.style.display = "none";
   }
 }
+
+let splitViewActive = false;
+
+function createSplitViewContainer() {
+  const container = document.createElement("div");
+  container.id = "split-container";
+  container.style.display = "flex";
+  container.style.height = "600px";
+  container.style.width = "100%";
+
+  const leftPane = document.createElement("div");
+  leftPane.id = "left-pane";
+  leftPane.style.flex = "1";
+  leftPane.style.marginRight = "5px";
+
+  const rightPane = document.createElement("div");
+  rightPane.id = "right-pane";
+  rightPane.style.flex = "1";
+  rightPane.style.marginLeft = "5px";
+
+  container.appendChild(leftPane);
+  container.appendChild(rightPane);
+
+  return container;
+}
+
+function toggleSplitView() {
+  const existingContainer = document.getElementById("split-container");
+  const editorContainers = document.querySelectorAll(".ace_editor");
+
+  if (existingContainer) {
+    // Disable split view
+    splitViewActive = false;
+    editorContainers.forEach((editor) => {
+      editor.style.display = "none";
+      document.body.appendChild(editor);
+    });
+    existingContainer.remove();
+    const activeTab = document.querySelector(".tab.active");
+    if (activeTab) {
+      switchToTab({ target: activeTab });
+    }
+  } else {
+    // Enable split view
+    splitViewActive = true;
+    const container = createSplitViewContainer();
+    document.body.appendChild(container);
+    const leftPane = document.getElementById("left-pane");
+    const rightPane = document.getElementById("right-pane");
+
+    // Move the active editor to the left pane
+    const activeTab = document.querySelector(".tab.active");
+    if (activeTab) {
+      const activeEditorId = activeTab.getAttribute("data-editor-id");
+      const activeEditor = document.getElementById(activeEditorId);
+      leftPane.appendChild(activeEditor);
+      activeEditor.style.display = "block";
+      ace.edit(activeEditorId).resize();
+    }
+
+    // Move the next editor (if exists) to the right pane
+    const nextTab =
+      activeTab.nextElementSibling ||
+      document.querySelector(".tab:first-child");
+    if (nextTab && nextTab !== activeTab) {
+      const nextEditorId = nextTab.getAttribute("data-editor-id");
+      const nextEditor = document.getElementById(nextEditorId);
+      rightPane.appendChild(nextEditor);
+      nextEditor.style.display = "block";
+      ace.edit(nextEditorId).resize();
+    }
+  }
+}
+
+let zenModeActive = false;
+
+function toggleZenMode() {
+  zenModeActive = !zenModeActive;
+  const editorContainers = document.querySelectorAll(".ace_editor");
+  const tabBar = document.getElementById("tabBar");
+  const navbar = document.querySelector(".navbar");
+
+  if (zenModeActive) {
+    // Enter Zen mode
+    editorContainers.forEach((editor) => {
+      editor.style.position = "fixed";
+      editor.style.top = "0";
+      editor.style.left = "0";
+      editor.style.width = "100%";
+      editor.style.height = "100%";
+      editor.style.zIndex = "1000";
+    });
+    tabBar.style.display = "none";
+    navbar.style.display = "none";
+  } else {
+    // Exit Zen mode
+    editorContainers.forEach((editor) => {
+      editor.style.position = "";
+      editor.style.top = "";
+      editor.style.left = "";
+      editor.style.width = "99%";
+      editor.style.height = "600px";
+      editor.style.zIndex = "";
+    });
+    tabBar.style.display = "";
+    navbar.style.display = "";
+  }
+
+  // Resize the active editor
+  const activeTab = document.querySelector(".tab.active");
+  if (activeTab) {
+    const editorId = activeTab.getAttribute("data-editor-id");
+    ace.edit(editorId).resize();
+  }
+}
+
+document.addEventListener("keydown", function (e) {
+  // Check for Ctrl+Shift+P (Windows/Linux) or Cmd+Shift+P (macOS)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "P") {
+    e.preventDefault(); // Prevent default browser behavior
+    toggleZenMode();
+  }
+});
