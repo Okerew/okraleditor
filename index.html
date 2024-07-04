@@ -10,7 +10,10 @@
       property="og:description"
       content="Okral Code Editor is a coding editor created by Okerew, with features such as git integration, collab integration, remote servers, basic feautures, syntax highlighting, basic code completion and more."
     />
-    <meta property="og:image" content="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543" />
+    <meta
+      property="og:image"
+      content="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
+    />
 
     <title>Okral Code Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.9/ace.js"></script>
@@ -123,6 +126,12 @@
           class="n_icon"
         />
       </button>
+      <button onclick="toggleSplitView()">
+        <img
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/split-two-svgrepo-com.svg?v=1720117256035"
+          class="n_icon"
+        />
+      </button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -139,6 +148,9 @@
         <br /><br />
         <label>Config</label>
         <button onclick="saveToCookie()">Save</button>
+        <br /><br />
+        <label>Zen</label>
+        <button onclick="toggleZenMode()">Mode</button>
         <br /><br />
         <a href="https://github.com/Okerew/okraleditor/wiki/Keybinds"
           >Keybinds</a
