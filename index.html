@@ -129,6 +129,12 @@
           class="n_icon"
         />
       </button>
+       <button onclick="createDatabaseForm()">
+        <img
+             src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/database-svgrepo-com(1).svg?v=1720206047667"
+             class="n_icon"
+             >
+      </button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -202,6 +208,12 @@
         <br />
         <label>Remote File</label>
         <button onclick="executeRemoteActiveFile()">Run</button>
+        <br>
+        <br>
+        <label>Sql Output</label>
+        <button onclick="sqlOutput()">
+          Show/Hide
+        </button>
       </div>
     </div>
     <div id="gitModal" class="modal">
@@ -239,5 +251,6 @@
       </div>
     </div>
     <div id="output-container"></div>
+      <div id="sqlResultContainer"></div>
   </body>
 </html>
