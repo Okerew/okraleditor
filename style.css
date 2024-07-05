@@ -132,6 +132,11 @@ select:hover {
   box-shadow: 0 0 5px darkgray;
 }
 
+input{
+  border-radius: 8px;
+  padding: 8px 8px;
+}
+
 .n_icon {
   vertical-align: middle;
   width: 24px;
