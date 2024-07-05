@@ -1543,3 +1543,124 @@ document.addEventListener("keydown", function (e) {
     toggleZenMode();
   }
 });
+
+async function executeSqlQuery() {
+  const connectionDetails = getConnectionDetails();
+  const dbConnectionContainer = document.getElementById(
+    "dbConnectionContainer"
+  );
+  dbConnectionContainer.remove();
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  const query = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://sour-relic-railway.glitch.me/execute-sql",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...connectionDetails, query }),
+      }
+    );
+
+    const data = await response.json();
+    console.log("Response from /execute-sql:", data);
+
+    if (data.error) {
+      displaySqlResult(`Error: ${data.error}`);
+    } else {
+      displaySqlResult(JSON.stringify(data.results, null, 2));
+    }
+  } catch (error) {
+    displaySqlResult(`Error: ${error.message}`);
+  }
+}
+
+function getConnectionDetails() {
+  return {
+    host: document.getElementById("dbHost").value,
+    user: document.getElementById("dbUser").value,
+    password: document.getElementById("dbPassword").value,
+    database: document.getElementById("dbName").value,
+    port: document.getElementById("dbPort").value,
+  };
+}
+
+function displaySqlResult(result) {
+  const sqlResultContainer = document.getElementById("sqlResultContainer");
+  sqlResultContainer.innerHTML = "<pre>" + result + "</pre>";
+}
+
+function createDatabaseForm() {
+  const dbContainer = document.createElement("div");
+  dbContainer.id = "dbConnectionContainer";
+
+  const dbHostInput = createInput(
+    "dbHost",
+    "text",
+    "Database Host",
+    "Database Host"
+  );
+  const dbUserInput = createInput(
+    "dbUser",
+    "text",
+    "Database User",
+    "Database User"
+  );
+  const dbPasswordInput = createInput(
+    "dbPassword",
+    "password",
+    "Database Password",
+    "Database Password"
+  );
+  const dbNameInput = createInput(
+    "dbName",
+    "text",
+    "Database Name",
+    "Database Name"
+  );
+  const dbPortInput = createInput("dbPort", "text", "0000", "Database Port");
+
+  const runQueryButton = document.createElement("button");
+  runQueryButton.textContent = "Run SQL Query";
+  runQueryButton.onclick = executeSqlQuery;
+
+  dbContainer.appendChild(dbHostInput);
+  dbContainer.appendChild(document.createElement("br"));
+  dbContainer.appendChild(dbUserInput);
+  dbContainer.appendChild(document.createElement("br"));
+  dbContainer.appendChild(dbPasswordInput);
+  dbContainer.appendChild(document.createElement("br"));
+  dbContainer.appendChild(dbNameInput);
+  dbContainer.appendChild(document.createElement("br"));
+  dbContainer.appendChild(dbPortInput);
+  dbContainer.appendChild(document.createElement("br"));
+  dbContainer.appendChild(runQueryButton);
+
+  document.body.appendChild(dbContainer);
+}
+
+function createInput(id, type, placeholder, label) {
+  const input = document.createElement("input");
+  input.id = id;
+  input.type = type;
+  input.placeholder = placeholder;
+  input.setAttribute("aria-label", label);
+  return input;
+}
+
+function sqlOutput() {
+  var x = document.getElementById("sqlResultContainer");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
