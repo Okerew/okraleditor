@@ -2065,3 +2065,78 @@ function sqlOutput() {
     x.style.display = "none";
   }
 }
+
+function kubernetesOps() {
+  const container = document.createElement("div");
+  container.id = "kubernetesContainer";
+
+  const namespaceInput = createInput("namespace", "text", "Namespace", "Kubernetes Namespace");
+  const resourceTypeSelect = createSelect("resourceType", ["pods", "services", "deployments"], "Resource Type");
+  const operationSelect = createSelect("operation", ["get", "create", "delete"], "Operation");
+  const serverUrlInput = createInput("serverUrlInput", "text", "http:localhost:3000", "Server Url");
+
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Run Operation";
+  submitButton.onclick = executeKubernetesOperation;
+
+  container.appendChild(namespaceInput);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(resourceTypeSelect);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(operationSelect);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(serverUrlInput);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(submitButton);
+
+  document.body.appendChild(container);
+}
+
+function createSelect(id, options, label) {
+  const select = document.createElement("select");
+  select.id = id;
+  select.setAttribute("aria-label", label);
+  options.forEach(option => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option;
+    optionElement.textContent = option;
+    select.appendChild(optionElement);
+  });
+  return select;
+}
+
+async function executeKubernetesOperation() {
+  const namespace = document.getElementById("namespace").value;
+  const resourceType = document.getElementById("resourceType").value;
+  const operation = document.getElementById("operation").value;
+  const serverKubernetesUrl = document.getElementById("serverUrlInput").value;
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  const yaml = activeEditor.getValue();
+
+  try {
+    const response = await fetch(serverKubernetesUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ namespace, resourceType, operation, yaml }),
+    });
+
+    const result = await response.json();
+    displayKubernetesResult(JSON.stringify(result, null, 2));
+  } catch (error) {
+    displayKubernetesResult(`Error: ${error.message}`);
+  }
+}
+
+function displayKubernetesResult(result) {
+  const resultContainer = document.getElementById("kubernetesResultContainer") || document.createElement("div");
+  resultContainer.id = "kubernetesResultContainer";
+  resultContainer.innerHTML = "<pre>" + result + "</pre>";
+  document.body.appendChild(resultContainer);
+}
