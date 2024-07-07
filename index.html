@@ -50,6 +50,7 @@
         <option value="python">Python</option>
         <option value="c_cpp">C++</option>
         <option value="pgsql">Postgres</option>
+        <option value="yaml">Yaml</option>
       </select>
       <button onclick="fileOps()">
         <img
@@ -135,9 +136,12 @@
       </button>
       <button onclick="createDatabaseForm()">
         <img
-             src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/database-svgrepo-com(1).svg?v=1720206047667"
-             class="n_icon"
-             >
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/database-svgrepo-com(1).svg?v=1720206047667"
+          class="n_icon"
+        />
+      </button>
+      <button onclick="kubernetesOps()">
+        <img src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/kubernetes.svg?v=1720371964372" class="n_icon" />
       </button>
     </div>
     <h1>Okral Code Editor</h1>
@@ -212,12 +216,10 @@
         <br />
         <label>Remote File</label>
         <button onclick="executeRemoteActiveFile()">Run</button>
-        <br>
-        <br>
+        <br />
+        <br />
         <label>Sql Output</label>
-        <button onclick="sqlOutput()">
-          Show/Hide
-        </button>
+        <button onclick="sqlOutput()">Show/Hide</button>
       </div>
     </div>
     <div id="gitModal" class="modal">
