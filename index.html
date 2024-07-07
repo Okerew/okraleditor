@@ -58,16 +58,18 @@
     </button>
     <button onclick="toggleSplitView()">
         <img
-          src="icons/split.svg"
-          class="n_icon"
+                src="icons/split.svg"
+                class="n_icon"
         />
     </button>
-         <button onclick="createDatabaseForm()">
-        <img
-             src="icons/database.svg"
-             class="n_icon"
-             >
-      </button>
+        <button onclick="createDatabaseForm()">
+            <img
+                    src="icons/database.svg"
+                    class="n_icon"
+            >
+        </button>
+    <button onclick="kubernetesOps()"><img src="icons/kubernetes.svg" class="n_icon"></button>
+
 </div>
 <br>
 <div class="tabBar" id="tabBar">
@@ -161,11 +163,11 @@
         <br>
         <label>C</label>
         <button onclick="executeCCode()">Run</button>
-          <br>
+        <br>
         <br>
         <label>Sql Output</label>
         <button onclick="sqlOutput()">
-          Show/Hide
+            Show/Hide
         </button>
     </div>
 </div>
@@ -208,6 +210,7 @@
 
 <div id="output-container"></div>
 <div id="file-explorer"></div>
+<div id="kubernetesResultContainer"></div>
 <script src="web_sources/file_ops.js"></script>
 <script src="web_sources/run_code.js"></script>
 <script src="web_sources/load_extensions.js"></script>
