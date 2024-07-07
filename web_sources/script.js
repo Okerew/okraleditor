@@ -81,7 +81,7 @@ function switchToTab(event) {
     // If there's no editor in the inactive pane, move the next available one there
     if (inactivePane.children.length === 0) {
       const nextTab =
-        tab.nextElementSibling || document.querySelector(".tab:first-child");
+          tab.nextElementSibling || document.querySelector(".tab:first-child");
       if (nextTab && nextTab !== tab) {
         const nextEditorId = nextTab.getAttribute("data-editor-id");
         const nextEditor = document.getElementById(nextEditorId);
@@ -92,15 +92,15 @@ function switchToTab(event) {
     }
   } else {
     document
-      .querySelectorAll(".ace_editor")
-      .forEach((ed) => (ed.style.display = "none"));
+        .querySelectorAll(".ace_editor")
+        .forEach((ed) => (ed.style.display = "none"));
     editor.style.display = "block";
     ace.edit(editorId).resize();
   }
 
   document
-    .querySelectorAll(".tab.active")
-    .forEach((t) => t.classList.remove("active"));
+      .querySelectorAll(".tab.active")
+      .forEach((t) => t.classList.remove("active"));
   tab.classList.add("active");
 }
 
@@ -1482,8 +1482,8 @@ function toggleSplitView() {
 
     // Move the next editor (if exists) to the right pane
     const nextTab =
-      activeTab.nextElementSibling ||
-      document.querySelector(".tab:first-child");
+        activeTab.nextElementSibling ||
+        document.querySelector(".tab:first-child");
     if (nextTab && nextTab !== activeTab) {
       const nextEditorId = nextTab.getAttribute("data-editor-id");
       const nextEditor = document.getElementById(nextEditorId);
@@ -1547,7 +1547,7 @@ document.addEventListener("keydown", function (e) {
 async function executeSqlQuery() {
   const connectionDetails = getConnectionDetails();
   const dbConnectionContainer = document.getElementById(
-    "dbConnectionContainer"
+      "dbConnectionContainer"
   );
   dbConnectionContainer.remove();
   const activeTab = document.querySelector(".tab.active");
@@ -1560,14 +1560,14 @@ async function executeSqlQuery() {
 
   try {
     const response = await fetch(
-      "https://sour-relic-railway.glitch.me/execute-sql",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...connectionDetails, query }),
-      }
+        "https://sour-relic-railway.glitch.me/execute-sql",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...connectionDetails, query }),
+        }
     );
 
     const data = await response.json();
@@ -1603,28 +1603,28 @@ function createDatabaseForm() {
   dbContainer.id = "dbConnectionContainer";
 
   const dbHostInput = createInput(
-    "dbHost",
-    "text",
-    "Database Host",
-    "Database Host"
+      "dbHost",
+      "text",
+      "Database Host",
+      "Database Host"
   );
   const dbUserInput = createInput(
-    "dbUser",
-    "text",
-    "Database User",
-    "Database User"
+      "dbUser",
+      "text",
+      "Database User",
+      "Database User"
   );
   const dbPasswordInput = createInput(
-    "dbPassword",
-    "password",
-    "Database Password",
-    "Database Password"
+      "dbPassword",
+      "password",
+      "Database Password",
+      "Database Password"
   );
   const dbNameInput = createInput(
-    "dbName",
-    "text",
-    "Database Name",
-    "Database Name"
+      "dbName",
+      "text",
+      "Database Name",
+      "Database Name"
   );
   const dbPortInput = createInput("dbPort", "text", "0000", "Database Port");
 
@@ -1663,4 +1663,79 @@ function sqlOutput() {
   } else {
     x.style.display = "none";
   }
+}
+
+function kubernetesOps() {
+  const container = document.createElement("div");
+  container.id = "kubernetesContainer";
+
+  const namespaceInput = createInput("namespace", "text", "Namespace", "Kubernetes Namespace");
+  const resourceTypeSelect = createSelect("resourceType", ["pods", "services", "deployments"], "Resource Type");
+  const operationSelect = createSelect("operation", ["get", "create", "delete"], "Operation");
+  const serverUrlInput = createInput("serverUrlInput", "text", "http:localhost:3000", "Server Url");
+
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Run Operation";
+  submitButton.onclick = executeKubernetesOperation;
+
+  container.appendChild(namespaceInput);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(resourceTypeSelect);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(operationSelect);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(serverUrlInput);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(submitButton);
+
+  document.body.appendChild(container);
+}
+
+function createSelect(id, options, label) {
+  const select = document.createElement("select");
+  select.id = id;
+  select.setAttribute("aria-label", label);
+  options.forEach(option => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option;
+    optionElement.textContent = option;
+    select.appendChild(optionElement);
+  });
+  return select;
+}
+
+async function executeKubernetesOperation() {
+  const namespace = document.getElementById("namespace").value;
+  const resourceType = document.getElementById("resourceType").value;
+  const operation = document.getElementById("operation").value;
+  const serverKubernetesUrl = document.getElementById("serverUrlInput").value;
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  const yaml = activeEditor.getValue();
+
+  try {
+    const response = await fetch(serverKubernetesUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ namespace, resourceType, operation, yaml }),
+    });
+
+    const result = await response.json();
+    displayKubernetesResult(JSON.stringify(result, null, 2));
+  } catch (error) {
+    displayKubernetesResult(`Error: ${error.message}`);
+  }
+}
+
+function displayKubernetesResult(result) {
+  const resultContainer = document.getElementById("kubernetesResultContainer") || document.createElement("div");
+  resultContainer.id = "kubernetesResultContainer";
+  resultContainer.innerHTML = "<pre>" + result + "</pre>";
+  document.body.appendChild(resultContainer);
 }
