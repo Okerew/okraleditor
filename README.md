@@ -18,9 +18,10 @@ Pros
 6. The dekstop version is very customizable
 7. It has syntax highlighting, code complietions and error handling built in
 8. It has git support
+9. Database, kubernetes support
+10. Terminal support
 ______________________________________________________________
 Cons
-1. It doesn't have a built in terminal
-2. It doesn't have the range of extensions that vscode for example has
-3. It is not that easy to understaund
-4. It is not that easly configurable as something as vscode or intellij
+1. It doesn't have the range of extensions that vscode for example has
+2. It is not that easy to understaund
+3. It is not that easly configurable as something as vscode or intellij
