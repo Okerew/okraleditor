@@ -1695,9 +1695,9 @@ function createSelect(id, options, label) {
 }
 
 async function executeKubernetesOperation() {
-  const namespace = document.getElementById("namespace").value;
-  const resourceType = document.getElementById("resourceType").value;
-  const operation = document.getElementById("operation").value;
+  const namespace = document.getElementById("namespaceInput").value;
+  const resourceType = document.getElementById("resourceTypeSelect").value;
+  const operation = document.getElementById("operationSelect").value;
   const serverKubernetesUrl = document.getElementById("serverUrlInput").value;
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
