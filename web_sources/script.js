@@ -1739,3 +1739,119 @@ function displayKubernetesResult(result) {
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
 }
+
+function terminal() {
+  var x = document.getElementById("terminal");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+  } else {
+    x.style.display = "block";
+  }
+}
+
+function parseCPP(code) {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  var code = activeEditor.getValue();
+  const outline = [];
+  const lines = code.split('\n');
+
+  lines.forEach((line, index) => {
+    // Very basic parsing, will miss many edge cases
+    if (line.includes('class ')) {
+      const match = line.match(/class\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Class', name: match[1], line: index + 1 });
+      }
+    } else if (line.includes('struct ')) {
+      const match = line.match(/struct\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Struct', name: match[1], line: index + 1 });
+      }
+    } else if (line.match(/\w+\s+\w+\s*\([^)]*\)\s*(?:const)?\s*{/)) {
+      const match = line.match(/(\w+)\s*\(/);
+      if (match) {
+        outline.push({ type: 'Function', name: match[1], line: index + 1 });
+      }
+    }
+  });
+
+  return outline;
+}
+
+function parseRust(code) {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  var code = activeEditor.getValue();
+  const outline = [];
+  const lines = code.split('\n');
+
+  lines.forEach((line, index) => {
+    // Basic parsing, will miss many Rust-specific cases
+    if (line.includes('fn ')) {
+      const match = line.match(/fn\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Function', name: match[1], line: index + 1 });
+      }
+    } else if (line.includes('struct ')) {
+      const match = line.match(/struct\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Struct', name: match[1], line: index + 1 });
+      }
+    } else if (line.includes('enum ')) {
+      const match = line.match(/enum\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Enum', name: match[1], line: index + 1 });
+      }
+    } else if (line.includes('trait ')) {
+      const match = line.match(/trait\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Trait', name: match[1], line: index + 1 });
+      }
+    }
+  });
+
+  return outline;
+}
+
+function parsePython(code) {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  var code = activeEditor.getValue();
+  const outline = [];
+  const lines = code.split('\n');
+  let indentationLevel = 0;
+
+  lines.forEach((line, index) => {
+    const stripped = line.trim();
+    if (stripped.startsWith('def ')) {
+      const match = stripped.match(/def\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Function', name: match[1], line: index + 1, indentation: indentationLevel });
+      }
+    } else if (stripped.startsWith('class ')) {
+      const match = stripped.match(/class\s+(\w+)/);
+      if (match) {
+        outline.push({ type: 'Class', name: match[1], line: index + 1, indentation: indentationLevel });
+      }
+    }
+
+    // Update indentation level
+    if (stripped.endsWith(':')) {
+      indentationLevel++;
+    } else if (line.trim() === '' && lines[index + 1] && lines[index + 1].trim() !== '') {
+      indentationLevel = (lines[index + 1].match(/^\s*/) || [''])[0].length / 4;
+    }
+  });
+
+  return outline;
+}
