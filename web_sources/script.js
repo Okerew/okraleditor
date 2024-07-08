@@ -256,17 +256,6 @@ function closeGitOps() {
   document.getElementById("gitModal").style.display = "none";
 }
 
-function createInput(labelText, inputId, container) {
-  const label = document.createElement("label");
-  label.textContent = labelText;
-
-  const input = document.createElement("input");
-  input.id = inputId;
-  input.type = "text";
-
-  container.appendChild(label);
-  container.appendChild(input);
-}
 
 async function createGitFileTree(dirPath, parentNode, username, repo) {
   const repoUrl = `https://api.github.com/repos/${username}/${repo}/contents${dirPath}`;
@@ -362,8 +351,8 @@ async function loadRepoFiles() {
   const container = document.createElement("div");
   container.id = "fileTreeContainer";
 
-  createInput("GitHub username:", "usernameInput", container);
-  createInput("Repository name:", "repoInput", container);
+  user = createInput("GitHub username:", "usernameInput", container);
+  repo = createInput("Repository name:", "repoInput", container);
 
   container.appendChild(document.createElement("br"));
 
@@ -1602,31 +1591,31 @@ function createDatabaseForm() {
   const dbContainer = document.createElement("div");
   dbContainer.id = "dbConnectionContainer";
 
-  const dbHostInput = createInput(
+  const dbHostInput = createInput2(
       "dbHost",
       "text",
       "Database Host",
       "Database Host"
   );
-  const dbUserInput = createInput(
+  const dbUserInput = createInput2(
       "dbUser",
       "text",
       "Database User",
       "Database User"
   );
-  const dbPasswordInput = createInput(
+  const dbPasswordInput = createInput2(
       "dbPassword",
       "password",
       "Database Password",
       "Database Password"
   );
-  const dbNameInput = createInput(
+  const dbNameInput = createInput2(
       "dbName",
       "text",
       "Database Name",
       "Database Name"
   );
-  const dbPortInput = createInput("dbPort", "text", "0000", "Database Port");
+  const dbPortInput = createInput2("dbPort", "text", "0000", "Database Port");
 
   const runQueryButton = document.createElement("button");
   runQueryButton.textContent = "Run SQL Query";
@@ -1669,10 +1658,10 @@ function kubernetesOps() {
   const container = document.createElement("div");
   container.id = "kubernetesContainer";
 
-  const namespaceInput = createInput("namespace", "text", "Namespace", "Kubernetes Namespace");
-  const resourceTypeSelect = createSelect("resourceType", ["pods", "services", "deployments"], "Resource Type");
-  const operationSelect = createSelect("operation", ["get", "create", "delete"], "Operation");
-  const serverUrlInput = createInput("serverUrlInput", "text", "http:localhost:3000", "Server Url");
+  const namespaceInput = createInput2("namespaceInput", "text", "Kubernetes Namespace", "Namespace");
+  const resourceTypeSelect = createSelect("resourceTypeSelect", ["pods", "services", "deployments"], "Resource Type");
+  const operationSelect = createSelect("operationSelect", ["get", "create", "delete"], "Operation");
+  const serverUrlInput = createInput2("serverUrlInput", "text", "http://localhost:3000", "Server Url");
 
   const submitButton = document.createElement("button");
   submitButton.textContent = "Run Operation";
@@ -1690,6 +1679,7 @@ function kubernetesOps() {
 
   document.body.appendChild(container);
 }
+
 
 function createSelect(id, options, label) {
   const select = document.createElement("select");
@@ -1854,4 +1844,30 @@ function parsePython(code) {
   });
 
   return outline;
+}
+
+function createInput(labelText, inputId, container) {
+  var label = document.createElement("label");
+  label.textContent = labelText;
+  label.setAttribute("for", inputId);
+
+  var input = document.createElement("input");
+  input.setAttribute("type", "text");
+  input.setAttribute("id", inputId);
+  input.setAttribute("name", inputId);
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  // Add a line break for spacing (optional)
+  container.appendChild(document.createElement("br"));
+}
+
+function createInput2(id, type, placeholder, label) {
+  const input = document.createElement("input");
+  input.id = id;
+  input.type = type;
+  input.placeholder = placeholder;
+  input.setAttribute("aria-label", label);
+  return input;
 }
