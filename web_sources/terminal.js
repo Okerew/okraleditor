@@ -88,6 +88,9 @@ function writeToTerminal(data) {
 
 function runCommand(command) {
     clearTerminal();
+
+    const env = Object.assign({}, process.env, { TERM: 'xterm-256color' });
+
     if (command.startsWith('cd ')) {
         const newDirectory = command.slice(3).trim();
         try {
@@ -98,7 +101,7 @@ function runCommand(command) {
         }
         prompt();
     } else {
-        const shell = exec(command, { cwd: currentDirectory, shell: true });
+        const shell = exec(command, { cwd: currentDirectory, env, shell: true });
 
         let output = '';
         shell.stdout.on('data', (data) => {
@@ -116,5 +119,6 @@ function runCommand(command) {
         });
     }
 }
+
 
 initializeTerminal();
