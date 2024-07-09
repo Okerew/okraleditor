@@ -31,7 +31,6 @@ function readDirectory(dirPath, parentNode) {
 
         files.forEach(file => {
             const filePath = path.join(dirPath, file);
-            // Check if it's a directory
             fs.stat(filePath, (err, stats) => {
                 if (err) {
                     console.error(err);
@@ -39,6 +38,8 @@ function readDirectory(dirPath, parentNode) {
                 }
 
                 const li = document.createElement('li');
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'item-container';
 
                 if (stats.isFile()) {
                     const button = document.createElement('button');
@@ -47,32 +48,67 @@ function readDirectory(dirPath, parentNode) {
                         const editorId = `editor-${Date.now()}`;
                         openFolderFile(filePath, editorId);
                     });
-                    li.appendChild(button);
+                    itemContainer.appendChild(button);
                 } else {
-                    li.textContent = file;
-                    li.classList.add('folder');
-                    li.addEventListener('click', () => {
+                    const folderSpan = document.createElement('span');
+                    folderSpan.textContent = file;
+                    folderSpan.classList.add('folder');
+                    folderSpan.addEventListener('click', () => {
                         if (li.classList.contains('expanded')) {
                             li.classList.remove('expanded');
-                            // Collapse folder
-                            while (li.nextElementSibling) {
-                                ul.removeChild(li.nextElementSibling);
-                            }
+                            const childrenToRemove = Array.from(li.children).filter(child => child !== itemContainer);
+                            childrenToRemove.forEach(child => li.removeChild(child));
                         } else {
                             li.classList.add('expanded');
-                            // Expand folder
                             readDirectory(filePath, li);
                         }
                     });
+                    itemContainer.appendChild(folderSpan);
                 }
 
+                const renameButton = document.createElement('button');
+                renameButton.textContent = 'Rename';
+                renameButton.addEventListener('click', () => {
+                    ipcRenderer.send('rename-file', filePath);
+                });
+                itemContainer.appendChild(renameButton);;
+
+                // Add delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    if (confirm(`Are you sure you want to delete ${file}?`)) {
+                        if (stats.isDirectory()) {
+                            fs.rmdir(filePath, { recursive: true }, (err) => {
+                                if (err) {
+                                    console.error(`Error deleting directory ${file}:`, err);
+                                    alert(`Failed to delete directory ${file}`);
+                                } else {
+                                    readDirectory(dirPath, parentNode);
+                                }
+                            });
+                        } else {
+                            fs.unlink(filePath, (err) => {
+                                if (err) {
+                                    console.error(`Error deleting file ${file}:`, err);
+                                    alert(`Failed to delete file ${file}`);
+                                } else {
+                                    readDirectory(dirPath, parentNode);
+                                }
+                            });
+                        }
+                    }
+                });
+                itemContainer.appendChild(deleteButton);
+
+                li.appendChild(itemContainer);
                 ul.appendChild(li);
-                toggleTheme();
-                toggleTheme();
             });
         });
 
         parentNode.appendChild(ul);
+        toggleTheme();
+        toggleTheme();
     });
 }
 
@@ -98,8 +134,8 @@ function openFolderFile(filePath, editorId) {
     newEditor.container.style.marginTop = "10px";
     newEditor.container.style.border = "2px solid #cccccc";
     newEditor.container.style.borderRadius = "5px";
-    newEditor.container.style.fontSize = "15px";
-    newEditor.container.style.fontFamily = "monospace";
+    newEditor.container.style.fontSize = fontSize;
+    newEditor.container.style.fontFamily = fontFamily;
 
     newEditor.container.id = editorId;
 
@@ -172,13 +208,24 @@ function displayFileContent(filePath) {
     newEditor.container.style.marginTop = "10px";
     newEditor.container.style.border = "2px solid #cccccc";
     newEditor.container.style.borderRadius = "5px";
-    newEditor.container.style.fontSize = "15px";
-    newEditor.container.style.fontFamily = "monospace";
+    newEditor.container.style.fontSize = fontSize;
+    newEditor.container.style.fontFamily = fontFamily;
 
 // Assign the unique ID to the editor container
     newEditor.container.id = editorId;
 
-    const extension = path.extname(filePath).slice(1); // Get file extension
+    let pre_extension = path.extname(filePath).slice(1);
+    const fileExtensionMap = {
+        py: 'python',
+        js: 'javascript',
+        kt: 'kotlin',
+        cpp: 'c_cpp',
+        rb: 'ruby',
+        go: 'golang',
+        md: 'markdown'
+    };
+
+    let extension = fileExtensionMap[pre_extension] || pre_extension;
     newEditor.session.setMode(`ace/mode/${extension}`);
     newTab.setAttribute("data-language", extension);
     newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
@@ -315,3 +362,13 @@ function executeActiveFile() {
         console.log(stdout);
     });
 }
+
+ipcRenderer.on('rename-complete', (event, success, error) => {
+    if (success) {
+        console.log('File renamed successfully');
+        openFolderDialog();
+    } else {
+        console.error('Rename error:', error);
+        alert(`Failed to rename file: ${error}`);
+    }
+});
