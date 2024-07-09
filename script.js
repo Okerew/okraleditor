@@ -1404,96 +1404,69 @@ function generateProjectOutline() {
     if (!activeEditor) return;
 
     const editorValue = activeEditor.getValue();
-    let parsed;
-    try {
-      parsed = esprima.parseModule(editorValue, {
-        jsx: true,
-        tolerant: true,
-        loc: true,
-      });
-    } catch (parseError) {
-      console.error("Error parsing the editor content:", parseError);
-      return; // Exit if parsing fails
+    const language = activeEditor.session.getMode().$id;
+
+    let outline;
+    if (language.includes("javascript")) {
+      outline = parseJavaScript(editorValue);
+    } else if (language.includes("c_cpp")) {
+      outline = parseCPP(editorValue);
+    } else if (language.includes("rust")) {
+      outline = parseRust(editorValue);
+    } else if (language.includes("python")) {
+      outline = parsePython(editorValue);
+    } else if (language.includes("go")) {
+        outline = parseGo(editorValue);
+    } else if (language.includes("kotlin")) {
+        outline = parseKotlin(editorValue);
+    } else if (language.includes("jsx")) {
+        outline = parseJavaScript(editorValue);
+    } else {
+      console.log("Unsupported language for outline generation");
+      return;
     }
 
-    const outline = [];
+    displayOutline(outline, activeEditor);
+  } catch (error) {
+    console.error("Error generating project outline:", error);
+  }
+}
 
-    function traverse(node, parent) {
-      try {
-        switch (node.type) {
-          case "FunctionDeclaration":
-            outline.push({
-              type: "Function",
-              name: node.id.name,
-              loc: node.loc,
-            });
-            break;
-          case "ClassDeclaration":
-            outline.push({ type: "Class", name: node.id.name, loc: node.loc });
-            break;
-          case "VariableDeclaration":
-            node.declarations.forEach((decl) => {
-              outline.push({
-                type: "Variable",
-                name: decl.id.name,
-                loc: node.loc,
-              });
-            });
-            break;
-          default:
-            break;
-        }
+function displayOutline(outline, activeEditor) {
+  const outlineElement = document.createElement("div");
+  outlineElement.id = "projectOutline";
 
-        for (let key in node) {
-          if (node[key] && typeof node[key] === "object") {
-            traverse(node[key], node);
-          }
-        }
-      } catch (traverseError) {
-        console.error("Error traversing the AST:", traverseError);
-      }
-    }
-
-    traverse(parsed, null);
-
-    const outlineElement = document.createElement("div");
-    outlineElement.id = "projectOutline";
-
-    outline.forEach((item) => {
-      if (item.loc) {
-        // Ensure item.loc is defined
-        const itemElement = document.createElement("div");
-        itemElement.classList.add("outline-item");
-        itemElement.textContent = `${item.type}: ${item.name}`;
-        itemElement.style.cursor = "pointer";
-        itemElement.onclick = () => {
-          activeEditor.scrollToLine(
+  outline.forEach((item) => {
+    if (item.loc) {
+      const itemElement = document.createElement("div");
+      itemElement.classList.add("outline-item");
+      itemElement.textContent = `${item.type}: ${item.name}`;
+      itemElement.style.cursor = "pointer";
+      itemElement.onclick = () => {
+        activeEditor.scrollToLine(
             item.loc.start.line - 1,
             true,
             true,
             function () {}
-          );
-          activeEditor.gotoLine(
+        );
+        activeEditor.gotoLine(
             item.loc.start.line,
             item.loc.start.column,
             true
-          );
-        };
-        outlineElement.appendChild(itemElement);
-      }
-    });
+        );
+      };
+      outlineElement.appendChild(itemElement);
+    }
+  });
 
-    const existingOutlineElement = document.querySelector("#projectOutline");
-    if (existingOutlineElement) {
-      existingOutlineElement.parentNode.replaceChild(
+  const existingOutlineElement = document.querySelector("#projectOutline");
+  if (existingOutlineElement) {
+    existingOutlineElement.parentNode.replaceChild(
         outlineElement,
         existingOutlineElement
-      );
-    } else {
-      document.body.appendChild(outlineElement);
-    }
-  } catch (error) {
-    console.error("Error generating project outline:", error);
+    );
+  } else {
+    document.body.appendChild(outlineElement);
   }
 }
 
@@ -1510,7 +1483,7 @@ const checkLanguageAndSetCallback = () => {
 
     if (activeEditor) {
       const language = activeEditor.session.getMode().$id;
-      if (language.includes("javascript")) {
+      if (language.includes("javascript") || language.includes("c_cpp") || language.includes("rust") || language.includes("python") || language.includes("golang") || language.includes("kotlin") || language.includes("jsx")) {
         activeEditor.session.off("change", generateProjectOutline);
         activeEditor.session.on("change", generateProjectOutline);
       } else {
@@ -1521,7 +1494,6 @@ const checkLanguageAndSetCallback = () => {
     console.error("Error checking language and setting callback:", error);
   }
 };
-
 const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
@@ -2137,112 +2109,4 @@ function displayKubernetesResult(result) {
   resultContainer.id = "kubernetesResultContainer";
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
-}
-
-
-function parseCPP(code) {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  var code = activeEditor.getValue();
-  const outline = [];
-  const lines = code.split('\n');
-
-  lines.forEach((line, index) => {
-    // Very basic parsing, will miss many edge cases
-    if (line.includes('class ')) {
-      const match = line.match(/class\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Class', name: match[1], line: index + 1 });
-      }
-    } else if (line.includes('struct ')) {
-      const match = line.match(/struct\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Struct', name: match[1], line: index + 1 });
-      }
-    } else if (line.match(/\w+\s+\w+\s*\([^)]*\)\s*(?:const)?\s*{/)) {
-      const match = line.match(/(\w+)\s*\(/);
-      if (match) {
-        outline.push({ type: 'Function', name: match[1], line: index + 1 });
-      }
-    }
-  });
-
-  return outline;
-}
-
-function parseRust(code) {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  var code = activeEditor.getValue();
-  const outline = [];
-  const lines = code.split('\n');
-
-  lines.forEach((line, index) => {
-    // Basic parsing, will miss many Rust-specific cases
-    if (line.includes('fn ')) {
-      const match = line.match(/fn\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Function', name: match[1], line: index + 1 });
-      }
-    } else if (line.includes('struct ')) {
-      const match = line.match(/struct\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Struct', name: match[1], line: index + 1 });
-      }
-    } else if (line.includes('enum ')) {
-      const match = line.match(/enum\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Enum', name: match[1], line: index + 1 });
-      }
-    } else if (line.includes('trait ')) {
-      const match = line.match(/trait\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Trait', name: match[1], line: index + 1 });
-      }
-    }
-  });
-
-  return outline;
-}
-
-function parsePython(code) {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  var code = activeEditor.getValue();
-  const outline = [];
-  const lines = code.split('\n');
-  let indentationLevel = 0;
-
-  lines.forEach((line, index) => {
-    const stripped = line.trim();
-    if (stripped.startsWith('def ')) {
-      const match = stripped.match(/def\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Function', name: match[1], line: index + 1, indentation: indentationLevel });
-      }
-    } else if (stripped.startsWith('class ')) {
-      const match = stripped.match(/class\s+(\w+)/);
-      if (match) {
-        outline.push({ type: 'Class', name: match[1], line: index + 1, indentation: indentationLevel });
-      }
-    }
-
-    // Update indentation level
-    if (stripped.endsWith(':')) {
-      indentationLevel++;
-    } else if (line.trim() === '' && lines[index + 1] && lines[index + 1].trim() !== '') {
-      indentationLevel = (lines[index + 1].match(/^\s*/) || [''])[0].length / 4;
-    }
-  });
-
-  return outline;
 }
