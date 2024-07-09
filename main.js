@@ -5,14 +5,14 @@ const os = require('os');
 app.name = 'Okral Editor';
 
 const oceDir = path.join(os.homedir(), 'Documents', 'OCE');
-const configDir = path.join(oceDir, 'Config');
 const extensionsDir = path.join(oceDir, 'Extensions');
+const configDir = path.join(oceDir, 'Config');
 
 function ensureOceDirectory() {
     if (!fs.existsSync(oceDir)) {
         fs.mkdirSync(oceDir);
     }
-     if (!fs.existsSync(extensionsDir)) {
+    if (!fs.existsSync(extensionsDir)) {
         fs.mkdirSync(extensionsDir);
     }
     if (!fs.existsSync(configDir)) {
@@ -168,5 +168,38 @@ ipcMain.on('open-file-dialog', (event) => {
         }
     }).catch(err => {
         console.log(err);
+    });
+});
+
+ipcMain.on('rename-file', (event, filePath) => {
+    const dir = path.dirname(filePath);
+    const oldName = path.basename(filePath);
+
+    dialog.showSaveDialog(mainWindow, {
+        title: 'Rename File',
+        defaultPath: filePath,
+        buttonLabel: 'Rename'
+    }).then(result => {
+        if (result.canceled || !result.filePath) {
+            mainWindow.webContents.send('rename-complete', false, 'Rename cancelled');
+            return;
+        }
+
+        const newName = path.basename(result.filePath);
+        if (newName === oldName) {
+            mainWindow.webContents.send('rename-complete', false, 'Same name provided, no changes made');
+            return;
+        }
+
+        const newPath = path.join(dir, newName);
+        fs.rename(filePath, newPath, (err) => {
+            if (err) {
+                mainWindow.webContents.send('rename-complete', false, err.message);
+            } else {
+                mainWindow.webContents.send('rename-complete', true);
+            }
+        });
+    }).catch(err => {
+        mainWindow.webContents.send('rename-complete', false, err.message);
     });
 });
