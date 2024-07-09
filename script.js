@@ -1393,7 +1393,6 @@ function loadCodeSnippet() {
 function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
-
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1437,12 +1436,24 @@ function displayOutline(outline, activeEditor) {
   outlineElement.id = "projectOutline";
 
   outline.forEach((item) => {
-    if (item.loc) {
-      const itemElement = document.createElement("div");
-      itemElement.classList.add("outline-item");
+    const itemElement = document.createElement("div");
+    itemElement.classList.add("outline-item");
+
+    if (item.type === 'Error') {
+      // Handle error items
+      itemElement.textContent = `Error: ${item.errorType} - ${item.message}`;
+      itemElement.classList.add("error-item");
+    } else if (item.loc) {
+      // Handle non-error items
       itemElement.textContent = `${item.type}: ${item.name}`;
-      itemElement.style.cursor = "pointer";
-      itemElement.onclick = () => {
+    } else {
+      // Skip items without location information
+      return;
+    }
+
+    itemElement.style.cursor = "pointer";
+    itemElement.onclick = () => {
+      if (item.loc) {
         activeEditor.scrollToLine(
             item.loc.start.line - 1,
             true,
@@ -1454,9 +1465,9 @@ function displayOutline(outline, activeEditor) {
             item.loc.start.column,
             true
         );
-      };
-      outlineElement.appendChild(itemElement);
-    }
+      }
+    };
+    outlineElement.appendChild(itemElement);
   });
 
   const existingOutlineElement = document.querySelector("#projectOutline");
@@ -1494,6 +1505,7 @@ const checkLanguageAndSetCallback = () => {
     console.error("Error checking language and setting callback:", error);
   }
 };
+
 const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
