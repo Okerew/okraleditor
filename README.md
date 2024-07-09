@@ -2,9 +2,9 @@
 
 Created by okerew, website - https://okraleditor.glitch.me/
 ------------------------------------------------------------
-To build desktop version yourself download the electron_app then run setup.py.
+To build desktop version yourself download the electron_app or tauri branch then run setup.py.
 ------------------------------------------------------------
-#Note it was designed for web development, ai was used for some comments, repetetive parts such as creating inputs, selections.
+#Note it was designed for web development, ai was used for some comments
 ----------------------------------
 Pros and cons of Okral Code editor
 -----------------------------------
@@ -17,7 +17,6 @@ Pros
 6. The dekstop version is very customizable
 7. It has syntax highlighting, code completions and error handling built in
 8. It has git support
-9. It has kubernetes support, database support
 ______________________________________________________________
 Cons
 1. It doesn't have a built in terminal
