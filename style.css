@@ -145,3 +145,8 @@ input{
   width: 24px;
   height: 24px;
 }
+
+.error-item {
+  color: red;
+  font-weight: bold;
+}

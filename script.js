@@ -1337,6 +1337,7 @@ function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
 
+
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1347,96 +1348,81 @@ function generateProjectOutline() {
     if (!activeEditor) return;
 
     const editorValue = activeEditor.getValue();
-    let parsed;
-    try {
-      parsed = esprima.parseModule(editorValue, {
-        jsx: true,
-        tolerant: true,
-        loc: true,
-      });
-    } catch (parseError) {
-      console.error("Error parsing the editor content:", parseError);
-      return; // Exit if parsing fails
+    const language = activeEditor.session.getMode().$id;
+
+    let outline;
+    if (language.includes("javascript")) {
+      outline = parseJavaScript(editorValue);
+    } else if (language.includes("c_cpp")) {
+      outline = parseCPP(editorValue);
+    } else if (language.includes("rust")) {
+      outline = parseRust(editorValue);
+    } else if (language.includes("python")) {
+      outline = parsePython(editorValue);
+    } else if (language.includes("go")) {
+        outline = parseGo(editorValue);
+    } else if (language.includes("kotlin")) {
+        outline = parseKotlin(editorValue);
+    } else if (language.includes("jsx")) {
+        outline = parseJavaScript(editorValue);
+    } else {
+      console.log("Unsupported language for outline generation");
+      return;
     }
 
-    const outline = [];
+    displayOutline(outline, activeEditor);
+  } catch (error) {
+    console.error("Error generating project outline:", error);
+  }
+}
 
-    function traverse(node, parent) {
-      try {
-        switch (node.type) {
-          case "FunctionDeclaration":
-            outline.push({
-              type: "Function",
-              name: node.id.name,
-              loc: node.loc,
-            });
-            break;
-          case "ClassDeclaration":
-            outline.push({ type: "Class", name: node.id.name, loc: node.loc });
-            break;
-          case "VariableDeclaration":
-            node.declarations.forEach((decl) => {
-              outline.push({
-                type: "Variable",
-                name: decl.id.name,
-                loc: node.loc,
-              });
-            });
-            break;
-          default:
-            break;
-        }
+function displayOutline(outline, activeEditor) {
+  const outlineElement = document.createElement("div");
+  outlineElement.id = "projectOutline";
 
-        for (let key in node) {
-          if (node[key] && typeof node[key] === "object") {
-            traverse(node[key], node);
-          }
-        }
-      } catch (traverseError) {
-        console.error("Error traversing the AST:", traverseError);
-      }
+  outline.forEach((item) => {
+    const itemElement = document.createElement("div");
+    itemElement.classList.add("outline-item");
+
+    if (item.type === 'Error') {
+      // Handle error items
+      itemElement.textContent = `Error: ${item.errorType} - ${item.message}`;
+      itemElement.classList.add("error-item");
+    } else if (item.loc) {
+      // Handle non-error items
+      itemElement.textContent = `${item.type}: ${item.name}`;
+    } else {
+      // Skip items without location information
+      return;
     }
 
-    traverse(parsed, null);
-
-    const outlineElement = document.createElement("div");
-    outlineElement.id = "projectOutline";
-
-    outline.forEach((item) => {
+    itemElement.style.cursor = "pointer";
+    itemElement.onclick = () => {
       if (item.loc) {
-        // Ensure item.loc is defined
-        const itemElement = document.createElement("div");
-        itemElement.classList.add("outline-item");
-        itemElement.textContent = `${item.type}: ${item.name}`;
-        itemElement.style.cursor = "pointer";
-        itemElement.onclick = () => {
-          activeEditor.scrollToLine(
+        activeEditor.scrollToLine(
             item.loc.start.line - 1,
             true,
             true,
             function () {}
-          );
-          activeEditor.gotoLine(
+        );
+        activeEditor.gotoLine(
             item.loc.start.line,
             item.loc.start.column,
             true
-          );
-        };
-        outlineElement.appendChild(itemElement);
+        );
       }
-    });
+    };
+    outlineElement.appendChild(itemElement);
+  });
 
-    const existingOutlineElement = document.querySelector("#projectOutline");
-    if (existingOutlineElement) {
-      existingOutlineElement.parentNode.replaceChild(
+  const existingOutlineElement = document.querySelector("#projectOutline");
+  if (existingOutlineElement) {
+    existingOutlineElement.parentNode.replaceChild(
         outlineElement,
         existingOutlineElement
-      );
-    } else {
-      document.body.appendChild(outlineElement);
-    }
-  } catch (error) {
-    console.error("Error generating project outline:", error);
+    );
+  } else {
+    document.body.appendChild(outlineElement);
   }
 }
 
@@ -1453,7 +1439,7 @@ const checkLanguageAndSetCallback = () => {
 
     if (activeEditor) {
       const language = activeEditor.session.getMode().$id;
-      if (language.includes("javascript")) {
+      if (language.includes("javascript") || language.includes("c_cpp") || language.includes("rust") || language.includes("python") || language.includes("golang") || language.includes("kotlin") || language.includes("jsx")) {
         activeEditor.session.off("change", generateProjectOutline);
         activeEditor.session.on("change", generateProjectOutline);
       } else {
@@ -1464,6 +1450,7 @@ const checkLanguageAndSetCallback = () => {
     console.error("Error checking language and setting callback:", error);
   }
 };
+
 
 const callback = function(mutationsList, observer) {
   checkLanguageAndSetCallback();
