@@ -10,6 +10,6 @@ def os_function():
 
 
 os_function()
-os.system("git clone https://github.com/Okerew/ace.git ace")
+os.system("git clone https://github.com/Okerew/ace-builds.git ace")
 os.system("yarn add electron-builder --dev")
 os.system("yarn build")
