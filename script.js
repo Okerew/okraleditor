@@ -1,6 +1,5 @@
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
-
 const languageSelect = document.getElementById("language-select");
 
 languageSelect.addEventListener("change", function () {
@@ -883,6 +882,35 @@ function generateRandomKey() {
   return key;
 }
 
+async function executePythonCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://viridian-scratch-relative.glitch.me/execute-python",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing Python code:", error);
+  }
+}
+
 function hideFileTree() {
   const fileTreeContainer = document.getElementById("fileTreeContainer");
   if (fileTreeContainer.style.display === "block") {
@@ -978,6 +1006,35 @@ function restoreWorkspace() {
 }
 
 document.addEventListener("DOMContentLoaded", restoreWorkspace);
+
+async function executeCppCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://magical-daily-shallot.glitch.me/execute-cpp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing C++ code:", error);
+  }
+}
 
 async function pushAllToGithub() {
   const username = prompt("Enter your GitHub username:");
@@ -1336,8 +1393,6 @@ function loadCodeSnippet() {
 function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
-
-
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1451,10 +1506,17 @@ const checkLanguageAndSetCallback = () => {
   }
 };
 
-
-const callback = function(mutationsList, observer) {
+const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
+
+const observer = new MutationObserver(callback);
+observer.observe(targetNode, config);
+
+const activeTab = document.querySelector(".tab.active");
+if (activeTab) {
+  checkLanguageAndSetCallback();
+}
 
 // Check language every second
 setInterval(checkLanguageAndSetCallback, 1000);
@@ -1670,68 +1732,6 @@ function openFileInEditor(fileContent, editorId, fileName) {
   toggleTheme();
 }
 
-async function executePythonCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://viridian-scratch-relative.glitch.me/execute-python",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing Python code:", error);
-  }
-}
-
-async function executeCppCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://magical-daily-shallot.glitch.me/execute-cpp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing C++ code:", error);
-  }
-}
-
 async function executeRemoteActiveFile() {
   if (!activeFilePath) {
     console.error("No active file path");
@@ -1751,16 +1751,12 @@ async function executeRemoteActiveFile() {
     if (result.error) {
       console.error(`Error executing file: ${result.error}`);
     } else {
-      const outputElement = document.createElement("pre");
-      outputElement.textContent = JSON.stringify(result.output, null, 2);
-      document.body.appendChild(outputElement);
+      console.log(result.output);
     }
   } catch (error) {
     console.error("Error executing file:", error);
   }
 }
-
-
 
 function remoteFileTree() {
   var x = document.getElementById("remoteFileTree");
@@ -1807,7 +1803,6 @@ async function saveRemoteActiveFile() {
     console.error("Error saving file:", error);
   }
 }
-
 
 let splitViewActive = false;
 
