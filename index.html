@@ -60,25 +60,31 @@
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/files.svg?v=1718201369975"
           alt="files"
         />
+        Files
       </button>
       <a href="https://okral.glitch.me"
         ><img
           class="n_icon"
           alt="Download"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/7623247_arrow_down_download_essential_download%20icon_icon.png?v=1718119372571"
-      /></a>
+      />
+      Download
+      </a>
       <a href="https://github.com/Okerew/okraleditor/wiki"
         ><img
           class="n_icon"
           alt="Help"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/3937344_help_helpdesk_info_information_question_icon.png?v=1718119337173"
-      /></a>
+      />
+      Help
+      </a>
       <button onclick="openSettings()">
         <img
           class="n_icon"
           alt="settings"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/settings-svgrepo-com.png?v=1718119957148"
         />
+        Settings
       </button>
       <button onclick="runCode()">
         <img
@@ -86,6 +92,7 @@
           alt="run"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/debug-alt-svgrepo-com(1).png?v=1718119788062"
         />
+      Run
       </button>
       <button onclick="gitOps()">
         <img
@@ -93,6 +100,7 @@
           alt="git"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/9041208_git_icon.png?v=1718119096710"
         />
+      Git
       </button>
       <button onclick="loadExtensions()">
         <img
@@ -100,6 +108,7 @@
           alt="extensions"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/add-ons-svgrepo-com.png?v=1718119842796"
         />
+      Extensions
       </button>
       <button onclick="shareWorkspace()">
         <img
@@ -107,6 +116,7 @@
           alt="share"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/share-svgrepo-com.png?v=1718120049222"
         />
+      Share
       </button>
       <button onclick="beautifyCode()">
         <img
@@ -114,6 +124,7 @@
           alt="prettier"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/prettier-svgrepo-com.svg?v=1718120177640"
         />
+      Prettier
       </button>
       <button onclick="connectToCollaborativeServer()">
         <img
@@ -121,6 +132,7 @@
           alt="collab"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/live-share-svgrepo-com.svg?v=1718120045898"
         />
+      Collab
       </button>
       <button onclick="loadCodeSnippet()">
         <img
@@ -128,6 +140,7 @@
           alt="code_snippets"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"
         />
+      Snippets
       </button>
       <button onclick="snapOps()">
         <img
@@ -135,6 +148,7 @@
           alt="editor_snapshot"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"
         />
+      Snapsohts
       </button>
       <button onclick="loadServerFiles()">
         <img
@@ -142,13 +156,7 @@
           class="n_icon"
           alt="remote_server"
         />
-      </button>
-      <button onclick="toggleSplitView()">
-        <img
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/split-two-svgrepo-com.svg?v=1720117256035"
-          class="n_icon"
-          alt="split"
-        />
+      Remote
       </button>
       <button onclick="createDatabaseForm()">
         <img
@@ -156,14 +164,18 @@
           class="n_icon"
           alt="databases"
         />
+         Databases
       </button>
+     
       <button onclick="kubernetesOps()">
         <img
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/kubernetes.svg?v=1720371964372"
           class="n_icon"
           alt="kubernetes"
         />
+        Kubernetes
       </button>
+      
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -187,6 +199,9 @@
         <a href="https://github.com/Okerew/okraleditor/wiki/Keybinds"
           >Keybinds</a
         >
+        <br><br>
+        <label>Split</label>
+        <button onclick="toggleSplitView()">Toggle</button>
       </div>
     </div>
     <div id="fileModal" class="modal">
