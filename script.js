@@ -913,7 +913,6 @@ if (typeof dark_theme == "undefined") {
 }
 
 function shareWorkspace() {
-  // Get the state of all tabs
   const tabsState = [];
   const tabs = document.querySelectorAll(".tab");
   tabs.forEach((tab) => {
@@ -924,56 +923,90 @@ function shareWorkspace() {
     });
   });
 
-  // Generate a unique URL with the state of all tabs
-  const url = new URL(window.location.href);
-  url.searchParams.set("state", JSON.stringify(tabsState));
-
-  prompt("Your workspace", url.toString(), "_blank");
+  fetch(`https://vagabond-vanilla-ziconium.glitch.me/api/share`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tabsState),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const sharedUrl = `${window.location.origin}?id=${data.id}`;
+      prompt("Your workspace URL:", sharedUrl);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Failed to share workspace. Please try again.");
+    });
 }
 
 function restoreWorkspace() {
-  const url = new URL(window.location.href);
-  const state = url.searchParams.get("state");
-  if (state) {
-    const tabsState = JSON.parse(state);
-    tabsState.forEach((tabState, index) => {
-      const newTab = document.createElement("button");
-      newTab.className = "tab";
-      newTab.textContent = `Restored File ${index + 1}`;
-      newTab.addEventListener("click", switchToTab);
-
-      const newEditorContainer = document.createElement("div");
-      newEditorContainer.style.width = "99%";
-      newEditorContainer.style.height = "600px";
-      newEditorContainer.style.border = "1px solid #ccc";
-      newEditorContainer.style.marginTop = "10px";
-      newEditorContainer.style.border = "2px solid #cccccc";
-      newEditorContainer.style.borderRadius = "5px";
-      newEditorContainer.style.fontSize = "15px";
-      newEditorContainer.style.fontFamily = "monospace";
-
-      const newEditor = ace.edit(newEditorContainer);
-      newEditor.setOptions({
-        maxLines: 38,
-        minLines: 38,
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedId = urlParams.get("id");
+  if (sharedId) {
+    fetch(`https://vagabond-vanilla-ziconium.glitch.me/api/restore/${sharedId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((tabsState) => {
+        tabsState.forEach((tabState, index) => {
+          restoreTab(tabState, index);
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert(
+          "Failed to restore workspace. The shared workspace may not exist."
+        );
       });
+  }
+}
 
-      newEditor.setValue(tabState.value);
+function restoreTab(tabState, index) {
+  const newTab = document.createElement("button");
+  newTab.className = "tab";
+  newTab.textContent = `Restored File ${index + 1}`;
+  newTab.addEventListener("click", switchToTab);
 
-      const editorId = `editor-${Date.now()}`;
-      newEditor.container.id = editorId;
-      newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
-      newTab.setAttribute("data-editor-id", editorId);
+  const newEditorContainer = document.createElement("div");
+  newEditorContainer.style.width = "99%";
+  newEditorContainer.style.height = "600px";
+  newEditorContainer.style.border = "1px solid #ccc";
+  newEditorContainer.style.marginTop = "10px";
+  newEditorContainer.style.border = "2px solid #cccccc";
+  newEditorContainer.style.borderRadius = "5px";
+  newEditorContainer.style.fontSize = "15px";
+  newEditorContainer.style.fontFamily = "monospace";
 
-      document.getElementById("tabBar").appendChild(newTab);
-      document.body.appendChild(newEditorContainer);
-      toggleTheme();
-      toggleTheme();
+  const newEditor = ace.edit(newEditorContainer);
+  newEditor.setOptions({
+    maxLines: 38,
+    minLines: 38,
+  });
+  newEditor.setValue(tabState.value);
 
-      if (index === 0) {
-        switchToTab({ target: newTab });
-      }
-    });
+  const editorId = `editor-${Date.now()}`;
+  newEditor.container.id = editorId;
+  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
+  newTab.setAttribute("data-editor-id", editorId);
+
+  document.getElementById("tabBar").appendChild(newTab);
+  document.body.appendChild(newEditorContainer);
+
+  toggleTheme();
+  toggleTheme();
+
+  if (index === 0) {
+    switchToTab({ target: newTab });
   }
 }
 
@@ -1337,7 +1370,6 @@ function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
 
-
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1360,11 +1392,11 @@ function generateProjectOutline() {
     } else if (language.includes("python")) {
       outline = parsePython(editorValue);
     } else if (language.includes("go")) {
-        outline = parseGo(editorValue);
+      outline = parseGo(editorValue);
     } else if (language.includes("kotlin")) {
-        outline = parseKotlin(editorValue);
+      outline = parseKotlin(editorValue);
     } else if (language.includes("jsx")) {
-        outline = parseJavaScript(editorValue);
+      outline = parseJavaScript(editorValue);
     } else {
       console.log("Unsupported language for outline generation");
       return;
@@ -1384,7 +1416,7 @@ function displayOutline(outline, activeEditor) {
     const itemElement = document.createElement("div");
     itemElement.classList.add("outline-item");
 
-    if (item.type === 'Error') {
+    if (item.type === "Error") {
       // Handle error items
       itemElement.textContent = `Error: ${item.errorType} - ${item.message}`;
       itemElement.classList.add("error-item");
@@ -1400,16 +1432,12 @@ function displayOutline(outline, activeEditor) {
     itemElement.onclick = () => {
       if (item.loc) {
         activeEditor.scrollToLine(
-            item.loc.start.line - 1,
-            true,
-            true,
-            function () {}
+          item.loc.start.line - 1,
+          true,
+          true,
+          function () {}
         );
-        activeEditor.gotoLine(
-            item.loc.start.line,
-            item.loc.start.column,
-            true
-        );
+        activeEditor.gotoLine(item.loc.start.line, item.loc.start.column, true);
       }
     };
     outlineElement.appendChild(itemElement);
@@ -1418,8 +1446,8 @@ function displayOutline(outline, activeEditor) {
   const existingOutlineElement = document.querySelector("#projectOutline");
   if (existingOutlineElement) {
     existingOutlineElement.parentNode.replaceChild(
-        outlineElement,
-        existingOutlineElement
+      outlineElement,
+      existingOutlineElement
     );
   } else {
     document.body.appendChild(outlineElement);
@@ -1439,7 +1467,15 @@ const checkLanguageAndSetCallback = () => {
 
     if (activeEditor) {
       const language = activeEditor.session.getMode().$id;
-      if (language.includes("javascript") || language.includes("c_cpp") || language.includes("rust") || language.includes("python") || language.includes("golang") || language.includes("kotlin") || language.includes("jsx")) {
+      if (
+        language.includes("javascript") ||
+        language.includes("c_cpp") ||
+        language.includes("rust") ||
+        language.includes("python") ||
+        language.includes("golang") ||
+        language.includes("kotlin") ||
+        language.includes("jsx")
+      ) {
         activeEditor.session.off("change", generateProjectOutline);
         activeEditor.session.on("change", generateProjectOutline);
       } else {
@@ -1451,8 +1487,7 @@ const checkLanguageAndSetCallback = () => {
   }
 };
 
-
-const callback = function(mutationsList, observer) {
+const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
 
@@ -1760,8 +1795,6 @@ async function executeRemoteActiveFile() {
   }
 }
 
-
-
 function remoteFileTree() {
   var x = document.getElementById("remoteFileTree");
   if (x.style.display === "none") {
@@ -1807,7 +1840,6 @@ async function saveRemoteActiveFile() {
     console.error("Error saving file:", error);
   }
 }
-
 
 let splitViewActive = false;
 
@@ -2057,10 +2089,28 @@ function kubernetesOps() {
   const container = document.createElement("div");
   container.id = "kubernetesContainer";
 
-  const namespaceInput = createInput("namespace", "text", "Namespace", "Kubernetes Namespace");
-  const resourceTypeSelect = createSelect("resourceType", ["pods", "services", "deployments"], "Resource Type");
-  const operationSelect = createSelect("operation", ["get", "create", "delete"], "Operation");
-  const serverUrlInput = createInput("serverUrlInput", "text", "http:localhost:3000", "Server Url");
+  const namespaceInput = createInput(
+    "namespace",
+    "text",
+    "Namespace",
+    "Kubernetes Namespace"
+  );
+  const resourceTypeSelect = createSelect(
+    "resourceType",
+    ["pods", "services", "deployments"],
+    "Resource Type"
+  );
+  const operationSelect = createSelect(
+    "operation",
+    ["get", "create", "delete"],
+    "Operation"
+  );
+  const serverUrlInput = createInput(
+    "serverUrlInput",
+    "text",
+    "http:localhost:3000",
+    "Server Url"
+  );
 
   const submitButton = document.createElement("button");
   submitButton.textContent = "Run Operation";
@@ -2083,7 +2133,7 @@ function createSelect(id, options, label) {
   const select = document.createElement("select");
   select.id = id;
   select.setAttribute("aria-label", label);
-  options.forEach(option => {
+  options.forEach((option) => {
     const optionElement = document.createElement("option");
     optionElement.value = option;
     optionElement.textContent = option;
@@ -2122,7 +2172,9 @@ async function executeKubernetesOperation() {
 }
 
 function displayKubernetesResult(result) {
-  const resultContainer = document.getElementById("kubernetesResultContainer") || document.createElement("div");
+  const resultContainer =
+    document.getElementById("kubernetesResultContainer") ||
+    document.createElement("div");
   resultContainer.id = "kubernetesResultContainer";
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
