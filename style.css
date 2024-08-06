@@ -132,7 +132,7 @@ select:hover {
   box-shadow: 0 0 5px darkgray;
 }
 
-input{
+input {
   border-radius: 8px;
   padding: 8px 8px;
 }
@@ -146,4 +146,45 @@ input{
 .error-item {
   color: red;
   font-weight: bold;
+}
+
+#chat-container {
+  border: 1px solid;
+  padding: 20px;
+  height: 300px;
+  overflow-y: auto;
+}
+#chatbot-user-input {
+  display: block;
+  padding: 10px;
+  width: 100%;
+}
+
+#chatbot-url {
+  width: 98%;
+  padding: 10px;
+  margin-top: 10px;
+}
+#chatbot-send-button {
+  display: block;
+  padding: 10px;
+  bottom: 1px;
+  right: 10px;
+  color: black;
+  background-color:white;
+  cursor: pointer;
+  position: absolute;
+}
+.message {
+  margin-bottom: 10px;
+}
+.prompt {
+  display: inline-block;
+  position: relative;
+  width: 98%;
+}
+
+.send_icon{
+  width: 16px;
+  height: 16px
 }

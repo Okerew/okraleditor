@@ -292,6 +292,11 @@ function toggleTheme(theme) {
     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
+  const areaElements = document.querySelectorAll("textarea");
+  for (const areaElement of areaElements) {
+    areaElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+    areaElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+  }
 }
 
 function setLanguageForActiveTab() {
@@ -1457,7 +1462,7 @@ function generateProjectOutline() {
       console.log("Unsupported language for outline generation");
       return;
     }
-
+    
     displayOutline(outline, activeEditor);
   } catch (error) {
     console.error("Error generating project outline:", error);
@@ -1558,6 +1563,7 @@ if (activeTab) {
 // Check language every second
 setInterval(checkLanguageAndSetCallback, 1000);
 
+
 function removeStructure() {
   try {
     const outlineElement = document.getElementById("projectOutline");
@@ -1639,6 +1645,14 @@ function snapOps() {
 
 function hideSnapOps() {
   document.getElementById("snapshotModal").style.display = "none";
+}
+
+function chatOps() {
+  document.getElementById("chatbotModal").style.display = "block";
+}
+
+function hideChatOps() {
+  document.getElementById("chatbotModal").style.display = "none";
 }
 
 async function loadServerFiles() {
@@ -2179,3 +2193,46 @@ function displayKubernetesResult(result) {
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
 }
+
+async function executeHttpRequests() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  
+  const requestCode = activeEditor.getValue();
+  
+  // Function to send HTTP requests
+  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
+    // Block requests to the config server
+    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
+      console.error('Request blocked: Access to this URL is not allowed');
+      throw new Error('Access to this URL is not allowed');
+    }
+
+    try {
+      const response = await fetch(url, { method, body, headers });
+      const data = await response.json();
+      console.log(`Response from ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Error in request to ${url}:`, error.message);
+      throw error;
+    }
+  }
+
+  // Create and execute the function
+  try {
+    const executeRequests = new Function('sendRequest', `
+      return async function() {
+        ${requestCode}
+      }
+    `)(sendRequest);
+
+    await executeRequests();
+  } catch (error) {
+    console.error("Error executing requests:", error.message);
+  }
+}
+
