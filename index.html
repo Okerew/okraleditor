@@ -67,16 +67,16 @@
           class="n_icon"
           alt="Download"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/7623247_arrow_down_download_essential_download%20icon_icon.png?v=1718119372571"
-      />
-      Download
+        />
+        Download
       </a>
       <a href="https://github.com/Okerew/okraleditor/wiki"
         ><img
           class="n_icon"
           alt="Help"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/3937344_help_helpdesk_info_information_question_icon.png?v=1718119337173"
-      />
-      Help
+        />
+        Help
       </a>
       <button onclick="openSettings()">
         <img
@@ -92,7 +92,7 @@
           alt="run"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/debug-alt-svgrepo-com(1).png?v=1718119788062"
         />
-      Run
+        Run
       </button>
       <button onclick="gitOps()">
         <img
@@ -100,7 +100,7 @@
           alt="git"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/9041208_git_icon.png?v=1718119096710"
         />
-      Git
+        Git
       </button>
       <button onclick="loadExtensions()">
         <img
@@ -108,7 +108,7 @@
           alt="extensions"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/add-ons-svgrepo-com.png?v=1718119842796"
         />
-      Extensions
+        Extensions
       </button>
       <button onclick="shareWorkspace()">
         <img
@@ -116,7 +116,7 @@
           alt="share"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/share-svgrepo-com.png?v=1718120049222"
         />
-      Share
+        Share
       </button>
       <button onclick="beautifyCode()">
         <img
@@ -124,7 +124,7 @@
           alt="prettier"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/prettier-svgrepo-com.svg?v=1718120177640"
         />
-      Prettier
+        Prettier
       </button>
       <button onclick="connectToCollaborativeServer()">
         <img
@@ -132,7 +132,7 @@
           alt="collab"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/live-share-svgrepo-com.svg?v=1718120045898"
         />
-      Collab
+        Collab
       </button>
       <button onclick="loadCodeSnippet()">
         <img
@@ -140,7 +140,7 @@
           alt="code_snippets"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"
         />
-      Snippets
+        Snippets
       </button>
       <button onclick="snapOps()">
         <img
@@ -148,7 +148,7 @@
           alt="editor_snapshot"
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"
         />
-      Snapsohts
+        Snapsohts
       </button>
       <button onclick="loadServerFiles()">
         <img
@@ -156,7 +156,7 @@
           class="n_icon"
           alt="remote_server"
         />
-      Remote
+        Remote
       </button>
       <button onclick="createDatabaseForm()">
         <img
@@ -164,9 +164,9 @@
           class="n_icon"
           alt="databases"
         />
-         Databases
+        Databases
       </button>
-     
+
       <button onclick="kubernetesOps()">
         <img
           src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/kubernetes.svg?v=1720371964372"
@@ -175,7 +175,15 @@
         />
         Kubernetes
       </button>
-      
+
+      <button onclick="chatOps()">
+        <img
+          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/hubot-svgrepo-com.svg?v=1722957656521"
+          class="n_icon"
+          alt="chatbot"
+        />
+        Chatbot
+      </button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -199,7 +207,7 @@
         <a href="https://github.com/Okerew/okraleditor/wiki/Keybinds"
           >Keybinds</a
         >
-        <br><br>
+        <br /><br />
         <label>Split</label>
         <button onclick="toggleSplitView()">Toggle</button>
       </div>
@@ -207,6 +215,9 @@
     <div id="fileModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closefileOps()">&times;</span>
+        <h2>
+          File
+        </h2>
         <label>File</label>
         <input
           type="file"
@@ -231,28 +242,35 @@
     <div id="runModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeRunCode()">&times;</span>
+        <h2>
+          Run
+        </h2>
         <label>HTML</label>
         <button onclick="executeHtmlCode()">Run</button>
-        <br /><br />
+        <br>
         <label>Show/Hide</label>
         <button onclick="htmlOutput()">Output</button>
-        <br /><br />
+        <br />
         <label>Markdown</label>
         <button onclick="runMarkdown()">Run</button>
-        <br /><br />
+        <br />
+        <br>
         <label>JavaScript</label>
         <button onclick="executeCodeInWorker()">Run</button>
-        <br /><br />
+        <br />
         <label>Python</label>
         <button onclick="executePythonCode()">Run</button>
-        <br /><br />
+        <br />
         <label>C++</label>
         <button onclick="executeCppCode()">Run</button>
-        <br />
-        <br />
+        <br>
+        <label>HTTP request</label>
+        <button onclick="executeHttpRequests()">
+          Run
+        </button>
+        <br>
         <label>Remote File</label>
         <button onclick="executeRemoteActiveFile()">Run</button>
-        <br />
         <br />
         <label>Sql Output</label>
         <button onclick="sqlOutput()">Show/Hide</button>
@@ -261,6 +279,9 @@
     <div id="gitModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeGitOps()">&times;</span>
+        <h2>
+          Git
+        </h2>
         <label>Git</label>
         <button onclick="pushToGithub()">Push</button>
         <br /><br />
@@ -280,6 +301,9 @@
     <div id="snippetModal" class="modal">
       <div class="modal-content">
         <span onclick="closeSnipetOps()" class="close">&times;</span>
+        <h2>
+          Snapshots
+        </h2>
         <button onclick="saveCodeSnippet()">Save Snippet</button>
         <h2>Saved Snippets</h2>
         <ul id="snippetList"></ul>
@@ -292,9 +316,42 @@
         <ul id="snapshotList"></ul>
       </div>
     </div>
+    <div id="chatbotModal" class="modal">
+      <div class="modal-content">
+        <span onclick="hideChatOps()" class="close">&times;</span>
+        <h2>Ai Chatbot</h2>
+
+        <div>
+          <textarea
+            placeholder="Enter url of the chatbot server"
+            id="chatbot-url"
+            rows="1"
+          >
+https://3cea9b40-82e9-4c0e-b1b9-50816c1bd3d6-00-1fvj2t34qbik8.worf.replit.dev/chat</textarea
+          >
+          <div id="chat-container"></div>
+          <div class="prompt">
+            <textarea
+              id="chatbot-user-input"
+              rows="2"
+              placeholder="Enter your prompt here..."
+            ></textarea>
+            <button id="chatbot-send-button">
+              Send
+              <img
+                class="send_icon"
+                src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/send-svgrepo-com.svg?v=1722957088895"
+                alt="send"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="output-container"></div>
     <div id="sqlResultContainer"></div>
     <div id="kubernetesResultContainer"></div>
     <script src="parsers.js"></script>
+    <script src="chatbot.js"></script>
   </body>
 </html>
