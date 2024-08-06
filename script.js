@@ -1736,6 +1736,50 @@ async function executePythonCode() {
   }
 }
 
+async function executeHttpRequests() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  
+  const requestCode = activeEditor.getValue();
+  
+  // Function to send HTTP requests
+  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
+    // Block requests to the config server
+    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
+      console.error('Request blocked: Access to this URL is not allowed');
+      throw new Error('Access to this URL is not allowed');
+    }
+
+    try {
+      const response = await fetch(url, { method, body, headers });
+      const data = await response.json();
+      const outputElement = document.createElement("pre");
+      outputElement.textContent = JSON.stringify(url, data, null, 2);
+      document.body.appendChild(outputElement);
+      return data;
+    } catch (error) {
+      console.error(`Error in request to ${url}:`, error.message);
+      throw error;
+    }
+  }
+
+  // Create and execute the function
+  try {
+    const executeRequests = new Function('sendRequest', `
+      return async function() {
+        ${requestCode}
+      }
+    `)(sendRequest);
+
+    await executeRequests();
+  } catch (error) {
+    console.error("Error executing requests:", error.message);
+  }
+}
+
 async function executeCppCode() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
