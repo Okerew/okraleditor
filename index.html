@@ -69,6 +69,8 @@
         </button>
     <button onclick="kubernetesOps()"><img src="icons/kubernetes.svg" class="n_icon" alt="kubernetes"> Kubernetes</button>
     <button onclick="terminal()"><img src="icons/terminal.svg" class="n_icon" alt="terminal">Terminal</button>
+    <button onclick="chatOps()"><img src="icons/chatbot.svg" class="n_icon" alt="chatbot">Chatbot</button>
+    <button onclick="executeDockerOperation()"><img src="icons/docker.svg" class="n_icon" alt="docker"> Docker</button>
 </div>
 <div id="terminal"></div>
 <br>
@@ -167,6 +169,8 @@
         <label>C</label>
         <button onclick="executeCCode()">Run</button>
         <br>
+        <label>HTTP request</label>
+        <button onclick="executeHttpRequests()">Run</button>
         <br>
         <label>Sql Output</label>
         <button onclick="sqlOutput()">
@@ -211,14 +215,50 @@
     </div>
 </div>
 
+<div id="chatbotModal" class="modal">
+    <div class="modal-content">
+        <span onclick="hideChatOps()" class="close">&times;</span>
+        <h2>Ai Chatbot</h2>
+
+        <div>
+          <textarea
+                  placeholder="Enter url of the chatbot server"
+                  id="chatbot-url"
+                  rows="1"
+          >
+https://3cea9b40-82e9-4c0e-b1b9-50816c1bd3d6-00-1fvj2t34qbik8.worf.replit.dev/chat</textarea
+          >
+            <div id="chat-container"></div>
+            <div class="prompt">
+            <textarea
+                    id="chatbot-user-input"
+                    rows="2"
+                    placeholder="Enter your prompt here..."
+            ></textarea>
+                <button id="chatbot-send-button">
+                    Send
+                    <img
+                            class="send_icon"
+                            src="icons/send.svg"
+                            alt="send"
+                    />
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div id="output-container"></div>
 <div id="file-explorer"></div>
 <div id="kubernetesResultContainer"></div>
+<div id="formContainer"></div>
 <script src="web_sources/parsers.js"></script>
 <script src="web_sources/file_ops.js"></script>
 <script src="web_sources/run_code.js"></script>
 <script src="web_sources/terminal.js"></script>
 <script src="libs/ace/src/mode-javascript.js"></script>
 <script src="web_sources/load_extensions.js"></script>
+<script src="web_sources/chatbot.js"></script>
 </body>
 </html>
