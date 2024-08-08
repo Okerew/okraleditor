@@ -1,6 +1,5 @@
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
-
 const languageSelect = document.getElementById("language-select");
 
 languageSelect.addEventListener("change", function () {
@@ -292,6 +291,11 @@ function toggleTheme(theme) {
   for (const ulElement of ulElements) {
     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+  }
+  const areaElements = document.querySelectorAll("textarea");
+  for (const areaElement of areaElements) {
+    areaElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+    areaElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
 }
 
@@ -883,6 +887,35 @@ function generateRandomKey() {
   return key;
 }
 
+async function executePythonCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://viridian-scratch-relative.glitch.me/execute-python",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing Python code:", error);
+  }
+}
+
 function hideFileTree() {
   const fileTreeContainer = document.getElementById("fileTreeContainer");
   if (fileTreeContainer.style.display === "block") {
@@ -1011,6 +1044,35 @@ function restoreTab(tabState, index) {
 }
 
 document.addEventListener("DOMContentLoaded", restoreWorkspace);
+
+async function executeCppCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://magical-daily-shallot.glitch.me/execute-cpp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing C++ code:", error);
+  }
+}
 
 async function pushAllToGithub() {
   const username = prompt("Enter your GitHub username:");
@@ -1369,7 +1431,6 @@ function loadCodeSnippet() {
 function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
-
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1401,7 +1462,7 @@ function generateProjectOutline() {
       console.log("Unsupported language for outline generation");
       return;
     }
-
+    
     displayOutline(outline, activeEditor);
   } catch (error) {
     console.error("Error generating project outline:", error);
@@ -1491,8 +1552,17 @@ const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
 
+const observer = new MutationObserver(callback);
+observer.observe(targetNode, config);
+
+const activeTab = document.querySelector(".tab.active");
+if (activeTab) {
+  checkLanguageAndSetCallback();
+}
+
 // Check language every second
 setInterval(checkLanguageAndSetCallback, 1000);
+
 
 function removeStructure() {
   try {
@@ -1575,6 +1645,14 @@ function snapOps() {
 
 function hideSnapOps() {
   document.getElementById("snapshotModal").style.display = "none";
+}
+
+function chatOps() {
+  document.getElementById("chatbotModal").style.display = "block";
+}
+
+function hideChatOps() {
+  document.getElementById("chatbotModal").style.display = "none";
 }
 
 async function loadServerFiles() {
@@ -1705,112 +1783,6 @@ function openFileInEditor(fileContent, editorId, fileName) {
   toggleTheme();
 }
 
-async function executePythonCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://viridian-scratch-relative.glitch.me/execute-python",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing Python code:", error);
-  }
-}
-
-async function executeHttpRequests() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  
-  const requestCode = activeEditor.getValue();
-  
-  // Function to send HTTP requests
-  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
-    // Block requests to the config server
-    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
-      console.error('Request blocked: Access to this URL is not allowed');
-      throw new Error('Access to this URL is not allowed');
-    }
-
-    try {
-      const response = await fetch(url, { method, body, headers });
-      const data = await response.json();
-      const outputElement = document.createElement("pre");
-      outputElement.textContent = JSON.stringify(url, data, null, 2);
-      document.body.appendChild(outputElement);
-      return data;
-    } catch (error) {
-      console.error(`Error in request to ${url}:`, error.message);
-      throw error;
-    }
-  }
-
-  // Create and execute the function
-  try {
-    const executeRequests = new Function('sendRequest', `
-      return async function() {
-        ${requestCode}
-      }
-    `)(sendRequest);
-
-    await executeRequests();
-  } catch (error) {
-    console.error("Error executing requests:", error.message);
-  }
-}
-
-async function executeCppCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://magical-daily-shallot.glitch.me/execute-cpp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing C++ code:", error);
-  }
-}
-
 async function executeRemoteActiveFile() {
   if (!activeFilePath) {
     console.error("No active file path");
@@ -1830,9 +1802,7 @@ async function executeRemoteActiveFile() {
     if (result.error) {
       console.error(`Error executing file: ${result.error}`);
     } else {
-      const outputElement = document.createElement("pre");
-      outputElement.textContent = JSON.stringify(result.output, null, 2);
-      document.body.appendChild(outputElement);
+      console.log(result.output);
     }
   } catch (error) {
     console.error("Error executing file:", error);
@@ -2223,3 +2193,107 @@ function displayKubernetesResult(result) {
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
 }
+
+async function executeHttpRequests() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  
+  const requestCode = activeEditor.getValue();
+  
+  // Function to send HTTP requests
+  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
+    // Block requests to the config server
+    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
+      console.error('Request blocked: Access to this URL is not allowed');
+      throw new Error('Access to this URL is not allowed');
+    }
+
+    try {
+      const response = await fetch(url, { method, body, headers });
+      const data = await response.json();
+      console.log(`Response from ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Error in request to ${url}:`, error.message);
+      throw error;
+    }
+  }
+
+  // Create and execute the function
+  try {
+    const executeRequests = new Function('sendRequest', `
+      return async function() {
+        ${requestCode}
+      }
+    `)(sendRequest);
+
+    await executeRequests();
+  } catch (error) {
+    console.error("Error executing requests:", error.message);
+  }
+}
+
+async function executeDockerOperation() {
+  const formContainer = document.getElementById('formContainer');
+  formContainer.style.display = 'block';
+
+  if (!formContainer) {
+    console.error("Form container not found in the DOM.");
+    return;
+  }
+
+  // Clear previous content
+  formContainer.innerHTML = '';
+
+  // Create the input and select elements dynamically inside the function
+  const containerInput = createInput('containerInput', 'text', 'Enter container name', 'Container Input');
+  const operationSelect = createSelect('operationSelect', ['start', 'stop', 'remove'], 'Operation Select');
+  const imageInput = createInput('imageInput', 'text', 'Enter image name', 'Image Input');
+  const dockerServerUrlInput = createInput('dockerServerUrl', 'text', 'http://localhost:6749/docker', 'Docker Server Url');
+
+  // Append the elements to the form container
+  formContainer.appendChild(containerInput);
+  formContainer.appendChild(operationSelect);
+  formContainer.appendChild(imageInput);
+  formContainer.appendChild(dockerServerUrlInput);
+
+  const submitButton = document.createElement('button');
+  submitButton.id = 'submitButton';
+  submitButton.textContent = 'Submit';
+  formContainer.appendChild(submitButton);
+
+  const resultContainer = document.createElement('div');
+  resultContainer.id = 'resultContainer';
+  formContainer.appendChild(resultContainer);
+
+  // Event listener for the submit button
+  submitButton.addEventListener('click', async () => {
+    const operation = operationSelect.value;
+    const container = containerInput.value;
+    const image = imageInput.value;
+    const dockerServerUrl = dockerServerUrlInput.value;
+
+    try {
+      const response = await fetch(dockerServerUrl, { // Adjusted to fetch from localhost
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operation, container, image }),
+      });
+
+      const result = await response.json();
+      displayResult(JSON.stringify(result, null, 2));
+    } catch (error) {
+      displayResult(`Error: ${error.message}`);
+    }
+  });
+
+  function displayResult(output) {
+    resultContainer.textContent = output;
+  }
+}
+
