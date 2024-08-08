@@ -2223,3 +2223,64 @@ function displayKubernetesResult(result) {
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
 }
+
+async function executeDockerOperation() {
+  const formContainer = document.getElementById('formContainer');
+  formContainer.style.display = 'block';
+
+  if (!formContainer) {
+    console.error("Form container not found in the DOM.");
+    return;
+  }
+
+  // Clear previous content
+  formContainer.innerHTML = '';
+
+  // Create the input and select elements dynamically inside the function
+  const containerInput = createInput('containerInput', 'text', 'Enter container name', 'Container Input');
+  const operationSelect = createSelect('operationSelect', ['start', 'stop', 'remove'], 'Operation Select');
+  const imageInput = createInput('imageInput', 'text', 'Enter image name', 'Image Input');
+  const dockerServerUrlInput = createInput('dockerServerUrl', 'text', 'http://localhost:6749/docker', 'Docker Server Url');
+
+  // Append the elements to the form container
+  formContainer.appendChild(containerInput);
+  formContainer.appendChild(operationSelect);
+  formContainer.appendChild(imageInput);
+  formContainer.appendChild(dockerServerUrlInput);
+
+  const submitButton = document.createElement('button');
+  submitButton.id = 'submitButton';
+  submitButton.textContent = 'Submit';
+  formContainer.appendChild(submitButton);
+
+  const resultContainer = document.createElement('div');
+  resultContainer.id = 'resultContainer';
+  formContainer.appendChild(resultContainer);
+
+  // Event listener for the submit button
+  submitButton.addEventListener('click', async () => {
+    const operation = operationSelect.value;
+    const container = containerInput.value;
+    const image = imageInput.value;
+    const dockerServerUrl = dockerServerUrlInput.value;
+
+    try {
+      const response = await fetch(dockerServerUrl, { // Adjusted to fetch from localhost
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operation, container, image }),
+      });
+
+      const result = await response.json();
+      displayResult(JSON.stringify(result, null, 2));
+    } catch (error) {
+      displayResult(`Error: ${error.message}`);
+    }
+  });
+
+  function displayResult(output) {
+    resultContainer.textContent = output;
+  }
+}
