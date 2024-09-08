@@ -402,6 +402,7 @@ function executeHtmlCode() {
   outputContainer.appendChild(iframe);
 }
 
+
 function separateScriptTags(htmlCode) {
   const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
 
@@ -435,6 +436,8 @@ function runMarkdown() {
   const outputContainer = document.getElementById("output-container");
   outputContainer.innerHTML = "";
   outputContainer.appendChild(resultDiv);
+
+  applySyntaxHighlighting();
 }
 
 function convertToHtml(markdown) {
@@ -451,12 +454,43 @@ function convertToHtml(markdown) {
     ""
   );
 
+  // Convert markdown to HTML with syntax highlighting placeholders
   return noDataURIImages
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>")
     .replace(/\n- (.*?)\n/g, "<ul><li>$1</li></ul>")
+    // Match code blocks with or without a language identifier
+    .replace(/```(\s*[\w-]*?)\n([\s\S]*?)```/g, (match, lang, code) => {
+      lang = lang.trim() || 'text'; // Default to 'text' if lang is empty or just whitespace
+      // Convert pre to div for Ace.js initialization
+      return `<div class="code-block" data-lang="${lang}">${code}</div>`;
+    })
     .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function applySyntaxHighlighting() {
+  const actual_editor = ace.edit("editor");
+  const currentTheme = actual_editor.getTheme();
+    
+  // Find all code blocks in the output container
+  const codeBlocks = document.querySelectorAll('.code-block');
+  
+  codeBlocks.forEach(block => {
+    const lang = block.getAttribute('data-lang') || 'text'; // Default to 'text'
+
+    // Create an Ace editor instance for each code block
+    const editorDiv = document.createElement('div');
+    editorDiv.style.width = "100%";
+    editorDiv.style.height = "200px";
+    block.replaceWith(editorDiv);  // Replace the <div> containing the code with an Ace editor div
+
+    const editor = ace.edit(editorDiv);
+    editor.setTheme(currentTheme); // Set your preferred Ace theme
+    editor.session.setMode(`ace/mode/${lang}`);
+    editor.setValue(block.textContent.trim(), -1); // Set the code content and move cursor to the start
+    editor.setReadOnly(true); // Make sure the code is not editable
+  });
 }
 
 function loadExtensions() {
@@ -1458,6 +1492,8 @@ function generateProjectOutline() {
       outline = parseKotlin(editorValue);
     } else if (language.includes("jsx")) {
       outline = parseJavaScript(editorValue);
+    } else if (language.includes("markdown")) {
+       runMarkdown();
     } else {
       console.log("Unsupported language for outline generation");
       return;
@@ -1535,6 +1571,7 @@ const checkLanguageAndSetCallback = () => {
         language.includes("python") ||
         language.includes("golang") ||
         language.includes("kotlin") ||
+        language.includes("markdown") ||
         language.includes("jsx")
       ) {
         activeEditor.session.off("change", generateProjectOutline);
