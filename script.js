@@ -1,6 +1,5 @@
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/chrome");
-
 const languageSelect = document.getElementById("language-select");
 
 languageSelect.addEventListener("change", function () {
@@ -293,6 +292,11 @@ function toggleTheme(theme) {
     ulElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
     ulElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
   }
+  const areaElements = document.querySelectorAll("textarea");
+  for (const areaElement of areaElements) {
+    areaElement.style.backgroundColor = isDarkTheme ? "#3b3b3b" : "#e0e0e0";
+    areaElement.style.color = isDarkTheme ? "#dddddd" : "#000000";
+  }
 }
 
 function setLanguageForActiveTab() {
@@ -398,6 +402,7 @@ function executeHtmlCode() {
   outputContainer.appendChild(iframe);
 }
 
+
 function separateScriptTags(htmlCode) {
   const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
 
@@ -431,6 +436,8 @@ function runMarkdown() {
   const outputContainer = document.getElementById("output-container");
   outputContainer.innerHTML = "";
   outputContainer.appendChild(resultDiv);
+
+  applySyntaxHighlighting();
 }
 
 function convertToHtml(markdown) {
@@ -447,12 +454,43 @@ function convertToHtml(markdown) {
     ""
   );
 
+  // Convert markdown to HTML with syntax highlighting placeholders
   return noDataURIImages
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>")
     .replace(/\n- (.*?)\n/g, "<ul><li>$1</li></ul>")
+    // Match code blocks with or without a language identifier
+    .replace(/```(\s*[\w-]*?)\n([\s\S]*?)```/g, (match, lang, code) => {
+      lang = lang.trim() || 'text'; // Default to 'text' if lang is empty or just whitespace
+      // Convert pre to div for Ace.js initialization
+      return `<div class="code-block" data-lang="${lang}">${code}</div>`;
+    })
     .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function applySyntaxHighlighting() {
+  const actual_editor = ace.edit("editor");
+  const currentTheme = actual_editor.getTheme();
+    
+  // Find all code blocks in the output container
+  const codeBlocks = document.querySelectorAll('.code-block');
+  
+  codeBlocks.forEach(block => {
+    const lang = block.getAttribute('data-lang') || 'text'; // Default to 'text'
+
+    // Create an Ace editor instance for each code block
+    const editorDiv = document.createElement('div');
+    editorDiv.style.width = "100%";
+    editorDiv.style.height = "200px";
+    block.replaceWith(editorDiv);  // Replace the <div> containing the code with an Ace editor div
+
+    const editor = ace.edit(editorDiv);
+    editor.setTheme(currentTheme); // Set your preferred Ace theme
+    editor.session.setMode(`ace/mode/${lang}`);
+    editor.setValue(block.textContent.trim(), -1); // Set the code content and move cursor to the start
+    editor.setReadOnly(true); // Make sure the code is not editable
+  });
 }
 
 function loadExtensions() {
@@ -883,6 +921,35 @@ function generateRandomKey() {
   return key;
 }
 
+async function executePythonCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://viridian-scratch-relative.glitch.me/execute-python",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing Python code:", error);
+  }
+}
+
 function hideFileTree() {
   const fileTreeContainer = document.getElementById("fileTreeContainer");
   if (fileTreeContainer.style.display === "block") {
@@ -1011,6 +1078,35 @@ function restoreTab(tabState, index) {
 }
 
 document.addEventListener("DOMContentLoaded", restoreWorkspace);
+
+async function executeCppCode() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+
+  const editorValue = activeEditor.getValue();
+
+  try {
+    const response = await fetch(
+      "https://magical-daily-shallot.glitch.me/execute-cpp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: editorValue }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error("Error executing C++ code:", error);
+  }
+}
 
 async function pushAllToGithub() {
   const username = prompt("Enter your GitHub username:");
@@ -1369,7 +1465,6 @@ function loadCodeSnippet() {
 function closeSnipetOps() {
   document.getElementById("snippetModal").style.display = "none";
 }
-
 function generateProjectOutline() {
   try {
     const activeTab = document.querySelector(".tab.active");
@@ -1397,11 +1492,13 @@ function generateProjectOutline() {
       outline = parseKotlin(editorValue);
     } else if (language.includes("jsx")) {
       outline = parseJavaScript(editorValue);
+    } else if (language.includes("markdown")) {
+       runMarkdown();
     } else {
       console.log("Unsupported language for outline generation");
       return;
     }
-
+    
     displayOutline(outline, activeEditor);
   } catch (error) {
     console.error("Error generating project outline:", error);
@@ -1474,6 +1571,7 @@ const checkLanguageAndSetCallback = () => {
         language.includes("python") ||
         language.includes("golang") ||
         language.includes("kotlin") ||
+        language.includes("markdown") ||
         language.includes("jsx")
       ) {
         activeEditor.session.off("change", generateProjectOutline);
@@ -1491,8 +1589,17 @@ const callback = function (mutationsList, observer) {
   checkLanguageAndSetCallback();
 };
 
+const observer = new MutationObserver(callback);
+observer.observe(targetNode, config);
+
+const activeTab = document.querySelector(".tab.active");
+if (activeTab) {
+  checkLanguageAndSetCallback();
+}
+
 // Check language every second
 setInterval(checkLanguageAndSetCallback, 1000);
+
 
 function removeStructure() {
   try {
@@ -1575,6 +1682,14 @@ function snapOps() {
 
 function hideSnapOps() {
   document.getElementById("snapshotModal").style.display = "none";
+}
+
+function chatOps() {
+  document.getElementById("chatbotModal").style.display = "block";
+}
+
+function hideChatOps() {
+  document.getElementById("chatbotModal").style.display = "none";
 }
 
 async function loadServerFiles() {
@@ -1705,112 +1820,6 @@ function openFileInEditor(fileContent, editorId, fileName) {
   toggleTheme();
 }
 
-async function executePythonCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://viridian-scratch-relative.glitch.me/execute-python",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing Python code:", error);
-  }
-}
-
-async function executeHttpRequests() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  
-  const requestCode = activeEditor.getValue();
-  
-  // Function to send HTTP requests
-  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
-    // Block requests to the config server
-    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
-      console.error('Request blocked: Access to this URL is not allowed');
-      throw new Error('Access to this URL is not allowed');
-    }
-
-    try {
-      const response = await fetch(url, { method, body, headers });
-      const data = await response.json();
-      const outputElement = document.createElement("pre");
-      outputElement.textContent = JSON.stringify(url, data, null, 2);
-      document.body.appendChild(outputElement);
-      return data;
-    } catch (error) {
-      console.error(`Error in request to ${url}:`, error.message);
-      throw error;
-    }
-  }
-
-  // Create and execute the function
-  try {
-    const executeRequests = new Function('sendRequest', `
-      return async function() {
-        ${requestCode}
-      }
-    `)(sendRequest);
-
-    await executeRequests();
-  } catch (error) {
-    console.error("Error executing requests:", error.message);
-  }
-}
-
-async function executeCppCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://magical-daily-shallot.glitch.me/execute-cpp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    const outputElement = document.createElement("pre");
-    outputElement.textContent = JSON.stringify(result, null, 2);
-    document.body.appendChild(outputElement);
-  } catch (error) {
-    console.error("Error executing C++ code:", error);
-  }
-}
-
 async function executeRemoteActiveFile() {
   if (!activeFilePath) {
     console.error("No active file path");
@@ -1830,9 +1839,7 @@ async function executeRemoteActiveFile() {
     if (result.error) {
       console.error(`Error executing file: ${result.error}`);
     } else {
-      const outputElement = document.createElement("pre");
-      outputElement.textContent = JSON.stringify(result.output, null, 2);
-      document.body.appendChild(outputElement);
+      console.log(result.output);
     }
   } catch (error) {
     console.error("Error executing file:", error);
@@ -2224,6 +2231,48 @@ function displayKubernetesResult(result) {
   document.body.appendChild(resultContainer);
 }
 
+async function executeHttpRequests() {
+  const activeTab = document.querySelector(".tab.active");
+  if (!activeTab) return;
+  const editorId = activeTab.getAttribute("data-editor-id");
+  const activeEditor = ace.edit(editorId);
+  if (!activeEditor) return;
+  
+  const requestCode = activeEditor.getValue();
+  
+  // Function to send HTTP requests
+  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
+    // Block requests to the config server
+    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
+      console.error('Request blocked: Access to this URL is not allowed');
+      throw new Error('Access to this URL is not allowed');
+    }
+
+    try {
+      const response = await fetch(url, { method, body, headers });
+      const data = await response.json();
+      console.log(`Response from ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Error in request to ${url}:`, error.message);
+      throw error;
+    }
+  }
+
+  // Create and execute the function
+  try {
+    const executeRequests = new Function('sendRequest', `
+      return async function() {
+        ${requestCode}
+      }
+    `)(sendRequest);
+
+    await executeRequests();
+  } catch (error) {
+    console.error("Error executing requests:", error.message);
+  }
+}
+
 async function executeDockerOperation() {
   const formContainer = document.getElementById('formContainer');
   formContainer.style.display = 'block';
@@ -2284,3 +2333,4 @@ async function executeDockerOperation() {
     resultContainer.textContent = output;
   }
 }
+
