@@ -403,12 +403,13 @@ function executeHtmlCode() {
 }
 
 
+// Separate <script> tags from the HTML
 function separateScriptTags(htmlCode) {
   const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
-
+  
   let htmlContent = htmlCode;
   let scriptContent = "";
-
+  
   htmlCode = htmlCode.replace(scriptRegex, (match, script) => {
     scriptContent += script;
     return "";
@@ -417,6 +418,7 @@ function separateScriptTags(htmlCode) {
   return { htmlContent, scriptContent };
 }
 
+// Run the Markdown conversion
 function runMarkdown() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
@@ -440,6 +442,7 @@ function runMarkdown() {
   applySyntaxHighlighting();
 }
 
+// Convert Markdown to HTML
 function convertToHtml(markdown) {
   const noScripts = markdown.replace(
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
@@ -454,44 +457,45 @@ function convertToHtml(markdown) {
     ""
   );
 
-  // Convert markdown to HTML with syntax highlighting placeholders
+  // Convert markdown to HTML
   return noDataURIImages
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>")
-    .replace(/\n- (.*?)\n/g, "<ul><li>$1</li></ul>")
-    // Match code blocks with or without a language identifier
-    .replace(/```(\s*[\w-]*?)\n([\s\S]*?)```/g, (match, lang, code) => {
-      lang = lang.trim() || 'text'; // Default to 'text' if lang is empty or just whitespace
-      // Convert pre to div for Ace.js initialization
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
+    .replace(/\*(.*?)\*/g, "<em>$1</em>") // Italic
+    .replace(/^###(.*?)(\n|$)/gm, "<h3>$1</h3>") // H3
+    .replace(/^##(.*?)(\n|$)/gm, "<h2>$1</h2>") // H2
+    .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>") // H1
+    .replace(/\n[-*] (.*?)\n/g, "<ul><li>$1</li></ul>") // Bullet list with `-` and `*`
+    .replace(/```(\s*[\w-]*?)\n([\s\S]*?)```/g, (match, lang, code) => { // Code block
+      lang = lang.trim() || 'text';
       return `<div class="code-block" data-lang="${lang}">${code}</div>`;
     })
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
+    .replace(/`([^`]+)`/g, "<code>$1</code>") // Inline code
+    .replace(/\$([^\$]+)\$/g, '<span class="math-inline">$$$1$$</span>'); // Inline math
 }
 
+// Apply syntax highlighting for code blocks using Ace.js
 function applySyntaxHighlighting() {
   const actual_editor = ace.edit("editor");
   const currentTheme = actual_editor.getTheme();
-    
-  // Find all code blocks in the output container
+  
   const codeBlocks = document.querySelectorAll('.code-block');
   
   codeBlocks.forEach(block => {
-    const lang = block.getAttribute('data-lang') || 'text'; // Default to 'text'
+    const lang = block.getAttribute('data-lang') || 'text';
 
-    // Create an Ace editor instance for each code block
     const editorDiv = document.createElement('div');
     editorDiv.style.width = "100%";
     editorDiv.style.height = "100px";
-    block.replaceWith(editorDiv);  // Replace the <div> containing the code with an Ace editor div
+    block.replaceWith(editorDiv);
 
     const editor = ace.edit(editorDiv);
-    editor.setTheme(currentTheme); // Set your preferred Ace theme
+    editor.setTheme(currentTheme);
     editor.session.setMode(`ace/mode/${lang}`);
-    editor.setValue(block.textContent.trim(), -1); // Set the code content and move cursor to the start
-    editor.setReadOnly(true); // Make sure the code is not editable
+    editor.setValue(block.textContent.trim(), -1);
+    editor.setReadOnly(true);
   });
 }
+
 
 function loadExtensions() {
   var username = "Okerew";
