@@ -482,7 +482,7 @@ function applySyntaxHighlighting() {
     // Create an Ace editor instance for each code block
     const editorDiv = document.createElement('div');
     editorDiv.style.width = "100%";
-    editorDiv.style.height = "200px";
+    editorDiv.style.height = "100px";
     block.replaceWith(editorDiv);  // Replace the <div> containing the code with an Ace editor div
 
     const editor = ace.edit(editorDiv);
