@@ -990,8 +990,8 @@ function generateProjectOutline() {
         outline = parseKotlin(editorValue);
     } else if (language.includes("jsx")) {
       outline = parseJavaScript(editorValue);
-    }else if (language.includes("ts")) {
-      outline = parseTypeScript(editorValue);
+    } else if (language.includes("markdown")) {
+      runMarkdown();
     } else {
       console.log("Unsupported language for outline generation");
       return;
@@ -1066,7 +1066,7 @@ const checkLanguageAndSetCallback = () => {
 
     if (activeEditor) {
       const language = activeEditor.session.getMode().$id;
-      if (language.includes("javascript") || language.includes("c_cpp") || language.includes("rust") || language.includes("python") || language.includes("golang") || language.includes("kotlin") || language.includes("jsx")) {
+      if (language.includes("javascript") || language.includes("c_cpp") || language.includes("rust") || language.includes("python") || language.includes("golang") || language.includes("kotlin") || language.includes("jsx") || language.includes("markdown")) {
         activeEditor.session.off("change", generateProjectOutline);
         activeEditor.session.on("change", generateProjectOutline);
       } else {
