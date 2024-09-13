@@ -110,6 +110,22 @@ function executeHtmlCode() {
     outputContainer.appendChild(resultDiv);
 }
 
+// Separate <script> tags from the HTML
+function separateScriptTags(htmlCode) {
+    const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gm;
+
+    let htmlContent = htmlCode;
+    let scriptContent = "";
+
+    htmlCode = htmlCode.replace(scriptRegex, (match, script) => {
+        scriptContent += script;
+        return "";
+    });
+
+    return { htmlContent, scriptContent };
+}
+
+// Run the Markdown conversion
 function runMarkdown() {
     const activeTab = document.querySelector(".tab.active");
     if (!activeTab) return;
@@ -118,7 +134,10 @@ function runMarkdown() {
     const activeEditor = ace.edit(editorId);
     const editorValue = activeEditor.getValue();
 
-    const convertedHtml = convertToHtml(editorValue);
+    // Sanitize Markdown content before conversion
+    const sanitizedMarkdown = DOMPurify.sanitize(editorValue);
+
+    const convertedHtml = convertToHtml(sanitizedMarkdown);
 
     const resultDiv = document.createElement("div");
     resultDiv.innerHTML = convertedHtml;
@@ -126,16 +145,64 @@ function runMarkdown() {
     const outputContainer = document.getElementById("output-container");
     outputContainer.innerHTML = "";
     outputContainer.appendChild(resultDiv);
+
+    applySyntaxHighlighting();
 }
 
+// Convert Markdown to HTML
 function convertToHtml(markdown) {
-    return markdown
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^#(.*?)(\n|$)/gm, '<h1>$1</h1>')
-        .replace(/\n- (.*?)\n/g, '<ul><li>$1</li></ul>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    const noScripts = markdown.replace(
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        ""
+    );
+    const noJavaScriptLinks = noScripts.replace(
+        /\bhttps?:\/\/\S+\bjavascript:/gi,
+        ""
+    );
+    const noDataURIImages = noJavaScriptLinks.replace(
+        /\bdata:image\/\S+;base64,\S+/gi,
+        ""
+    );
+
+    // Convert markdown to HTML
+    return noDataURIImages
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
+        .replace(/\*(.*?)\*/g, "<em>$1</em>") // Italic
+        .replace(/^###(.*?)(\n|$)/gm, "<h3>$1</h3>") // H3
+        .replace(/^##(.*?)(\n|$)/gm, "<h2>$1</h2>") // H2
+        .replace(/^#(.*?)(\n|$)/gm, "<h1>$1</h1>") // H1
+        .replace(/\n[-*] (.*?)\n/g, "<ul><li>$1</li></ul>") // Bullet list with `-` and `*`
+        .replace(/```(\s*[\w-]*?)\n([\s\S]*?)```/g, (match, lang, code) => { // Code block
+            lang = lang.trim() || 'text';
+            return `<div class="code-block" data-lang="${lang}">${code}</div>`;
+        })
+        .replace(/`([^`]+)`/g, "<code>$1</code>") // Inline code
+        .replace(/\$([^\$]+)\$/g, '<span class="math-inline">$$$1$$</span>'); // Inline math
 }
+
+// Apply syntax highlighting for code blocks using Ace.js
+function applySyntaxHighlighting() {
+    const actual_editor = ace.edit("editor");
+    const currentTheme = actual_editor.getTheme();
+
+    const codeBlocks = document.querySelectorAll('.code-block');
+
+    codeBlocks.forEach(block => {
+        const lang = block.getAttribute('data-lang') || 'text';
+
+        const editorDiv = document.createElement('div');
+        editorDiv.style.width = "100%";
+        editorDiv.style.height = "100px";
+        block.replaceWith(editorDiv);
+
+        const editor = ace.edit(editorDiv);
+        editor.setTheme(currentTheme);
+        editor.session.setMode(`ace/mode/${lang}`);
+        editor.setValue(block.textContent.trim(), -1);
+        editor.setReadOnly(true);
+    });
+}
+
 
 function executeGoCode() {
     const activeTab = document.querySelector(".tab.active");
