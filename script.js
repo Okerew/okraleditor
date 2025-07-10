@@ -925,35 +925,6 @@ function generateRandomKey() {
   return key;
 }
 
-async function executePythonCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://viridian-scratch-relative.glitch.me/execute-python",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    console.log(result);
-  } catch (error) {
-    console.error("Error executing Python code:", error);
-  }
-}
-
 function hideFileTree() {
   const fileTreeContainer = document.getElementById("fileTreeContainer");
   if (fileTreeContainer.style.display === "block") {
@@ -981,135 +952,6 @@ if (typeof light_theme == "undefined") {
 
 if (typeof dark_theme == "undefined") {
   dark_theme = "monokai";
-}
-
-function shareWorkspace() {
-  const tabsState = [];
-  const tabs = document.querySelectorAll(".tab");
-  tabs.forEach((tab) => {
-    const editorId = tab.getAttribute("data-editor-id");
-    const editor = ace.edit(editorId);
-    tabsState.push({
-      value: editor.getValue(),
-    });
-  });
-
-  fetch(`https://vagabond-vanilla-ziconium.glitch.me/api/share`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(tabsState),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const sharedUrl = `${window.location.origin}?id=${data.id}`;
-      prompt("Your workspace URL:", sharedUrl);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("Failed to share workspace. Please try again.");
-    });
-}
-
-function restoreWorkspace() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const sharedId = urlParams.get("id");
-  if (sharedId) {
-    fetch(`https://vagabond-vanilla-ziconium.glitch.me/api/restore/${sharedId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((tabsState) => {
-        tabsState.forEach((tabState, index) => {
-          restoreTab(tabState, index);
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert(
-          "Failed to restore workspace. The shared workspace may not exist."
-        );
-      });
-  }
-}
-
-function restoreTab(tabState, index) {
-  const newTab = document.createElement("button");
-  newTab.className = "tab";
-  newTab.textContent = `Restored File ${index + 1}`;
-  newTab.addEventListener("click", switchToTab);
-
-  const newEditorContainer = document.createElement("div");
-  newEditorContainer.style.width = "99%";
-  newEditorContainer.style.height = "600px";
-  newEditorContainer.style.border = "1px solid #ccc";
-  newEditorContainer.style.marginTop = "10px";
-  newEditorContainer.style.border = "2px solid #cccccc";
-  newEditorContainer.style.borderRadius = "5px";
-  newEditorContainer.style.fontSize = "15px";
-  newEditorContainer.style.fontFamily = "monospace";
-
-  const newEditor = ace.edit(newEditorContainer);
-  newEditor.setOptions({
-    maxLines: 38,
-    minLines: 38,
-  });
-  newEditor.setValue(tabState.value);
-
-  const editorId = `editor-${Date.now()}`;
-  newEditor.container.id = editorId;
-  newEditor.setKeyboardHandler(`ace/keyboard/${keyboard_mode}`);
-  newTab.setAttribute("data-editor-id", editorId);
-
-  document.getElementById("tabBar").appendChild(newTab);
-  document.body.appendChild(newEditorContainer);
-
-  toggleTheme();
-  toggleTheme();
-
-  if (index === 0) {
-    switchToTab({ target: newTab });
-  }
-}
-
-document.addEventListener("DOMContentLoaded", restoreWorkspace);
-
-async function executeCppCode() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-
-  const editorValue = activeEditor.getValue();
-
-  try {
-    const response = await fetch(
-      "https://magical-daily-shallot.glitch.me/execute-cpp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: editorValue }),
-      }
-    );
-
-    const result = await response.json();
-    console.log(result);
-  } catch (error) {
-    console.error("Error executing C++ code:", error);
-  }
 }
 
 async function pushAllToGithub() {
@@ -1285,105 +1127,7 @@ function connectToCollaborativeServer() {
       console.error(error);
     });
 }
-
-function appendImageToTab() {
-  const activeTab = document.querySelector(".tab.active");
-  if (activeTab) {
-    const fileName = activeTab.textContent.trim();
-    const fileExtension = fileName.split(".").pop().toLowerCase();
-
-    let imageSrc = "";
-    switch (fileExtension) {
-      case "py":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/python-icon.png?v=1718043792751";
-        break;
-      case "js":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/javascript-icon.png?v=1718043790844";
-        break;
-      case "html":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/html-icon.png?v=1718043786000";
-        break;
-      case "css":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/css-icon.png?v=1718043787317";
-        break;
-      case "json":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/json-icon.png?v=1718043776075";
-        break;
-      case "md":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/markdown-icon.png?v=1718043796183";
-        break;
-      case "jsx":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/jsx-icon.png?v=1718043816791";
-        break;
-      case "php":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/php-icon.png?v=1718044475075";
-        break;
-      case "cpp":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/cpp-icon.png?v=1718043827762";
-        break;
-      case "sql":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/sql-icon.png?v=1718043813734";
-        break;
-      case "dockerfile":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/docker-icon.png?v=1718043784184";
-        break;
-      case "mysql":
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/mysql-icon.png?v=1718043811298";
-        break;
-      default:
-        imageSrc =
-          "https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/default.png?v=1718043794435";
-        break;
-    }
-
-    const img = document.createElement("img");
-    img.src = imageSrc;
-    img.alt = `${fileExtension} icon`;
-    img.style.width = "16px";
-    img.style.height = "16px";
-
-    // Clear previous images
-    const previousImg = activeTab.querySelector("img");
-    if (previousImg) {
-      previousImg.remove();
-    }
-
-    activeTab.appendChild(img);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (
-        mutation.type === "attributes" &&
-        mutation.attributeName === "class"
-      ) {
-        appendImageToTab();
-      }
-    });
-  });
-
-  const config = {
-    attributes: true,
-    subtree: true,
-    attributeFilter: ["class"],
-  };
-  observer.observe(document, config);
-});
-
+ 
 function saveCodeSnippet() {
   const activeTab = document.querySelector(".tab.active");
   if (!activeTab) return;
@@ -2020,6 +1764,7 @@ document.addEventListener("keydown", function (e) {
 });
 
 async function executeSqlQuery() {
+  const sqlServerConnector = document.getElementById("sqlServerConnector");
   const connectionDetails = getConnectionDetails();
   const dbConnectionContainer = document.getElementById(
     "dbConnectionContainer"
@@ -2035,7 +1780,7 @@ async function executeSqlQuery() {
 
   try {
     const response = await fetch(
-      "https://sour-relic-railway.glitch.me/execute-sql",
+      `${sqlServerConnector.value}/execute-sql`,
       {
         method: "POST",
         headers: {
@@ -2077,6 +1822,13 @@ function createDatabaseForm() {
   const dbContainer = document.createElement("div");
   dbContainer.id = "dbConnectionContainer";
 
+  const sqlServerConnectorInput = createInput(
+    "sqlServerConnector",
+    "text",
+    "SQL Server Connector URL",
+    "SQL Server Connector URL"
+  );
+
   const dbHostInput = createInput(
     "dbHost",
     "text",
@@ -2107,6 +1859,8 @@ function createDatabaseForm() {
   runQueryButton.textContent = "Run SQL Query";
   runQueryButton.onclick = executeSqlQuery;
 
+  dbContainer.appendChild(sqlServerConnectorInput);
+  dbContainer.appendChild(document.createElement("br"));
   dbContainer.appendChild(dbHostInput);
   dbContainer.appendChild(document.createElement("br"));
   dbContainer.appendChild(dbUserInput);
@@ -2233,48 +1987,6 @@ function displayKubernetesResult(result) {
   resultContainer.id = "kubernetesResultContainer";
   resultContainer.innerHTML = "<pre>" + result + "</pre>";
   document.body.appendChild(resultContainer);
-}
-
-async function executeHttpRequests() {
-  const activeTab = document.querySelector(".tab.active");
-  if (!activeTab) return;
-  const editorId = activeTab.getAttribute("data-editor-id");
-  const activeEditor = ace.edit(editorId);
-  if (!activeEditor) return;
-  
-  const requestCode = activeEditor.getValue();
-  
-  // Function to send HTTP requests
-  async function sendRequest(url, method = 'GET', body = null, headers = {}) {
-    // Block requests to the config server
-    if (url.includes('https://candle-cheerful-warlock.glitch.me')) {
-      console.error('Request blocked: Access to this URL is not allowed');
-      throw new Error('Access to this URL is not allowed');
-    }
-
-    try {
-      const response = await fetch(url, { method, body, headers });
-      const data = await response.json();
-      console.log(`Response from ${url}:`, data);
-      return data;
-    } catch (error) {
-      console.error(`Error in request to ${url}:`, error.message);
-      throw error;
-    }
-  }
-
-  // Create and execute the function
-  try {
-    const executeRequests = new Function('sendRequest', `
-      return async function() {
-        ${requestCode}
-      }
-    `)(sendRequest);
-
-    await executeRequests();
-  } catch (error) {
-    console.error("Error executing requests:", error.message);
-  }
 }
 
 async function executeDockerOperation() {
