@@ -25,14 +25,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/esprima@4.0.1/dist/esprima.min.js"></script>
-    <script src="/script.js" defer></script>
-    <link rel="stylesheet" href="style.css" />
+    
+    <script src="script_editor.js" defer></script>
+    <link rel="stylesheet" href="style_editor.css" />
     <link
       rel="icon"
       href="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/bitmap.png?v=1712415155543"
     />
   </head>
   <body>
+     <a href="index.html">Back to okral page</a>
     <div class="navbar">
       <select id="language-select">
         <option value="text">Select a language</option>
@@ -55,136 +57,53 @@
         <option value="kotlin">Kotlin</option>
       </select>
       <button onclick="fileOps()">
-        <img
-          class="n_icon"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/files.svg?v=1718201369975"
-          alt="files"
-        />
         Files
       </button>
-      <a href="https://okral.glitch.me"
-        ><img
-          class="n_icon"
-          alt="Download"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/7623247_arrow_down_download_essential_download%20icon_icon.png?v=1718119372571"
-        />
+      <a href="index.html">
         Download
       </a>
-      <a href="https://github.com/Okerew/okraleditor/wiki"
-        ><img
-          class="n_icon"
-          alt="Help"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/3937344_help_helpdesk_info_information_question_icon.png?v=1718119337173"
-        />
+      <a href="https://github.com/Okerew/okraleditor/wiki">
         Help
       </a>
       <button onclick="openSettings()">
-        <img
-          class="n_icon"
-          alt="settings"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/settings-svgrepo-com.png?v=1718119957148"
-        />
         Settings
       </button>
       <button onclick="runCode()">
-        <img
-          class="n_icon"
-          alt="run"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/debug-alt-svgrepo-com(1).png?v=1718119788062"
-        />
         Run
       </button>
       <button onclick="gitOps()">
-        <img
-          class="n_icon"
-          alt="git"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/9041208_git_icon.png?v=1718119096710"
-        />
         Git
       </button>
       <button onclick="loadExtensions()">
-        <img
-          class="n_icon"
-          alt="extensions"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/add-ons-svgrepo-com.png?v=1718119842796"
-        />
         Extensions
       </button>
-      <button onclick="shareWorkspace()">
-        <img
-          class="n_icon"
-          alt="share"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/share-svgrepo-com.png?v=1718120049222"
-        />
-        Share
-      </button>
       <button onclick="beautifyCode()">
-        <img
-          class="n_icon"
-          alt="prettier"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/prettier-svgrepo-com.svg?v=1718120177640"
-        />
         Prettier
       </button>
       <button onclick="connectToCollaborativeServer()">
-        <img
-          class="n_icon"
-          alt="collab"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/live-share-svgrepo-com.svg?v=1718120045898"
-        />
         Collab
       </button>
       <button onclick="loadCodeSnippet()">
-        <img
-          class="n_icon"
-          alt="code_snippets"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snippets.svg?v=1718125931651"
-        />
         Snippets
       </button>
       <button onclick="snapOps()">
-        <img
-          class="n_icon"
-          alt="editor_snapshot"
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/snapshot.svg?v=1718219860500"
-        />
         Snapsohts
       </button>
       <button onclick="loadServerFiles()">
-        <img
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/remote-svgrepo-com.svg?v=1718630857189"
-          class="n_icon"
-          alt="remote_server"
-        />
         Remote
       </button>
       <button onclick="createDatabaseForm()">
-        <img
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/database-svgrepo-com(1).svg?v=1720206047667"
-          class="n_icon"
-          alt="databases"
-        />
         Databases
       </button>
 
       <button onclick="kubernetesOps()">
-        <img
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/kubernetes.svg?v=1720371964372"
-          class="n_icon"
-          alt="kubernetes"
-        />
         Kubernetes
       </button>
 
       <button onclick="chatOps()">
-        <img
-          src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/hubot-svgrepo-com.svg?v=1722957656521"
-          class="n_icon"
-          alt="chatbot"
-        />
         Chatbot
       </button>
-      <button onclick="executeDockerOperation()"><img src="https://cdn.glitch.global/08dad197-ffa7-4cdd-b579-683ad1281936/docker.svg?v=1723136091344" class="n_icon" alt="docker"> Docker</button>
+      <button onclick="executeDockerOperation()">Docker</button>
     </div>
     <h1>Okral Code Editor</h1>
     <div class="tabBar" id="tabBar">
@@ -258,17 +177,6 @@
         <br>
         <label>JavaScript</label>
         <button onclick="executeCodeInWorker()">Run</button>
-        <br />
-        <label>Python</label>
-        <button onclick="executePythonCode()">Run</button>
-        <br />
-        <label>C++</label>
-        <button onclick="executeCppCode()">Run</button>
-        <br>
-        <label>HTTP request</label>
-        <button onclick="executeHttpRequests()">
-          Run
-        </button>
         <br>
         <label>Remote File</label>
         <button onclick="executeRemoteActiveFile()">Run</button>
